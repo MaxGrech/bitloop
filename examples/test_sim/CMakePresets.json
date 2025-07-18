@@ -1,0 +1,35 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "ninja",
+      "displayName": "Ninja (LLVM)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "BITLOOP_SOURCE_DIR": "${sourceDir}/../../framework",
+        "BITLOOP_BINARY_DIR": "${sourceDir}/../../framework/build/ninja"
+      }
+    },
+    {
+      "name": "vs2022",
+      "displayName": "Visual Studio 2022",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/build-vs2022",
+      "cacheVariables": {
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "BITLOOP_SOURCE_DIR": "${sourceDir}/../../framework",
+        "BITLOOP_BINARY_DIR": "${sourceDir}/../../framework/build/vs2022"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "vs2022",
+      "configurePreset": "vs2022"
+    }
+  ]
+}
