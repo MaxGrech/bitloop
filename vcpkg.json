@@ -1,0 +1,16 @@
+{
+  "name": "bitloop",
+  "version-string": "0.9.0",
+  "dependencies": [
+    "sdl3",
+    "freetype",
+    {
+      "name": "imgui",
+      "features": [
+        "docking-experimental",
+        "freetype"
+      ]
+    },
+    "glm"
+  ]
+}

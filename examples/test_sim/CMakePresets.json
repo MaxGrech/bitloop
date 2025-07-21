@@ -1,5 +1,11 @@
 {
   "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+
   "configurePresets": [
     {
       "name": "ninja",
@@ -9,8 +15,8 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "BITLOOP_SOURCE_DIR": "${sourceDir}/../../framework",
-        "BITLOOP_BINARY_DIR": "${sourceDir}/../../framework/build/ninja"
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_OVERLAY_PORTS":  "$env{VCPKG_OVERLAY_PORTS}"
       }
     },
     {
@@ -21,8 +27,8 @@
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "BITLOOP_SOURCE_DIR": "${sourceDir}/../../framework",
-        "BITLOOP_BINARY_DIR": "${sourceDir}/../../framework/build/vs2022"
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_OVERLAY_PORTS":  "$env{VCPKG_OVERLAY_PORTS}"
       }
     }
   ],

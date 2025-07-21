@@ -2,18 +2,20 @@
   "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 16,
+    "minor": 21,
     "patch": 0
   },
 
   "configurePresets": [
     {
       "name": "default",
-      "displayName": "Default Build",
+      "displayName": "Default Build (Ninja)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/framework/build/ninja",
       "cacheVariables": {
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg-ports/ports"
       }
     },
     {
@@ -23,7 +25,9 @@
       "binaryDir": "${sourceDir}/framework/build/vs2022",
       "cacheVariables": {
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
-        "CMAKE_CONFIGURATION_TYPES": "Debug;Release"
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg-ports/ports"
       }
     }
   ],
