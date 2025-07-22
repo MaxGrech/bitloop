@@ -4,6 +4,10 @@ project(bitloop-superbuild NONE)
 
 add_subdirectory(framework)
 
+add_subdirectory(examples/test_sim)
+
+
+
 #if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 #  if (DEFINED ENV{VCPKG_ROOT})
 #    set(CMAKE_TOOLCHAIN_FILE
