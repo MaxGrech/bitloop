@@ -11,7 +11,7 @@ message(STATUS "––– BITLOOP_SRC = ${BITLOOP_SRC} –––")
 
 # 3. Configure your Bitloop
 vcpkg_configure_cmake(
-  SOURCE_PATH    "${BITLOOP_SRC}"
+  SOURCE_PATH    "${BITLOOP_SRC}/framework"
   PREFER_NINJA
   OPTIONS
     "-DCMAKE_POSITION_INDEPENDENT_CODE=ON"

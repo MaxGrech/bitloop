@@ -1,33 +1,108 @@
 cmake_minimum_required(VERSION 3.21)
 project(bitloop VERSION 0.9 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 23)         # Leave CMAKE_CXX_FLAGS Alone (REMOVING BREAKS 3RD PARTY LIBS?)
 
-message(STATUS "CMAKE_PROJECT_NAME = ${CMAKE_PROJECT_NAME}")
-message(STATUS "PROJECT_NAME = ${PROJECT_NAME}")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+# ─── Bootstrap our package helpers for both in‑tree & installed modes ───
+message(STATUS "Including: bitloopSimulation.cmake")
+include(bitloopSimulation)
 
 
 # ──────────────────────────────────────────────────────────────────
 # ──────────────────────  Framework Sources  ───────────────────────
 # ──────────────────────────────────────────────────────────────────
 
+set(BL_INC "${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop")
+set(BL_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
 file(GLOB CORE_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/core/*.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.cpp"
+    "${BL_INC}/bitloop.h"
+    "${BL_SRC}/bitloop.cpp"
+    "${BL_INC}/core/*.h"
+    "${BL_SRC}/core/*.cpp"
 )
 
-add_library(bitloop STATIC ${CORE_SOURCES})
+file(GLOB UTILITY_SOURCES CONFIGURE_DEPENDS
+    "${BL_SRC}/utility/*.cpp"
+    "${BL_INC}/utility/*.h"
+)
+
+file(GLOB UI_SOURCES CONFIGURE_DEPENDS
+    "${BL_SRC}/ui/*.cpp"
+    "${BL_INC}/ui/*.h"
+)
+
+file(GLOB GRAPHICS_SOURCES CONFIGURE_DEPENDS
+    "${BL_SRC}/graphics/*.cpp"
+    "${BL_INC}/graphics/*.h"
+)
+
+file(GLOB EXTERNAL_HEADERS CONFIGURE_DEPENDS
+    "${BL_INC}/3rd_party/*.hpp"
+    "${BL_INC}/3rd_party/*.h"
+    "${BL_INC}/3rd_party/nanosvg/*.h"
+    "${BL_INC}/3rd_party/glad/*.h"
+    "${BL_INC}/3rd_party/glad/KHR/*.h"
+    "${BL_INC}/3rd_party/nanovg/*.h"
+    "${BL_INC}/3rd_party/concurrentqueue/*.h"
+)
+
+file(GLOB EXTERNAL_SOURCES CONFIGURE_DEPENDS
+    "${BL_SRC}/3rd_party/*.cpp"
+    "${BL_SRC}/3rd_party/*.c"
+    "${BL_SRC}/3rd_party/glad/*.c"
+    "${BL_SRC}/3rd_party/nanovg/*.c"
+)
+
+# Mark all .c files as C++ sources
+foreach(_cfile IN LISTS EXTERNAL_SOURCES)
+  if(_cfile MATCHES "\\.c$")
+    set_source_files_properties(${_cfile} PROPERTIES LANGUAGE CXX)
+  endif()
+endforeach()
+
+
+set(ALL_SRC_FILES
+    ${CORE_SOURCES}
+    ${UTILITY_SOURCES}
+    ${UI_SOURCES}
+    ${GRAPHICS_SOURCES}
+    ${EXTERNAL_HEADERS}
+    ${EXTERNAL_SOURCES}
+)
+
+
+add_library(bitloop STATIC ${ALL_SRC_FILES})
+
+target_compile_features(bitloop PUBLIC cxx_std_23)
 
 target_include_directories(bitloop
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/3rd_party>
+    $<INSTALL_INTERFACE:include/bitloop/3rd_party>
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/3rd_party/nanovg>
+    $<INSTALL_INTERFACE:include/bitloop/3rd_party/nanovg>
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/3rd_party/glad>
+    $<INSTALL_INTERFACE:include/bitloop/3rd_party/glad>
+
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ui
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core
-    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/utility
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/ui
     ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/utility
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/graphics
 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/3rd_party>
 )
@@ -37,65 +112,12 @@ target_include_directories(bitloop
 # ─────────────────────────  Dependencies  ─────────────────────────
 # ──────────────────────────────────────────────────────────────────
 
-#message(STATUS "CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
-#message(STATUS "CMAKE_BINARY_DIR = ${CMAKE_SOURCE_DIR}")
-
-#message(STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}")
-#message(STATUS "CMAKE_CURRENT_BINARY_DIR = ${CMAKE_CURRENT_BINARY_DIR}")
-
-#include(FetchContent)
-
-# ───────────────────  SDL3  ───────────────────
-#if (NOT TARGET SDL3::SDL3-static)
-#	if (NOT EMSCRIPTEN)
-#		message(STATUS "Fetching and building SDL3")
-#
-#		set(SDL_TEST          OFF CACHE BOOL   "" FORCE)
-#		set(SDL_SHARED        OFF CACHE BOOL   "" FORCE)
-#		set(SDL_STATIC        ON  CACHE BOOL   "" FORCE)
-#		set(SDL_DEBUG_POSTFIX ""  CACHE STRING "" FORCE)
-#
-#		FetchContent_Declare(SDL3 GIT_REPOSITORY https://github.com/libsdl-org/SDL.git GIT_TAG release-3.2.16)
-#		FetchContent_MakeAvailable(SDL3)
-#
-#		add_library(SDL3::SDL3-static ALIAS SDL3-static)   # alias so we can link against SDL3::SDL3-static
-#
-#		# ensure bitloop sees SDL3 headers & library
-#		target_link_libraries(bitloop PUBLIC SDL3::SDL3-static)
-#		target_include_directories(bitloop PUBLIC ${SDL3_SOURCE_DIR}/include)
-#
-#	else()
-#		message(STATUS "Configuring bitloop SDL3 for Emscripten")
-#
-#		target_compile_options(bitloop PRIVATE "-sUSE_SDL=3" "-sUSE_PTHREADS=1" "-pthread" "-matomics" "-mbulk-memory")
-#		target_link_options(bitloop    PRIVATE "-sUSE_SDL=3" "-sUSE_PTHREADS=1" "-sALLOW_MEMORY_GROWTH=1")
-#
-#		# ensure bitloop sees sysroot headers
-#		target_include_directories(bitloop PUBLIC "$ENV{EMSDK}/upstream/emscripten/cache/sysroot/include")
-#
-#		# Add single-line alias header so <SDL3/SDL.h> resolves
-#		## set(SDL3_ALIAS_DIR "${CMAKE_BINARY_DIR}/sdl3_alias/include/SDL3")
-#		## file(MAKE_DIRECTORY "${SDL3_ALIAS_DIR}")
-#		## file(WRITE "${SDL3_ALIAS_DIR}/SDL.h" "#pragma once\n#include <SDL/SDL.h>\n")
-#		## target_include_directories(${target} PRIVATE "${CMAKE_BINARY_DIR}/sdl3_alias/include")
-#	endif()
-#else()
-#	  message(STATUS "SDL3 already built")
-#endif()
-
-
 find_package(imgui CONFIG REQUIRED)    # will find the freetype‐enabled build
 find_package(Freetype CONFIG REQUIRED)
 find_package(SDL3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
-# List all imported targets and print the ones that look like FreeType
-#get_property(_allTargets GLOBAL PROPERTY TARGETS)
-#foreach(_t IN LISTS _allTargets)
-#  if(_t MATCHES "(?i)freetype")
-#     message(STATUS "🔍 FreeType candidate target: ${_t}")
-#  endif()
-#endforeach()
+
 
 target_link_libraries(bitloop
   PUBLIC
@@ -120,25 +142,38 @@ install(TARGETS bitloop
 install(DIRECTORY
     "${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop"
     DESTINATION include
-    FILES_MATCHING PATTERN "*.h"
+    FILES_MATCHING
+      PATTERN "*.h"
+      PATTERN "*.hpp"
 )
 
 # 3) Export a CMake config file for find_package()
 install(EXPORT bitloopTargets
-    #FILE bitloopConfig.cmake # Use your cmake.in instead of the auto-generated one
     NAMESPACE bitloop::
     DESTINATION share/bitloop
 )
 
+# 4) Install the framework’s main entry‐point template
+install(FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/bitloop_main.cpp"
+    DESTINATION share/bitloop/src
+    RENAME bitloop_main.cpp
+)
+
+# 5) Install simulation cmake helpers
+install(FILES
+   "${CMAKE_CURRENT_SOURCE_DIR}/bitloopSimulation.cmake"
+   DESTINATION share/bitloop
+ )
 
 # ─── CONFIG FILE & VERSION FILE ──────────────────
 include(CMakePackageConfigHelpers)
 
 message(STATUS "[bitloop] About to configure bitloopConfig.cmake from .in")
 configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/bitloopConfig.cmake.in"        # your template
-    "${CMAKE_CURRENT_BINARY_DIR}/bitloopConfig.cmake"           # output path
-    INSTALL_DESTINATION share/bitloop)                          # same dir as targets
+    "${CMAKE_CURRENT_SOURCE_DIR}/bitloopConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/bitloopConfig.cmake"
+    INSTALL_DESTINATION share/bitloop)
 
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/bitloopConfigVersion.cmake"
@@ -149,4 +184,3 @@ install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/bitloopConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/bitloopConfigVersion.cmake"
     DESTINATION share/bitloop)
-# ──────────────────────────────────────────────────────────

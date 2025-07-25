@@ -1,13 +1,18 @@
 {
   "name": "bitloop",
   "version-string": "0.9.0",
-  "port-version": 2,
+  "port-version": 44,
   "dependencies": [
     "sdl3",
     "freetype",
     {
       "name": "imgui",
-      "features": [ "docking-experimental", "freetype" ]
+      "features": [
+        "docking-experimental",
+        "freetype",
+        "sdl3-binding",
+        "opengl3-binding"
+      ]
     },
     "glm"
   ]

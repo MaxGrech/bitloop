@@ -1,22 +1,13 @@
-﻿cmake_minimum_required(VERSION 3.21)
+﻿# bitloop/CMakeLists.txt
 
-project(bitloop-superbuild NONE)
+cmake_minimum_required(VERSION 3.21)
+project(bitloop-superbuild LANGUAGES CXX)
 
 add_subdirectory(framework)
 
-add_subdirectory(examples/test_sim)
+# Add examples target executable
+bitloop_add_simulation(launch_examples)
 
-
-
-#if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-#  if (DEFINED ENV{VCPKG_ROOT})
-#    set(CMAKE_TOOLCHAIN_FILE
-#      "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-#      CACHE FILEPATH "vcpkg toolchain file" FORCE
-#    )
-#  else()
-#    message(FATAL_ERROR
-#      "You must set VCPKG_ROOT or pass -DCMAKE_TOOLCHAIN_FILE to point at vcpkg."
-#    )
-#  endif()
-#endif()
+# Include examples in superbuild
+bitloop_add_dependency(examples/test_sim)
+bitloop_add_dependency(examples/test_sim2)
