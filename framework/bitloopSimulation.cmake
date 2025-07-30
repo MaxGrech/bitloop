@@ -1,14 +1,56 @@
-﻿# --- bitloopSimulation.cmake ---
+﻿# --- at the top of your cmake module ---
+
+
+# --- bitloopSimulation.cmake ---
 
 set(BITLOOP_MAIN_SOURCE		"${CMAKE_CURRENT_LIST_DIR}/src/bitloop_main.cpp"	CACHE INTERNAL "")
 set(BITLOOP_BUILD_DIR		"${CMAKE_CURRENT_BINARY_DIR}"						CACHE INTERNAL "")
 set(AUTOGEN_SIM_INCLUDES	"${BITLOOP_BUILD_DIR}/bitloop_simulations.h"		CACHE INTERNAL "")
 
+set(BITLOOP_DATA_DEPENDENCIES "" CACHE INTERNAL "Ordered list of dependency data directories")
+
+set_property(DIRECTORY PROPERTY BITLOOP_DEPENDENCY_DIRS "")
+
 # Begin auto-generated header file
 file(WRITE "${AUTOGEN_SIM_INCLUDES}" "// Auto‑generated list of simulations\n")
 
+function(apply_common_emscripten_settings _TARGET)
+	#set(ENV{EMCC_JSOPT_BLACKLIST} "whitespace")
+	message(STATUS "Applying common EMSCRIPTEN flags for:  [${_TARGET}]")
 
-function(bitloop_add_simulation sim_name)
+	# O3 for WASM
+	target_compile_options(${_TARGET} PRIVATE 
+		"-O3"
+		"-sUSE_PTHREADS=1"
+		"-pthread"
+		"-matomics"
+		"-mbulk-memory"
+	)
+
+	target_link_options(${_TARGET} PRIVATE
+		"-sUSE_SDL=3"
+		"-sUSE_WEBGL2=1"
+		"-sFULL_ES3=1"
+		"-sALLOW_MEMORY_GROWTH=1"
+		"-sUSE_PTHREADS=1"
+		"-sPTHREAD_POOL_SIZE=16"
+	)
+endfunction()
+
+function(apply_main_emscripten_settings _TARGET)
+	message(STATUS "Applying main EMSCRIPTEN flags for:  [${_TARGET}]")
+
+	target_link_options(${_TARGET} PRIVATE
+		"--shell-file=${CMAKE_SOURCE_DIR}/static/bitloop.html"
+		"--embed-file=${CMAKE_BINARY_DIR}/data@/data"
+	)
+
+	set_target_properties(${_TARGET} PROPERTIES
+		SUFFIX ".html"
+	)
+endfunction()
+
+macro(bitloop_new_project sim_name)
 	# collect the other args as source files
 	set(SIM_SOURCES ${ARGN})
 
@@ -25,6 +67,16 @@ function(bitloop_add_simulation sim_name)
 		endif()
 
 		add_executable(${_TARGET} ${SIM_SOURCES})
+
+		if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+			add_custom_target(run_server ALL
+				COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${_TARGET}.html
+				COMMAND emrun --no_browser --port 8000 ${CMAKE_BINARY_DIR}/${_TARGET}.html
+				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+				COMMENT "Building and serving ${_TARGET}.html on http://localhost:8000"
+				USES_TERMINAL
+			  )
+		endif()
 	else()
 		# nested (library)
 		set(_TARGET ${sim_name}_lib)
@@ -41,59 +93,134 @@ function(bitloop_add_simulation sim_name)
 	target_link_libraries(${_TARGET} PRIVATE bitloop::bitloop)
 
 	# Set target for dependencies to link against
-	set(CONSUMER_TARGET ${_TARGET} PARENT_SCOPE)
+	#set(CONSUMER_TARGET ${_TARGET} PARENT_SCOPE)
 
 	# Append #include to the auto-generated header
 	if (SIM_SOURCES_PROVIDED)
 		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "#include \"${sim_name}.h\"\n")
 	ENDIF()
 
-	# Copy data files to the build directory
-	set(_SRC_DATA "${CMAKE_CURRENT_SOURCE_DIR}/data")
-	set(_DST_DATA "${CMAKE_CURRENT_BINARY_DIR}/data/${sim_name}")
-
-	if (EXISTS "${_SRC_DATA}")
-		add_custom_command(TARGET ${_TARGET} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E make_directory "${_DST_DATA}"
-			COMMAND ${CMAKE_COMMAND} -E copy_directory "${_SRC_DATA}" "${_DST_DATA}"
-			COMMENT "Copying data for ${sim_name}"
-		)
+	if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+		msg(STATUS "")
+		msg(STATUS "────────── Project Hierarchy ──────────")
+		msg(STATUS "[${sim_name}]")
 	endif()
-endfunction()
 
-function(bitloop_add_dependency DEP_PATH)
+	msg_indent_push()
+
+	get_property(_list DIRECTORY ${CMAKE_CURRENT_LIST_DIR} PROPERTY BITLOOP_DEPENDENCY_DIRS)
+	foreach(dep_path IN LISTS _list)
+		get_filename_component(dep_name ${dep_path} NAME)
+		msg(STATUS "[${dep_name}]")
+		_bitloop_add_dependency(${_TARGET} ${dep_path})
+	endforeach()
+
+	msg_indent_pop()
+
+	get_property(_data_dirs GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES)
+	list(APPEND _data_dirs "${CMAKE_CURRENT_SOURCE_DIR}/data")
+	set_property(GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES ${_data_dirs})
+
+	if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+		apply_common_emscripten_settings(${_TARGET})
+	endif()
+
+	if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+		msg(STATUS "")
+		msg(STATUS "────────── GATHERING DATA ──────────")
+		get_property(_data_dirs GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES)
+
+		#get_filename_component(BITLOOP_PARENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
+
+		foreach(dep_path IN LISTS _data_dirs)
+			file(RELATIVE_PATH rel "${CMAKE_CURRENT_SOURCE_DIR}" "${dep_path}")
+
+			msg(STATUS "./${rel}")
+
+			add_custom_command(TARGET ${_TARGET} PRE_LINK
+				COMMAND ${CMAKE_COMMAND} -E copy_directory 
+					"${dep_path}" 
+					"${CMAKE_BINARY_DIR}/data"
+				COMMENT "Merging dependency data from ${dep_path}"
+			)
+		endforeach()
+		msg(STATUS "")
+
+
+		if (MSVC)
+			# Windows
+			set_target_properties(${_TARGET} PROPERTIES WIN32_EXECUTABLE TRUE)
+		elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+			# Emscripten
+			apply_main_emscripten_settings(${_TARGET})
+		endif()
+	endif()
+
+endmacro()
+
+# Queues dependency path to be added when bitloop_new_project gets called
+macro(bitloop_add_dependency DEP_PATH)
 	get_filename_component(_SIM_DIR "${DEP_PATH}" REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+	get_property(_list DIRECTORY ${CMAKE_CURRENT_LIST_DIR} PROPERTY BITLOOP_DEPENDENCY_DIRS)
+	list(APPEND _list ${_SIM_DIR})
+	set_property(DIRECTORY ${CMAKE_CURRENT_LIST_DIR} PROPERTY BITLOOP_DEPENDENCY_DIRS "${_list}")
+endmacro()
 
-	# Check dependency directory exists
-	if(NOT IS_DIRECTORY "${_SIM_DIR}")
-		message(FATAL_ERROR "bitloop_add_dep: '${DEP_PATH}' is not a dir")
-	endif()
-
+# Actually includes/links the dependency into the target (internal)
+function(_bitloop_add_dependency _TARGET _SIM_DIR)
 	# Grab simulation name from path
 	get_filename_component(sim_name "${_SIM_DIR}" NAME)
+	#message(STATUS "Grabbing name: ${sim_name}")
 
 	if(NOT TARGET ${sim_name}::${sim_name})
 		# Only called once, includes dependency project, which in turn calls:  bitloop_add_simulation()
 		add_subdirectory(${_SIM_DIR} "${CMAKE_BINARY_DIR}/${sim_name}_build")
 	endif()
 
-	target_include_directories(${CONSUMER_TARGET} PRIVATE
+	target_include_directories(${_TARGET} PRIVATE
         "$<BUILD_INTERFACE:${_SIM_DIR}>"
         "$<BUILD_INTERFACE:${BITLOOP_BUILD_DIR}>"
     )
 
 	# Link dependency into our target
-	target_link_libraries(${CONSUMER_TARGET} PUBLIC ${sim_name}::${sim_name})
-
-	# Also copy that dependency’s data/ into our data/<dep_name>
-	set(_DEP_DATA "${_SIM_DIR}/data")
-	set(_DST_DATA "${CMAKE_CURRENT_BINARY_DIR}/data/${sim_name}")
-
-	if(EXISTS "${_DEP_DATA}")
-		add_custom_command(TARGET ${CONSUMER_TARGET} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E make_directory "${_DST_DATA}"
-			COMMAND ${CMAKE_COMMAND} -E copy_directory "${_DEP_DATA}" "${_DST_DATA}"
-			COMMENT "Copying data for dependency ${sim_name}"
-		)
-	endif()
+	target_link_libraries(${_TARGET} PUBLIC ${sim_name}::${sim_name})
 endfunction()
+
+
+# --- msg() helper with indentation push/pop support ---
+set_property(GLOBAL PROPERTY MSG_INDENT_LEVEL 0)
+function(msg_indent_push)
+  get_property(_lvl GLOBAL PROPERTY MSG_INDENT_LEVEL)
+  math(EXPR _lvl "${_lvl} + 1")
+  set_property(GLOBAL PROPERTY MSG_INDENT_LEVEL "${_lvl}")
+endfunction()
+function(msg_indent_pop)
+  get_property(_lvl GLOBAL PROPERTY MSG_INDENT_LEVEL)
+  math(EXPR _lvl "${_lvl} - 1")
+  if(_lvl LESS 0)  
+    set(_lvl 0)
+  endif()
+  set_property(GLOBAL PROPERTY MSG_INDENT_LEVEL "${_lvl}")
+endfunction()
+function(msg)
+  set(_status ${ARGV0})
+  list(LENGTH ARGV _len)
+  math(EXPR _count "${_len} - 1")
+  if(_count GREATER 0)
+    list(SUBLIST ARGV 1 ${_count} _parts)
+    string(JOIN " " _text ${_parts})
+  else()
+    set(_text "")
+  endif()
+  get_property(_lvl GLOBAL PROPERTY MSG_INDENT_LEVEL)
+  if(_lvl LESS 1)
+    set(_indent "")
+  else()
+    set(_indent "")
+    foreach(_i RANGE 1 ${_lvl})
+      set(_indent "${_indent}   ")
+    endforeach()
+  endif()
+  message(${_status} "${_indent}${_text}")
+endfunction()
+

@@ -164,7 +164,7 @@ int bitloop_main(int, char* [])
             const cv = Module['canvas'];
             cv.setAttribute('tabindex', '0');
             cv.setAttribute('contenteditable', 'true');
-            cv.addEventListener('mousedown', () = > cv.focus());
+            cv.addEventListener('mousedown', () => cv.focus());
             });
         #endif
 

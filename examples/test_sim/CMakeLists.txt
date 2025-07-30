@@ -6,11 +6,11 @@ if (NOT TARGET bitloop::bitloop)
   find_package(bitloop CONFIG REQUIRED)
 endif()
 
-
 file(GLOB SIM_SOURCES CONFIGURE_DEPENDS "*.cpp" "*.h")
 
-# Setup simulation with local source files
-bitloop_add_simulation(test_sim ${SIM_SOURCES})
-
-# Add simulation dependencies
+# 1. Setup project dependencies (if any)
 #bitloop_add_dependency(../test_sim)
+
+# 2. Create new project
+bitloop_new_project(test_sim ${SIM_SOURCES})
+

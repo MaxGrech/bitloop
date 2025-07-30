@@ -4,8 +4,10 @@ set(CMAKE_CXX_STANDARD 23)         # Leave CMAKE_CXX_FLAGS Alone (REMOVING BREAK
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
+
 # ─── Bootstrap our package helpers for both in‑tree & installed modes ───
-message(STATUS "Including: bitloopSimulation.cmake")
+#message(STATUS "Including: bitloopSimulation.cmake")
+
 include(bitloopSimulation)
 
 
@@ -77,18 +79,53 @@ add_library(bitloop STATIC ${ALL_SRC_FILES})
 
 target_compile_features(bitloop PUBLIC cxx_std_23)
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    message(STATUS "Applying EMSCRIPTEN flags for:  [bitloop]")
+
+    #set(ENV{EMCC_JSOPT_BLACKLIST} "whitespace")
+
+    # Compilation flags
+    target_compile_options(bitloop PRIVATE
+        "-O3"
+        "-sUSE_PTHREADS=1"
+        "-pthread"
+        "-matomics"
+        "-mbulk-memory"
+    )
+
+    target_link_options(bitloop PRIVATE
+        "-sEXPORTED_FUNCTIONS=[]"
+		#"-g1"
+        #"--js-opts 0"
+        "-sUSE_SDL=3"
+        "-sUSE_WEBGL2=1"
+        "-sFULL_ES3=1"
+        "-sALLOW_MEMORY_GROWTH=1"
+        "-sUSE_PTHREADS=1"
+        "-sPTHREAD_POOL_SIZE=16"
+    )
+endif()
+
 target_include_directories(bitloop
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/ui>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/core>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/utility>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/graphics>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/3rd_party>
-    $<INSTALL_INTERFACE:include/bitloop/3rd_party>
-
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/3rd_party/nanovg>
-    $<INSTALL_INTERFACE:include/bitloop/3rd_party/nanovg>
-
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/3rd_party/glad>
+
+    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:include/bitloop>
+    $<INSTALL_INTERFACE:include/bitloop/core>
+    $<INSTALL_INTERFACE:include/bitloop/utility>
+    $<INSTALL_INTERFACE:include/bitloop/ui>
+    $<INSTALL_INTERFACE:include/bitloop/graphics>
+    $<INSTALL_INTERFACE:include/bitloop/3rd_party>
+    $<INSTALL_INTERFACE:include/bitloop/3rd_party/nanovg>
     $<INSTALL_INTERFACE:include/bitloop/3rd_party/glad>
 
   PRIVATE
@@ -97,15 +134,14 @@ target_include_directories(bitloop
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utility
     ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/ui
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/core
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/utility
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/graphics
-
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/3rd_party>
 )
+
+    #$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/3rd_party>
+    #${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop
+    #${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/ui
+    #${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/core
+    #${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/utility
+    #${CMAKE_CURRENT_SOURCE_DIR}/include/bitloop/graphics
 
 
 # ──────────────────────────────────────────────────────────────────
@@ -114,21 +150,18 @@ target_include_directories(bitloop
 
 find_package(imgui CONFIG REQUIRED)    # will find the freetype‐enabled build
 find_package(Freetype CONFIG REQUIRED)
-find_package(SDL3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-
-
+find_package(SDL3 CONFIG REQUIRED)
 
 target_link_libraries(bitloop
   PUBLIC
     Freetype::Freetype
     imgui::imgui
-    SDL3::SDL3-shared
+    SDL3::SDL3
     glm::glm
 )
 
 add_library(bitloop::bitloop ALIAS bitloop)
-
 
 # 1) Install the static lib (or DLL) into lib/
 install(TARGETS bitloop
@@ -169,7 +202,7 @@ install(FILES
 # ─── CONFIG FILE & VERSION FILE ──────────────────
 include(CMakePackageConfigHelpers)
 
-message(STATUS "[bitloop] About to configure bitloopConfig.cmake from .in")
+#message(STATUS "[bitloop] About to configure bitloopConfig.cmake from .in")
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/bitloopConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/bitloopConfig.cmake"
@@ -184,3 +217,22 @@ install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/bitloopConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/bitloopConfigVersion.cmake"
     DESTINATION share/bitloop)
+
+
+
+# emscripten data management
+#if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+#  # Assume users have put all their assets under <project_root>/data
+#  set(_DATA_DIR "${CMAKE_BINARY_DIR}/data")
+#
+#  if (EXISTS "${_DATA_DIR}")
+#    message(STATUS "Embedding data folder into WebAssembly: ${_DATA_DIR}")
+#    # Embeds the entire data/ tree inside the .wasm
+#    target_link_options(examples PRIVATE
+#      "--embed-file=${_DATA_DIR}@/data"
+#    )
+#  else()
+#    message(WARNING "Data folder not found at ${_DATA_DIR}; skipping embed")
+#  endif()
+#endif()
+

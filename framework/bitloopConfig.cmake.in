@@ -1,3 +1,5 @@
+# bitloopConfig.cmake.in
+
 include(CMakeFindDependencyMacro)
 
 find_dependency(SDL3 CONFIG REQUIRED)
@@ -5,13 +7,7 @@ find_dependency(Freetype CONFIG REQUIRED)
 find_dependency(imgui CONFIG REQUIRED)
 find_dependency(glm CONFIG REQUIRED)
 
-# bridge the shared variant if SDL3::SDL3 was defined but not SDL3::SDL3-shared
-if(TARGET SDL3::SDL3 AND NOT TARGET SDL3::SDL3-shared)
-  message(STATUS "bridging SDL3 => SDL3-shared")
-  add_library(SDL3::SDL3-shared ALIAS SDL3::SDL3)
-endif()
-
-# Add helper module for simulations
+# Add helper module for simulations (probably not needed)
 set(BITLOOP_CMAKE_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 list(APPEND CMAKE_MODULE_PATH "${BITLOOP_CMAKE_MODULE_DIR}")
 

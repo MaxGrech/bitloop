@@ -165,7 +165,7 @@ public:
 
 namespace std {
 
-    template<> struct is_floating_point<flt128> : true_type {};
+    //template<> struct is_floating_point<flt128> : true_type {};
 
     template<> struct numeric_limits<flt128>
     {

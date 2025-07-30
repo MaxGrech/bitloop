@@ -1,8 +1,33 @@
 {
-  "builtin-baseline": "4002e3abc6d3e468c73d2d9777a7dd96af5dc224",
+  
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg-configuration.schema.json",
+  
   "name": "sim",
   "version-string": "0.1.0",
+
   "dependencies": [
     "bitloop"
-  ]
+  ],
+
+  "vcpkg-configuration": {
+    // pin the curated registry (equivalent to builtin-baseline)
+    "default-registry": {
+      "kind": "builtin",
+      "baseline": "4002e3abc6d3e468c73d2d9777a7dd96af5dc224"
+    },
+
+    // your private Git registry for bitloop
+    "registries": [
+      {
+        "kind":       "git",
+        "repository": "https://github.com/willmh93/bitloop-registry.git",
+        "baseline":   "1734994afb343f470352365ceb5206a891333cd8",
+        "packages":   [ "bitloop" ]
+      }
+    ],
+
+    // if you also want to overlay local port and triplet folders:
+    //"overlay-ports":    [ "../vcpkg-ports" ],
+    //"overlay-triplets": [ "../vcpkg-triplets" ]
+  }
 }

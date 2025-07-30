@@ -1,17 +1,12 @@
 {
   "version": 3,
-  "cmakeMinimumRequired": {
-    "major": 3,
-    "minor": 21,
-    "patch": 0
-  },
+  "cmakeMinimumRequired": {"major": 3, "minor": 21, "patch": 0},
 
   "configurePresets": [
     {
-      "name": "ninja",
-      "displayName": "Ninja (LLVM)",
+      "name": "ninja-debug",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build-ninja",
+      "binaryDir": "${sourceDir}/build/ninja-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
@@ -20,22 +15,64 @@
       }
     },
     {
+      "name": "ninja-release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/ninja-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_OVERLAY_PORTS":  "$env{VCPKG_OVERLAY_PORTS}"
+      }
+    },
+    {
       "name": "vs2022",
-      "displayName": "Visual Studio 2022",
       "generator": "Visual Studio 17 2022",
-      "binaryDir": "${sourceDir}/build-vs2022",
+      "binaryDir": "${sourceDir}/build/vs2022",
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_OVERLAY_PORTS":  "$env{VCPKG_OVERLAY_PORTS}"
       }
+    },
+    {
+      "name": "wasm32-debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/wasm32-debug",
+      "cacheVariables": {
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+        "CMAKE_TOOLCHAIN_FILE":           "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_BUILD_TYPE":               "RelWithDebInfo",
+        //"VCPKG_OVERLAY_TRIPLETS":         "${sourceDir}/../vcpkg-triplets",
+        "VCPKG_TARGET_TRIPLET":           "wasm32-emscripten",
+        "VCPKG_CMAKE_CONFIGURE_OPTIONS":  "-pthread -matomics -mbulk-memory",
+        "CMAKE_SUPPRESS_REGENERATION":    "ON"
+        //"VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+      }
+    },
+    {
+      "name": "wasm32-release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/wasm32-release",
+      //"environment": { "EMCC_JSOPT_BLACKLIST": "*" },
+      "cacheVariables": {
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+        "CMAKE_TOOLCHAIN_FILE":           "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_BUILD_TYPE":               "Release",
+        //"VCPKG_OVERLAY_TRIPLETS":         "${sourceDir}/../vcpkg-triplets",
+        "VCPKG_TARGET_TRIPLET":           "wasm32-emscripten",
+        "VCPKG_CMAKE_CONFIGURE_OPTIONS":  "-pthread -matomics -mbulk-memory",
+        "CMAKE_SUPPRESS_REGENERATION":    "ON"
+        //"VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+      }
     }
   ],
   "buildPresets": [
-    {
-      "name": "vs2022",
-      "configurePreset": "vs2022"
-    }
+    { "name": "ninja-debug",        "configurePreset": "ninja-debug" },
+    { "name": "ninja-release",      "configurePreset": "ninja-release" },
+    { "name": "vs2022",             "configurePreset": "vs2022" },
+    { "name": "wasm32-debug",       "configurePreset": "wasm32-debug" },
+    { "name": "wasm32-release",     "configurePreset": "wasm32-release" }
   ]
 }
