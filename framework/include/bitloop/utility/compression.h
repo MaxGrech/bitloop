@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <cstdint>
+#include <cstring>
 
 using ByteVec = std::vector<uint8_t>;
 

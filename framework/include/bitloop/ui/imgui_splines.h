@@ -9,6 +9,8 @@
 #include <iomanip>
 #include <algorithm>
 #include <stdio.h>
+#include <cstdint>
+#include <cstring>
 
 enum SplineSerializationMode
 {

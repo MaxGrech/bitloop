@@ -57,6 +57,7 @@
 #include <string>
 #include <sstream>
 #include <utility>
+#include <cstdint>
 
 struct ImGradientMark
 {

@@ -7,6 +7,7 @@
 
 
 #include "imgui_gradient_edit.h"
+#include <cstdint>
 
 static const float GRADIENT_BAR_WIDGET_HEIGHT = 25;
 static const float GRADIENT_BAR_EDITOR_HEIGHT = 40;
