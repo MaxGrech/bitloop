@@ -61,10 +61,10 @@ jobs:
           $dest | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Configure via CMake preset
-        run: cmake --preset vs2022
+        run: cmake --preset ${{ matrix.preset }}
 
       - name: Build via CMake preset
-        run: cmake --build --preset vs2022 --config ${{ matrix.build_type }}
+        run: cmake --build --preset ${{ matrix.preset }} --config ${{ matrix.build_type }}
 
       #- name: Test via CMake preset
       #  run: cmake --test --preset vs2022 --config ${{ matrix.build_type }}
