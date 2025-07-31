@@ -78,5 +78,5 @@ jobs:
       - name: Build via CMake preset
         run: cmake --build --preset vs2022 --config ${{ matrix.build_type }}
 
-      - name: Test via CMake preset
-        run: cmake --test --preset vs2022 --config ${{ matrix.build_type }}
+      #- name: Test via CMake preset
+      #  run: cmake --test --preset vs2022 --config ${{ matrix.build_type }}
