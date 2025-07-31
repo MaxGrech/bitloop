@@ -48,36 +48,35 @@ jobs:
             c_compiler: cl
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set reusable strings
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-      id: strings
-      shell: bash
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+      # ─── LINUX / macOS ────────────────────────────────────────────────────────
+      - name: Bootstrap vcpkg (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git "$RUNNER_TEMP/vcpkg"
+          "$RUNNER_TEMP/vcpkg/bootstrap-vcpkg.sh"
+          echo "VCPKG_ROOT=$RUNNER_TEMP/vcpkg" >> $GITHUB_ENV
+          echo "$RUNNER_TEMP/vcpkg" >> $GITHUB_PATH
 
+      # ─── WINDOWS ──────────────────────────────────────────────────────────────
+      - name: Bootstrap vcpkg (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dest = Join-Path $Env:RUNNER_TEMP 'vcpkg'
+          git clone https://github.com/microsoft/vcpkg.git $dest
+          & "$dest\bootstrap-vcpkg.bat"
+          # persist to future steps:
+          "`nVCPKG_ROOT=$dest" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          $dest | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf8 -Append
 
-    - name: Bootstrap vcpkg
-      shell: bash
-      run: |
-        git clone https://github.com/Microsoft/vcpkg.git "$VCPKG_ROOT"
-        if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          # On Windows use PowerShell, or run the .bat
-          pwsh -Command "& '${{ env.VCPKG_ROOT }}\\bootstrap-vcpkg.bat'"
-        else
-          # On Linux/macOS
-          "${VCPKG_ROOT}/bootstrap-vcpkg.sh"
-        fi
+      - name: Configure via CMake preset
+        run: cmake --preset vs2022
 
-    - name: Add vcpkg to PATH
-      run: echo "$VCPKG_ROOT" >> $GITHUB_PATH
+      - name: Build via CMake preset
+        run: cmake --build --preset vs2022 --config ${{ matrix.build_type }}
 
-    - name: Configure via CMake preset
-      run: cmake --preset vs2022
-
-    - name: Build via CMake preset
-      run: cmake --build --preset vs2022 --config ${{ matrix.build_type }}
-
-    - name: Test
-      run: cmake --test --preset vs2022 --config ${{ matrix.build_type }}
+      - name: Test via CMake preset
+        run: cmake --test --preset vs2022 --config ${{ matrix.build_type }}
