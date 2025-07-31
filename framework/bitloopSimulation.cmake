@@ -15,9 +15,6 @@ set_property(DIRECTORY PROPERTY BITLOOP_DEPENDENCY_DIRS "")
 file(WRITE "${AUTOGEN_SIM_INCLUDES}" "// Auto‑generated list of simulations\n")
 
 function(apply_common_emscripten_settings _TARGET)
-	#set(ENV{EMCC_JSOPT_BLACKLIST} "whitespace")
-	message(STATUS "Applying common EMSCRIPTEN flags for:  [${_TARGET}]")
-
 	# O3 for WASM
 	target_compile_options(${_TARGET} PRIVATE 
 		"-O3"
@@ -38,8 +35,6 @@ function(apply_common_emscripten_settings _TARGET)
 endfunction()
 
 function(apply_main_emscripten_settings _TARGET)
-	message(STATUS "Applying main EMSCRIPTEN flags for:  [${_TARGET}]")
-
 	target_link_options(${_TARGET} PRIVATE
 		"--shell-file=${CMAKE_SOURCE_DIR}/static/bitloop.html"
 		"--embed-file=${CMAKE_BINARY_DIR}/data@/data"
@@ -68,15 +63,15 @@ macro(bitloop_new_project sim_name)
 
 		add_executable(${_TARGET} ${SIM_SOURCES})
 
-		if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-			add_custom_target(run_server ALL
-				COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${_TARGET}.html
-				COMMAND emrun --no_browser --port 8000 ${CMAKE_BINARY_DIR}/${_TARGET}.html
-				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-				COMMENT "Building and serving ${_TARGET}.html on http://localhost:8000"
-				USES_TERMINAL
-			  )
-		endif()
+		#if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+		#	add_custom_target(run_server ALL
+		#		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${_TARGET}.html
+		#		COMMAND emrun --no_browser --port 8000 ${CMAKE_BINARY_DIR}/${_TARGET}.html
+		#		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		#		COMMENT "Building and serving ${_TARGET}.html on http://localhost:8000"
+		#		USES_TERMINAL
+		#	  )
+		#endif()
 	else()
 		# nested (library)
 		set(_TARGET ${sim_name}_lib)
