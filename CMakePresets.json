@@ -13,8 +13,7 @@
       "binaryDir": "${sourceDir}/framework/build/ninja-debug",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/vcpkg_wrapper.cmake",
-        "VCPKG_BUILD_STATIC": "OFF"
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
@@ -23,33 +22,25 @@
       "binaryDir": "${sourceDir}/framework/build/ninja-release",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/vcpkg_wrapper.cmake",
-        "VCPKG_BUILD_STATIC": "OFF"
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
-      "name": "ninja-static-debug",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/framework/build/ninja-static-debug",
-      "cacheVariables": {
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/vcpkg_wrapper.cmake",
-        "VCPKG_BUILD_STATIC": "ON"
-      }
-    },
-    {
-      "name": "ninja-static-release",
+      "name": "win-ninja-release-static",
+      "condition": {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"},
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/framework/build/ninja-static-release",
       "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/vcpkg_wrapper.cmake",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_BUILD_STATIC": "ON"
       }
     },
     {
       "name": "vs2022",
       "hidden": true,
+      "condition": {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"},
       "generator": "Visual Studio 17 2022",
       "binaryDir": "${sourceDir}/framework/build/vs2022",
       "cacheVariables": {
@@ -101,11 +92,10 @@
   ],
 
   "buildPresets": [
-    { "name": "ninja-debug",          "configurePreset": "ninja-debug" },
-    { "name": "ninja-release",        "configurePreset": "ninja-release" },
-    { "name": "ninja-static-debug",   "configurePreset": "ninja-static-debug" },
-    { "name": "ninja-static-release", "configurePreset": "ninja-static-release" },
-    { "name": "wasm32-debug",         "configurePreset": "wasm32-debug" },
-    { "name": "wasm32-release",       "configurePreset": "wasm32-release" }
+    { "name": "ninja-debug",              "configurePreset": "ninja-debug" },
+    { "name": "ninja-release",            "configurePreset": "ninja-release" },
+    { "name": "win-ninja-static-release", "configurePreset": "win-ninja-release-static" },
+    { "name": "wasm32-debug",             "configurePreset": "wasm32-debug" },
+    { "name": "wasm32-release",           "configurePreset": "wasm32-release" }
   ]
 }
