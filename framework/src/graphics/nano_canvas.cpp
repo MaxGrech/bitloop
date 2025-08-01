@@ -1,8 +1,8 @@
-//#ifdef __EMSCRIPTEN__
-///#define NANOVG_GLES3_IMPLEMENTATION
-//#else
+#ifdef __EMSCRIPTEN__
+#define NANOVG_GLES3_IMPLEMENTATION
+#else
 #define NANOVG_GL3_IMPLEMENTATION
-//#endif
+#endif
 
 #include "nano_canvas.h"
 #include "project.h"
@@ -184,11 +184,11 @@ void Painter::drawWorldAxis(
 
 void Canvas::create(double _global_scale)
 {
-    //#ifdef __EMSCRIPTEN__
-    ///vg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-    //#else
+    #ifdef __EMSCRIPTEN__
+    vg = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+    #else
     vg = nvgCreateGL3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-    //#endif
+    #endif
 
     setGlobalScale(_global_scale);
 

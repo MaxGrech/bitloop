@@ -186,13 +186,15 @@ int bitloop_main(int, char* [])
         SDL_GL_MakeCurrent(window, gl_context);
         SDL_GL_SetSwapInterval(1); // enforces 60fps / v-sync
 
-        //#ifndef __EMSCRIPTEN__
-        if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
-            return 1; // Failed to initialize GLAD
+        #ifndef __EMSCRIPTEN__
+        if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+            std::cerr << "Failed to initialize GLAD\n";
+            return 1;
+        }
 
-        // Make colours consistent on with desktop build
+        // Make colours consistent on desktop build
         glDisable(GL_FRAMEBUFFER_SRGB);
-        //#endif
+        #endif
 
     }
 
