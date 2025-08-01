@@ -75,6 +75,7 @@
 
 
 #include <memory>
+
 #ifdef __EMSCRIPTEN__
 #define SDL_MAIN_HANDLED
 #include <GLES3/gl3.h>
@@ -144,15 +145,15 @@ int bitloop_main(int, char* [])
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0);
 
-        #ifndef __EMSCRIPTEN__
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-        #else
+        //#ifndef __EMSCRIPTEN__
+        //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+        //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+        //#else
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-        #endif
+        //#endif
 
         int fb_w = 1280, fb_h = 720;
 
@@ -185,13 +186,14 @@ int bitloop_main(int, char* [])
         SDL_GL_MakeCurrent(window, gl_context);
         SDL_GL_SetSwapInterval(1); // enforces 60fps / v-sync
 
-        #ifndef __EMSCRIPTEN__
+        //#ifndef __EMSCRIPTEN__
         if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
             return 1; // Failed to initialize GLAD
 
         // Make colours consistent on with desktop build
         glDisable(GL_FRAMEBUFFER_SRGB);
-        #endif
+        //#endif
+
     }
 
     auto platform_manager = std::make_unique<PlatformManager>(window);
@@ -204,11 +206,12 @@ int bitloop_main(int, char* [])
         ImGui::CreateContext();
         ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
 
-        #ifdef __EMSCRIPTEN__
-        ImGui_ImplOpenGL3_Init("#version 300 es");
-        #else
-        ImGui_ImplOpenGL3_Init("#version 150");
-        #endif
+        ImGui_ImplOpenGL3_Init();
+        //#ifdef __EMSCRIPTEN__
+        //ImGui_ImplOpenGL3_Init("#version 300 es");
+        //#else
+        //ImGui_ImplOpenGL3_Init("#version 150");
+        //#endif
     }
 
     // ======== Init window & start worker thread ========
