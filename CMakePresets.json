@@ -49,6 +49,7 @@
     },
     {
       "name": "vs2022",
+      "hidden": true,
       "generator": "Visual Studio 17 2022",
       "binaryDir": "${sourceDir}/framework/build/vs2022",
       "cacheVariables": {
@@ -59,6 +60,7 @@
     },
     {
       "name": "vs2022-static",
+      "hidden": true,
       "generator": "Visual Studio 17 2022",
       "binaryDir": "${sourceDir}/framework/build/vs2022-static",
       "cacheVariables": {
@@ -99,9 +101,11 @@
   ],
 
   "buildPresets": [
-    { "name": "ninja-debug",        "configurePreset": "ninja-debug" },
-    { "name": "ninja-release",      "configurePreset": "ninja-release" },
-    { "name": "wasm32-debug",       "configurePreset": "wasm32-debug" },
-    { "name": "wasm32-release",     "configurePreset": "wasm32-release" }
+    { "name": "ninja-debug",          "configurePreset": "ninja-debug" },
+    { "name": "ninja-release",        "configurePreset": "ninja-release" },
+    { "name": "ninja-static-debug",   "configurePreset": "ninja-static-debug" },
+    { "name": "ninja-static-release", "configurePreset": "ninja-static-release" },
+    { "name": "wasm32-debug",         "configurePreset": "wasm32-debug" },
+    { "name": "wasm32-release",       "configurePreset": "wasm32-release" }
   ]
 }
