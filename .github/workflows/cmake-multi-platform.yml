@@ -19,10 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Windows → VS2022
-          - os: windows-latest
-            preset: vs2022
-
           # Linux → Ninja
           - os: ubuntu-latest
             preset: ninja-debug
@@ -38,7 +34,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ─── LINUX / macOS ────────────────────────────────────────────────────────
+      # ─── LINUX: install apt-based prerequisites ─────────────────────────────────
+      - name: Install prerequisites (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y git
+          bash scripts/bootstrap-deps.sh
+
+      # ─── LINUX / macOS: Bootstrap vcpkg ──────────────────────────────────────────
       - name: Bootstrap vcpkg (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
@@ -48,7 +52,7 @@ jobs:
           echo "VCPKG_ROOT=$RUNNER_TEMP/vcpkg" >> $GITHUB_ENV
           echo "$RUNNER_TEMP/vcpkg" >> $GITHUB_PATH
 
-      # ─── WINDOWS ──────────────────────────────────────────────────────────────
+      # ─── WINDOWS: Bootstrap vcpkg ────────────────────────────────────────────────
       - name: Bootstrap vcpkg (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -56,7 +60,6 @@ jobs:
           $dest = Join-Path $Env:RUNNER_TEMP 'vcpkg'
           git clone https://github.com/microsoft/vcpkg.git $dest
           & "$dest\bootstrap-vcpkg.bat"
-          # persist to future steps:
           "`nVCPKG_ROOT=$dest" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
           $dest | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf8 -Append
 
@@ -64,7 +67,7 @@ jobs:
         run: cmake --preset ${{ matrix.preset }}
 
       - name: Build via CMake preset
-        run: cmake --build --preset ${{ matrix.preset }} --config ${{ matrix.build_type }}
+        run: cmake --build --preset ${{ matrix.preset }}
 
       #- name: Test via CMake preset
       #  run: cmake --test --preset vs2022 --config ${{ matrix.build_type }}
