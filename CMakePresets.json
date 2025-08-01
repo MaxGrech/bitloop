@@ -13,7 +13,8 @@
       "binaryDir": "${sourceDir}/framework/build/ninja-debug",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/vcpkg_wrapper.cmake",
+        "VCPKG_BUILD_STATIC": "OFF"
       }
     },
     {
@@ -22,7 +23,28 @@
       "binaryDir": "${sourceDir}/framework/build/ninja-release",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/vcpkg_wrapper.cmake",
+        "VCPKG_BUILD_STATIC": "OFF"
+      }
+    },
+    {
+      "name": "ninja-static-debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/framework/build/ninja-static-debug",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/vcpkg_wrapper.cmake",
+        "VCPKG_BUILD_STATIC": "ON"
+      }
+    },
+    {
+      "name": "ninja-static-release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/framework/build/ninja-static-release",
+      "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/vcpkg_wrapper.cmake",
+        "VCPKG_BUILD_STATIC": "ON"
       }
     },
     {
@@ -36,13 +58,24 @@
       }
     },
     {
+      "name": "vs2022-static",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/framework/build/vs2022-static",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
+        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
       "name": "wasm32-debug",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/framework/build/wasm32-debug",
       "cacheVariables": {
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_BUILD_TYPE": "Debug",
         "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
         "VCPKG_TARGET_TRIPLET": "wasm32-emscripten-multithreaded",
         "VCPKG_CMAKE_CONFIGURE_OPTIONS": "-pthread -matomics -mbulk-memory",
@@ -68,7 +101,6 @@
   "buildPresets": [
     { "name": "ninja-debug",        "configurePreset": "ninja-debug" },
     { "name": "ninja-release",      "configurePreset": "ninja-release" },
-    { "name": "vs2022",             "configurePreset": "vs2022" },
     { "name": "wasm32-debug",       "configurePreset": "wasm32-debug" },
     { "name": "wasm32-release",     "configurePreset": "wasm32-release" }
   ]

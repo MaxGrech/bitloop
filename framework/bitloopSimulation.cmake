@@ -132,7 +132,7 @@ macro(bitloop_new_project sim_name)
 
 			msg(STATUS "./${rel}")
 
-			add_custom_command(TARGET ${_TARGET} PRE_LINK
+			add_custom_command(TARGET ${_TARGET} PRE_BUILD 
 				COMMAND ${CMAKE_COMMAND} -E copy_directory 
 					"${dep_path}" 
 					"${CMAKE_BINARY_DIR}/data"

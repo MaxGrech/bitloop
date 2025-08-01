@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(bitloop VERSION 0.9 LANGUAGES CXX)
-#set(CMAKE_CXX_STANDARD 23)         # Leave CMAKE_CXX_FLAGS Alone (REMOVING BREAKS 3RD PARTY LIBS?)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
-
 
 # ────────── Bootstrap package helpers for both in‑tree & installed modes ──────────
 include(bitloopSimulation)
