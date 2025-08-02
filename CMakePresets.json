@@ -13,7 +13,7 @@
       "binaryDir": "${sourceDir}/framework/build/ninja-debug",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake"
       }
     },
     {
@@ -22,7 +22,7 @@
       "binaryDir": "${sourceDir}/framework/build/ninja-release",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake"
       }
     },
     {
@@ -33,7 +33,7 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
         "VCPKG_BUILD_STATIC": "ON"
       }
     },
@@ -46,7 +46,7 @@
       "cacheVariables": {
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake"
       }
     },
     {
@@ -58,7 +58,7 @@
         "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake"
       }
     },
     {
@@ -67,7 +67,7 @@
       "binaryDir": "${sourceDir}/framework/build/wasm32-debug",
       "cacheVariables": {
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
         "CMAKE_BUILD_TYPE": "Debug",
         "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
         "VCPKG_TARGET_TRIPLET": "wasm32-emscripten-multithreaded",
