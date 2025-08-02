@@ -2,6 +2,8 @@
 import sys
 import argparse
 import platform
+import os
+import subprocess
 from pathlib import Path
 
 _script_dir = Path(__file__).resolve().parent
@@ -46,7 +48,22 @@ def main():
                 if line not in content:
                     f.write(f"\n{line}")
 
-        # Reload the shell config
+        # Make the wrapper script executable
+        bitloop_sh = bitloop_root / "bitloop.sh"
+        if bitloop_sh.exists():
+            subprocess.run(["chmod", "+x", str(bitloop_sh)], check=True)
+        else:
+            print(f"Warning: bitloop.sh not found at {bitloop_sh}", file=sys.stderr)
+
+        # Create a 'bitloop' symlink for easier invocation
+        link_path = bitloop_root / "bitloop"
+        if not link_path.exists() and bitloop_sh.exists():
+            try:
+                os.symlink(str(bitloop_sh), str(link_path))
+            except OSError as e:
+                print(f"Warning: could not create symlink {link_path}: {e}", file=sys.stderr)
+
+        # Reload the shell config (may not affect current shell)
         try:
             subprocess.run(["bash", "-lc", "source ~/.bashrc"], check=True)
         except subprocess.CalledProcessError as e:
@@ -67,7 +84,7 @@ def main():
             print(f"Error installing dependencies: {e}", file=sys.stderr)
             sys.exit(e.returncode)
 
-        print("Bootstrap completed: BITLOOP_ROOT set, PATH updated, and dependencies installed.")
+        print("Bootstrap completed: BITLOOP_ROOT set, PATH updated, bitloop.sh executable, 'bitloop' link created, and dependencies installed.")
         return
 
 
