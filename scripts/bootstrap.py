@@ -3,13 +3,15 @@ import platform
 import subprocess
 from pathlib import Path
 
+script_dir = Path(__file__).resolve().parent
+
 def run_bootstrap():
-	if platform.system() != "Linux":
+    if platform.system() != "Linux":
         print("Error: 'bootstrap' is only supported on Linux.", file=sys.stderr)
         sys.exit(1)
 
     # Determine repo root
-    bitloop_root = _script_dir.parent
+    bitloop_root = script_dir.parent
     bashrc = Path.home() / ".bashrc"
     lines = [
         f"export BITLOOP_ROOT=\"{bitloop_root}\"",
@@ -60,3 +62,7 @@ def run_bootstrap():
         sys.exit(e.returncode)
 
     print("Bootstrap completed: BITLOOP_ROOT set, PATH updated, bitloop.sh executable, 'bitloop' link created, and dependencies installed.")
+    
+    
+if __name__ == "__main__":
+    run_bootstrap()
