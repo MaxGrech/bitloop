@@ -40,17 +40,36 @@ if ERRORLEVEL 1 (
   echo Ninja already installed.
 )
 
+rem ─── Persist BITLOOP_ROOT ───────────────────────────────────
+echo Setting BITLOOP_ROOT to "%REPO_ROOT%"...
+setx BITLOOP_ROOT "%REPO_ROOT%" >nul
+
+rem ─── Append to user PATH if missing ─────────────────────────
+rem Query the current user-level PATH from the registry
+for /f "tokens=2,*" %%A in ('
+  reg query "HKCU\Environment" /v PATH 2^>nul
+') do set "USER_PATH=%%B"
+
+rem ─── Append to user PATH if missing ─────────────────────────
+echo %PATH% | findstr /i /c:"%REPO_ROOT%" >nul
+if errorlevel 1 (
+  echo Adding "%REPO_ROOT%" to your user PATH...
+  rem setx PATH appends to the user PATH (merging with system PATH automatically)
+  setx PATH "%PATH%;%REPO_ROOT%" >nul
+) else (
+  echo "%REPO_ROOT%" is already in your PATH.
+)
+
+:: Also update the **current** session
+set BITLOOP_ROOT=%REPO_ROOT%
+set PATH=%PATH%;%REPO_ROOT%
+
 rem ─── 4) Bootstrap vcpkg ────────────────────────────────
-echo Bootstrapping vcpkg…
+echo Bootstrapping vcpkg...
 "%REPO_ROOT%\vcpkg\bootstrap-vcpkg.bat" || (
   echo ERROR: vcpkg bootstrap failed.
   exit /b 1
 )
 
-rem ─── 5) Persist BITLOOP_ROOT ──────────────────────────
-echo Setting BITLOOP_ROOT to "%REPO_ROOT%"
-setx BITLOOP_ROOT "%REPO_ROOT%"
-
 echo.
-echo ─── Bootstrap complete. Please restart this CMD session to pick up BITLOOP_ROOT.
-endlocal
+echo ─── Done. Close and reopen your Command Prompt to pick up the changes.
