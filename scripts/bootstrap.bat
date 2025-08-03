@@ -22,20 +22,25 @@ if ERRORLEVEL 1 (
   echo Git already installed.
 )
 
-rem ─── 2) Ensure MSVC (cl.exe) ────────────────────────────
+rem ─── 2) Ensure MSVC + C++ workload ───────────────────────────
 where cl >nul 2>&1
 if ERRORLEVEL 1 (
-  echo Installing MSVC Build Tools via winget
-  winget install --id Microsoft.VisualStudio.2022.BuildTools --silent --accept-package-agreements --accept-source-agreements
+  echo Installing MSVC Build Tools + C++ workload via winget…
+  rem This will install the core BuildTools plus the VCTools workload
+  winget install --id Microsoft.VisualStudio.2022.BuildTools ^
+    --silent ^
+    --accept-package-agreements ^
+    --accept-source-agreements ^
+    --override "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive --norestart --wait"
 ) else (
-  echo MSVC Build Tools already installed.
+  echo MSVC C++ compiler already installed.
 )
 
 rem ─── 3) Ensure Ninja ───────────────────────────────────
 where ninja >nul 2>&1
 if ERRORLEVEL 1 (
-  echo Installing Ninja via winget
-  winget install --id Kitware.Ninja --silent --accept-package-agreements --accept-source-agreements
+  echo Ninja not found, installing via winget…
+  winget install --id Ninja-build.Ninja --exact --silent --accept-package-agreements --accept-source-agreements
 ) else (
   echo Ninja already installed.
 )
