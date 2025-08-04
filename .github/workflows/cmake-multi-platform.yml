@@ -18,15 +18,15 @@ jobs:
         include:
           # Linux → Ninja
           - os: ubuntu-latest
-          preset: ninja-debug
+            preset: ninja-debug
           - os: ubuntu-latest
-          preset: ninja-release
+            preset: ninja-release
 
           # Linux → Wasm
           - os: ubuntu-latest
-          preset: wasm32-debug
+            preset: wasm32-debug
           - os: ubuntu-latest
-          preset: wasm32-release
+            preset: wasm32-release
 
     steps:
       - uses: actions/checkout@v4
