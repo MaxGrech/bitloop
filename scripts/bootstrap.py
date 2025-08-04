@@ -1,6 +1,7 @@
 import sys
 import platform
 import subprocess
+import os
 from pathlib import Path
 
 script_dir = Path(__file__).resolve().parent
