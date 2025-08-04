@@ -17,16 +17,12 @@ jobs:
       matrix:
         include:
           # Linux → Ninja
-          - os: ubuntu-latest
-            preset: ninja-debug
-          - os: ubuntu-latest
-            preset: ninja-release
+          - os: ubuntu-latest   preset: ninja-debug
+          - os: ubuntu-latest   preset: ninja-release
 
-          # Linux → WebAssembly via Emscripten
-          - os: ubuntu-latest
-            preset: wasm32-debug
-          - os: ubuntu-latest
-            preset: wasm32-release
+          # Linux → Wasm
+          - os: ubuntu-latest   preset: wasm32-debug
+          - os: ubuntu-latest   preset: wasm32-release
 
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +33,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y git
           bash scripts/bootstrap.sh
-          source ~/.bashrc
+          echo "BITLOOP_ROOT=$PWD" >> $GITHUB_ENV
 
       # ─── WINDOWS: Bootstrap vcpkg ────────────────────────────────────────────────
       - name: Bootstrap (Windows)
