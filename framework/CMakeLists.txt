@@ -175,6 +175,13 @@ install(FILES
     RENAME bitloop_main.cpp
 )
 
+# ──────── Install default emscripten shell.html ────────
+install(FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/static/shell.html"
+    DESTINATION share/bitloop/static
+    RENAME shell.html
+)
+
 # ──────── Install simulation cmake helpers ────────
 install(FILES
    "${CMAKE_CURRENT_SOURCE_DIR}/bitloopSimulation.cmake"

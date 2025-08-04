@@ -4,6 +4,7 @@
 # --- bitloopSimulation.cmake ---
 
 set(BITLOOP_MAIN_SOURCE		"${CMAKE_CURRENT_LIST_DIR}/src/bitloop_main.cpp"	CACHE INTERNAL "")
+set(BITLOOP_SHELL_HTML		"${CMAKE_CURRENT_LIST_DIR}/static/shell.html"		CACHE INTERNAL "")
 set(BITLOOP_BUILD_DIR		"${CMAKE_CURRENT_BINARY_DIR}"						CACHE INTERNAL "")
 set(AUTOGEN_SIM_INCLUDES	"${BITLOOP_BUILD_DIR}/bitloop_simulations.h"		CACHE INTERNAL "")
 
@@ -35,9 +36,12 @@ function(apply_common_emscripten_settings _TARGET)
 endfunction()
 
 function(apply_main_emscripten_settings _TARGET)
+	#message(STATUS "${_TARGET}  CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
+	#message(STATUS "${_TARGET}  CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 	target_link_options(${_TARGET} PRIVATE
-		"--shell-file=${CMAKE_SOURCE_DIR}/static/bitloop.html"
-		"--embed-file=${CMAKE_BINARY_DIR}/data@/data"
+		#"--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/static/shell.html"
+		"--shell-file=${BITLOOP_SHELL_HTML}"
+		"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
 	)
 
 	set_target_properties(${_TARGET} PROPERTIES
@@ -49,13 +53,11 @@ macro(bitloop_new_project sim_name)
 	# collect the other args as source files
 	set(SIM_SOURCES ${ARGN})
 
+	# If root project not yet determined, set current project as root executable
 	if (NOT BL_ROOT_PROJECT)
 		set(BL_ROOT_PROJECT ${CMAKE_CURRENT_SOURCE_DIR})
 	endif()
 	
-	#message(STATUS "${sim_name} - CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}   CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}    BL_ROOT_PROJECT: ${BL_ROOT_PROJECT}")
-
-	#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 	if (CMAKE_CURRENT_SOURCE_DIR STREQUAL BL_ROOT_PROJECT)
 		# top-level (executable) 
 		set(_TARGET ${sim_name})
@@ -68,32 +70,12 @@ macro(bitloop_new_project sim_name)
 			set(SIM_SOURCES_PROVIDED TRUE)
 		endif()
 
-		#message(STATUS "Configuring ${sim_name} as ROOT PROJECT")
-
-
 		add_executable(${_TARGET} ${SIM_SOURCES})
 
-		#if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-		#	add_custom_target(run_server ALL
-		#		COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${_TARGET}.html
-		#		COMMAND emrun --no_browser --port 8000 ${CMAKE_BINARY_DIR}/${_TARGET}.html
-		#		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-		#		COMMENT "Building and serving ${_TARGET}.html on http://localhost:8000"
-		#		USES_TERMINAL
-		#	  )
-		#endif()
 	else()
 		# nested (library)
 		set(_TARGET ${sim_name}_lib)
 		set(SIM_SOURCES_PROVIDED TRUE)
-
-		#message(STATUS "Configuring ${sim_name} as CHILD")
-
-		#if(NOT SIM_SOURCES)
-		#	set(SIM_SOURCES_PROVIDED FALSE)
-		#else()
-		#	set(SIM_SOURCES_PROVIDED TRUE)
-		#endif()
 
 		add_library(${_TARGET} ${SIM_SOURCES})
 		add_library(${sim_name}::${sim_name} ALIAS ${sim_name}_lib) # Export an alias so consumers can link as sim::sim
@@ -105,8 +87,6 @@ macro(bitloop_new_project sim_name)
     )
 	target_link_libraries(${_TARGET} PRIVATE bitloop::bitloop)
 
-	# Set target for dependencies to link against
-	#set(CONSUMER_TARGET ${_TARGET} PARENT_SCOPE)
 
 	# Append #include to the auto-generated header
 	if (SIM_SOURCES_PROVIDED)
