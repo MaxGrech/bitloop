@@ -44,6 +44,13 @@ jobs:
         if: runner.os == 'Windows'
         run: scripts/bootstrap.bat
 
+      - name: Setup Emscripten SDK
+        if: runner.os == 'Linux' && contains(matrix.preset, 'wasm32')
+        uses: webassembly/setup-emsdk@v1
+        with:
+          version: latest
+          activate: true
+
       - name: Configure via CMake preset
         run: cmake --preset ${{ matrix.preset }}
 
