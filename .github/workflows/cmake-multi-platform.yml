@@ -12,9 +12,6 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
 
-    env:
-      VCPKG_ROOT: $RUNNER_TEMP/vcpkg
-      
     strategy:
       fail-fast: false
       matrix:
