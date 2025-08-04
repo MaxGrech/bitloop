@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ─── LINUX: install apt-based prerequisites ─────────────────────────────────
+      # ─── Linux bootstrap ───────────────────────────────────────────
       - name: Bootstrap (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -39,23 +39,34 @@ jobs:
           bash scripts/bootstrap.sh
           echo "BITLOOP_ROOT=$PWD" >> $GITHUB_ENV
 
-      # ─── WINDOWS: Bootstrap vcpkg ────────────────────────────────────────────────
+      # ─── Windows bootstrap ─────────────────────────────────────────
       - name: Bootstrap (Windows)
         if: runner.os == 'Windows'
-        run: scripts/bootstrap.bat
+        run: |
+          scripts\bootstrap.bat
+          echo "BITLOOP_ROOT=%CD%" >> $GITHUB_ENV
 
-      - name: Setup Emscripten SDK
+      # ─── Linux → wasm32 ────────────────────────────────────────────
+      - name: Bootstrap & Build (Linux WASM)
         if: runner.os == 'Linux' && contains(matrix.preset, 'wasm32')
-        uses: webassembly/setup-emsdk@v1
-        with:
-          version: latest
-          activate: true
+        shell: bash {0}
+        run: |
+          # emsdk install & activate
+          git clone https://github.com/emscripten-core/emsdk.git ~/emsdk
+          ~/emsdk/emsdk install 3.1.64
+          ~/emsdk/emsdk activate 3.1.64
+
+          source ~/emsdk/emsdk_env.sh
+          echo "EMSDK=$HOME/emsdk" >> $GITHUB_ENV
 
       - name: Configure via CMake preset
         run: cmake --preset ${{ matrix.preset }}
 
       - name: Build via CMake preset
         run: cmake --build --preset ${{ matrix.preset }}
+
+
+
 
       #- name: Test via CMake preset
       #  run: cmake --test --preset vs2022 --config ${{ matrix.build_type }}
