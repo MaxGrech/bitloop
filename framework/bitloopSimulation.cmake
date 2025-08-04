@@ -49,7 +49,14 @@ macro(bitloop_new_project sim_name)
 	# collect the other args as source files
 	set(SIM_SOURCES ${ARGN})
 
-	if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	if (NOT BL_ROOT_PROJECT)
+		set(BL_ROOT_PROJECT ${CMAKE_CURRENT_SOURCE_DIR})
+	endif()
+	
+	#message(STATUS "${sim_name} - CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}   CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}    BL_ROOT_PROJECT: ${BL_ROOT_PROJECT}")
+
+	#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	if (CMAKE_CURRENT_SOURCE_DIR STREQUAL BL_ROOT_PROJECT)
 		# top-level (executable) 
 		set(_TARGET ${sim_name})
 
@@ -60,6 +67,9 @@ macro(bitloop_new_project sim_name)
 			list(APPEND SIM_SOURCES ${BITLOOP_MAIN_SOURCE}) # sources provided by user, so append the framework main()
 			set(SIM_SOURCES_PROVIDED TRUE)
 		endif()
+
+		#message(STATUS "Configuring ${sim_name} as ROOT PROJECT")
+
 
 		add_executable(${_TARGET} ${SIM_SOURCES})
 
@@ -76,6 +86,14 @@ macro(bitloop_new_project sim_name)
 		# nested (library)
 		set(_TARGET ${sim_name}_lib)
 		set(SIM_SOURCES_PROVIDED TRUE)
+
+		#message(STATUS "Configuring ${sim_name} as CHILD")
+
+		#if(NOT SIM_SOURCES)
+		#	set(SIM_SOURCES_PROVIDED FALSE)
+		#else()
+		#	set(SIM_SOURCES_PROVIDED TRUE)
+		#endif()
 
 		add_library(${_TARGET} ${SIM_SOURCES})
 		add_library(${sim_name}::${sim_name} ALIAS ${sim_name}_lib) # Export an alias so consumers can link as sim::sim
@@ -95,9 +113,10 @@ macro(bitloop_new_project sim_name)
 		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "#include \"${sim_name}.h\"\n")
 	ENDIF()
 
-	if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	if (CMAKE_CURRENT_SOURCE_DIR STREQUAL BL_ROOT_PROJECT)
 		msg(STATUS "")
-		msg(STATUS "────────── Project Hierarchy ──────────")
+		msg(STATUS "────────── Project Tree ──────────")
 		msg(STATUS "[${sim_name}]")
 	endif()
 
@@ -112,30 +131,35 @@ macro(bitloop_new_project sim_name)
 
 	msg_indent_pop()
 
+	# Add target /data (if provided)
 	get_property(_data_dirs GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES)
-	list(APPEND _data_dirs "${CMAKE_CURRENT_SOURCE_DIR}/data")
+	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/data")
+		list(APPEND _data_dirs "${CMAKE_CURRENT_SOURCE_DIR}/data")
+	endif()
 	set_property(GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES ${_data_dirs})
 
 	if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 		apply_common_emscripten_settings(${_TARGET})
 	endif()
 
-	if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	if (CMAKE_CURRENT_SOURCE_DIR STREQUAL BL_ROOT_PROJECT)
 		msg(STATUS "")
-		msg(STATUS "────────── GATHERING DATA ──────────")
+		msg(STATUS "────────── Data Tree ──────────")
 		get_property(_data_dirs GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES)
 
-		#get_filename_component(BITLOOP_PARENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
+		get_filename_component(BITLOOP_PARENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
 
 		foreach(dep_path IN LISTS _data_dirs)
-			file(RELATIVE_PATH rel "${CMAKE_CURRENT_SOURCE_DIR}" "${dep_path}")
+			file(RELATIVE_PATH rel_src "${BITLOOP_PARENT_DIR}" "${dep_path}")
+			file(RELATIVE_PATH rel_dest "${BITLOOP_PARENT_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-			msg(STATUS "./${rel}")
+			msg(STATUS "${rel_src}  ==> ${rel_dest}/data")
 
 			add_custom_command(TARGET ${_TARGET} PRE_BUILD 
 				COMMAND ${CMAKE_COMMAND} -E copy_directory 
 					"${dep_path}" 
-					"${CMAKE_BINARY_DIR}/data"
+					"${CMAKE_CURRENT_BINARY_DIR}/data"
 				COMMENT "Merging dependency data from ${dep_path}"
 			)
 		endforeach()

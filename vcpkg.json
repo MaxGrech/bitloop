@@ -2,6 +2,7 @@
   "name": "bitloop",
   "version-string": "0.9.0",
   "dependencies": [
+    "vcpkg-tool-ninja",
     "sdl3",
     "freetype",
     {
