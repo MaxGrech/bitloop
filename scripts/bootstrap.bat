@@ -22,22 +22,27 @@ if ERRORLEVEL 1 (
   echo Git already installed.
 )
 
+rem ─── Ensure Windows SDK via BuildTools bootstrapper ─────────────────────
+
 rem ─── Ensure MSVC Build Tools + C++ workload + Windows SDK ─────────────────
 where cl >nul 2>&1
 if ERRORLEVEL 1 (
   echo Installing MSVC Build Tools, C++ workload, and Windows SDK via winget…
-  winget install --id Microsoft.VisualStudio.2022.BuildTools ^
-    --silent ^
-    --accept-package-agreements ^
-    --accept-source-agreements ^
-    --override ^
-      "--add Microsoft.VisualStudio.Workload.VCTools ^
-       --add Microsoft.VisualStudio.Component.Windows10SDK.19041 ^
-       --includeRecommended ^
-       --passive --norestart --wait"
+  winget install --id Microsoft.VisualStudio.2022.BuildTools --exact ^
+  --silent --accept-package-agreements --accept-source-agreements ^
+  --override "--add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.Windows10SDK.19041.Desktop --includeRecommended --passive --norestart --wait"
 ) else (
   echo MSVC Build Tools already installed.
 )
+
+rem ─── 4) Bootstrap vcpkg ────────────────────────────────
+echo Bootstrapping vcpkg...
+call "%REPO_ROOT%\vcpkg\bootstrap-vcpkg.bat" || (
+  echo ERROR: vcpkg bootstrap failed.
+  exit /b 1
+)
+
+
 
 rem ─── 3) Install Ninja via vcpkg ──────────────────────────
 echo Installing Ninja via vcpkg...
@@ -118,12 +123,7 @@ if errorlevel 1 (
 set BITLOOP_ROOT=%REPO_ROOT%
 set PATH=%PATH%;%REPO_ROOT%
 
-rem ─── 4) Bootstrap vcpkg ────────────────────────────────
-echo Bootstrapping vcpkg...
-"%REPO_ROOT%\vcpkg\bootstrap-vcpkg.bat" || (
-  echo ERROR: vcpkg bootstrap failed.
-  exit /b 1
-)
+
 
 echo.
 echo ─── Done. Close and reopen your Command Prompt to pick up the changes.

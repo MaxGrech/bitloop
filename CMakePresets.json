@@ -13,7 +13,8 @@
       "binaryDir": "${sourceDir}/framework/build/ninja-debug",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
+        "CMAKE_MAKE_PROGRAM": "${sourceDir}/vcpkg/installed/x64-windows/tools/ninja/ninja.exe"
       }
     },
     {
