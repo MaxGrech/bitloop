@@ -3,7 +3,6 @@
 
 int main(int argc, char* argv[])
 {
-    std::cout << "Hello from example!\n";
     return bitloop_main(argc, argv);
 }
 

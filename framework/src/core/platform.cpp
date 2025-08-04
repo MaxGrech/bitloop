@@ -1,6 +1,18 @@
 #include "platform.h"
 #include "imgui_custom.h"
 
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#include <limits.h>
+#elif defined(__linux__)
+#include <unistd.h>
+#include <limits.h>
+#endif
+#include <filesystem>
+
 PlatformManager* PlatformManager::singleton = nullptr;
 
 #ifdef __EMSCRIPTEN__
@@ -220,12 +232,53 @@ float PlatformManager::max_char_cols()
     return io.DisplaySize.x / ImGui::GetFontSize();
 }
 
+inline std::filesystem::path executable_dir()
+{
+    #if defined(_WIN32)
+    std::wstring buf(MAX_PATH, L'\0');
+    DWORD len = GetModuleFileNameW(nullptr, buf.data(), buf.size());
+    if (len == 0)
+        throw std::runtime_error("GetModuleFileNameW failed");
+    buf.resize(len);
+    return std::filesystem::path(buf).parent_path();
 
-const char* PlatformManager::path(const char* virtual_path)
+    #elif defined(__APPLE__)
+    char buf[PATH_MAX];
+    uint32_t size = sizeof(buf);
+    if (_NSGetExecutablePath(buf, &size) != 0)
+        throw std::runtime_error("_NSGetExecutablePath failed");
+    return std::filesystem::canonical(buf).parent_path();
+
+    #elif defined(__linux__)
+    char buf[PATH_MAX];
+    ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    if (len == -1)
+        throw std::runtime_error("readlink failed");
+    buf[len] = '\0';
+    return std::filesystem::canonical(buf).parent_path();
+
+    #else   // last-ditch fallback
+    return std::filesystem::current_path();
+    #endif
+}
+
+inline std::filesystem::path resource_root()
 {
     #ifdef __EMSCRIPTEN__
-    return virtual_path;
+    return "/";
     #else
-    return virtual_path + 1; // Skip first '/'
+    return executable_dir();
     #endif
+}
+
+std::string PlatformManager::path(std::string_view virtual_path)
+{
+    std::filesystem::path p = resource_root();
+
+    if (!virtual_path.empty() && virtual_path.front() == '/')
+        virtual_path.remove_prefix(1); // trim leading '/'
+
+    p /= virtual_path; // join
+    p = p.lexically_normal(); // clean up
+    return p.string();
 }

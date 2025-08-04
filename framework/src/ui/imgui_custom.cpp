@@ -9,7 +9,7 @@
 bool LoadPixelsRGBA(const char* path, int* outW, int* outH, std::vector<unsigned char>& outPixels)
 {
     int w, h, n;
-    unsigned char* data = stbi_load(Platform()->path(path), &w, &h, &n, 4);  // force RGBA
+    unsigned char* data = stbi_load(Platform()->path(path).c_str(), &w, &h, &n, 4);  // force RGBA
     if (!data) return false;
 
     outPixels.assign(data, data + (w * h * 4));
@@ -44,7 +44,7 @@ GLuint CreateGLTextureRGBA8(const void* pixels, int w, int h)
 GLuint loadSVG(const char* path, int outputWidth, int outputHeight)
 {
     // Step 1: Parse SVG
-    NSVGimage* image = nsvgParseFromFile(Platform()->path(path), "px", 96.0f); // 96 dpi, or 72 dpi depending on your needs
+    NSVGimage* image = nsvgParseFromFile(Platform()->path(path).c_str(), "px", 96.0f); // 96 dpi, or 72 dpi depending on your needs
     if (!image) {
         printf("Could not open SVG image: %s\n", path);
         return 0;

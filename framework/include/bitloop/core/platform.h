@@ -104,7 +104,7 @@ public:
     [[nodiscard]] float max_char_cols();
 
     // File system helpers
-    [[nodiscard]] const char* path(const char* virtual_path);
+    [[nodiscard]] std::string path(std::string_view virtual_path);
 };
 
 [[nodiscard]] constexpr PlatformManager* Platform()

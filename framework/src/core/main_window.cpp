@@ -127,13 +127,13 @@ void MainWindow::initFonts()
     ImGuiIO& io = ImGui::GetIO();
     
     float base_pt = 16.0f;
-    const char* font_path = Platform()->path("/data/fonts/DroidSans.ttf");
+    std::string font_path = Platform()->path("/data/fonts/DroidSans.ttf");
     ImFontConfig config;
     config.OversampleH = 3;
     config.OversampleV = 3;
     
     io.Fonts->Clear();
-    io.Fonts->AddFontFromFileTTF(font_path, base_pt * Platform()->dpr() * Platform()->font_scale(), &config);
+    io.Fonts->AddFontFromFileTTF(font_path.c_str(), base_pt * Platform()->dpr() * Platform()->font_scale(), &config);
     io.Fonts->Build();
 }
 
