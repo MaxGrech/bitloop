@@ -82,7 +82,7 @@ macro(bitloop_new_project sim_name)
 	endif()
 
 	target_include_directories(${_TARGET} PUBLIC
-      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
       "$<BUILD_INTERFACE:${BITLOOP_BUILD_DIR}>"
   )
 	target_link_libraries(${_TARGET} PRIVATE bitloop::bitloop)

@@ -16,7 +16,7 @@
       {
         "kind":       "git",
         "repository": "https://github.com/willmh93/bitloop-registry.git",
-        "baseline":   "fc54f6b56aed6a27f94d04ddccce93af04351e09",
+        "baseline":   "d01d2dc38ef5586a933b14d0e4ff34a3168df7b3",
         "packages":   [ "bitloop" ]
       }
     ],
