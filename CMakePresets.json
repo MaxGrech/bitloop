@@ -10,7 +10,7 @@
     {
       "name": "ninja-debug",
       "generator": "Ninja",
-      "binaryDir": "$env{sourceDir}/framework/build/ninja-debug",
+      "binaryDir": "${sourceDir}/framework/build/ninja-debug",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
@@ -39,7 +39,6 @@
     },
     {
       "name": "vs2022",
-      "hidden": true,
       "condition": {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"},
       "generator": "Visual Studio 17 2022",
       "binaryDir": "${sourceDir}/framework/build/vs2022",

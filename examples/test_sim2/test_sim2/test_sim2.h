@@ -1,6 +1,6 @@
 #pragma once
 #include <bitloop/core/project.h>
-#include "test_sim.h"
+#include <test_sim/test_sim.h>
 
 SIM_BEG(Test2)
 

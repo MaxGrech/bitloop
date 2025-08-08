@@ -81,16 +81,16 @@ macro(bitloop_new_project sim_name)
 		add_library(${sim_name}::${sim_name} ALIAS ${sim_name}_lib) # Export an alias so consumers can link as sim::sim
 	endif()
 
-	target_include_directories(${_TARGET} PRIVATE
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-        "$<BUILD_INTERFACE:${BITLOOP_BUILD_DIR}>"
-    )
+	target_include_directories(${_TARGET} PUBLIC
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>"
+      "$<BUILD_INTERFACE:${BITLOOP_BUILD_DIR}>"
+  )
 	target_link_libraries(${_TARGET} PRIVATE bitloop::bitloop)
 
 
 	# Append #include to the auto-generated header
 	if (SIM_SOURCES_PROVIDED)
-		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "#include \"${sim_name}.h\"\n")
+		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "#include <${sim_name}/${sim_name}.h>\n")
 	ENDIF()
 
 	#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
@@ -139,7 +139,7 @@ macro(bitloop_new_project sim_name)
 			add_custom_command(TARGET ${_TARGET} PRE_BUILD 
 				COMMAND ${CMAKE_COMMAND} -E copy_directory 
 					"${dep_path}" 
-					"${CMAKE_CURRENT_BINARY_DIR}/data"
+					"$<TARGET_FILE_DIR:${_TARGET}>/data"
 				COMMENT "Merging dependency data from ${dep_path}"
 			)
 		endforeach()
