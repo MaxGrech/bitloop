@@ -6,7 +6,7 @@ if (NOT TARGET bitloop::bitloop)
   find_package(bitloop CONFIG REQUIRED)
 endif()
 
-file(GLOB SIM_SOURCES CONFIGURE_DEPENDS "*.cpp" "*.h")
+file(GLOB SIM_SOURCES CONFIGURE_DEPENDS "src/*.cpp" "src/*.h")
 
 # 1. Setup project dependencies (if any)
 #bitloop_add_dependency(../test_sim)

@@ -1,0 +1,1 @@
+..\vcpkg\vcpkg install bitloop --classic --overlay-ports="..\..\bitloop-registry-dev\ports"

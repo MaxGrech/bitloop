@@ -58,15 +58,19 @@
  * 
  * 
  * TODO:
- * > Each simulation generates a vcxproj of it's own, and can compile to exe
- *   - It always compiles to .obj, but the child vcxproj can compile it into an exe by linking with "main()"
- *   - implementation:
- *     - make each simulation have it's own complete CMakeLists.txt, which links to SimulationCore
- *     - root "bitloop_gallery" have it's own CMakeLists.txt which links to all simulations
  * 
- * > Make a NEW Visual Studio project, link to bitloop, generate standalone build for project
- *   - The generated projects should use this logic
- *   - They already do, but you can't compile individual projects alone, only the root framework right now
+ * > bitloop command line:
+ *   - bitloop new project
+ * 
+ * > README:
+ *   - What is bitloop?
+ *     > A simulation sandbox with project nesting, enabling modular reuse of your projects to
+         build on your past ideas in a clean and structured way.
+ *     > High-performance, and great for rapid prototyping of 2D/3D simulations
+ *     > Cross-platform (Linux, Windows, Web, macOS, Android, iPhone) to easily showcase your projects
+ *     > FFmpeg recording
+ *     > A library of math, physics, graphics and UI helpers
+ *       
  * 
  * > Make new project, include bitloop as EXTERNAL dependency, build
  *   - Requires moving "Portfolio" logic into it's own translation unit
