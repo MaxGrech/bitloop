@@ -10,11 +10,10 @@
     {
       "name": "ninja-debug",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/framework/build/ninja-debug",
+      "binaryDir": "$env{sourceDir}/framework/build/ninja-debug",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/external/ninja/ninja.exe"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
@@ -23,8 +22,7 @@
       "binaryDir": "${sourceDir}/framework/build/ninja-release",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/external/ninja/ninja.exe"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
@@ -35,8 +33,7 @@
       "cacheVariables": {
         "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/external/ninja/ninja.exe",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_BUILD_STATIC": "ON"
       }
     },
@@ -49,8 +46,7 @@
       "cacheVariables": {
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/external/ninja/ninja.exe"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
@@ -62,8 +58,7 @@
         "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/external/ninja/ninja.exe"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
@@ -72,8 +67,7 @@
       "binaryDir": "${sourceDir}/framework/build/wasm32-debug",
       "cacheVariables": {
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/external/ninja/ninja.exe",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_BUILD_TYPE": "Debug",
         "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
         "VCPKG_TARGET_TRIPLET": "wasm32-emscripten-multithreaded",
@@ -87,8 +81,7 @@
       "binaryDir": "${sourceDir}/framework/build/wasm32-release",
       "cacheVariables": {
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/external/ninja/ninja.exe",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_BUILD_TYPE": "Release",
         "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
         "VCPKG_TARGET_TRIPLET": "wasm32-emscripten-multithreaded",
@@ -101,8 +94,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/framework/build/android-arm64-release",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/bitloop-vcpkg.cmake",
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/external/ninja/ninja.exe",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_TARGET_TRIPLET": "arm64-android",
         "CMAKE_SYSTEM_NAME": "Android",
         "CMAKE_ANDROID_NDK": "$env{ANDROID_NDK}",

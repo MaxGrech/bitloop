@@ -8,10 +8,7 @@
     {
       "kind":     "filesystem",
       "path":     "../bitloop-registry-dev/ports",
-      "packages": ["bitloop"],
-      "metadata": {
-        "description": "LOCAL DEV REGISTRY – do NOT publish these ports"
-      }
+      "packages": ["bitloop"]
     }
   ]
 }
