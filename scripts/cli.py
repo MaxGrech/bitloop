@@ -29,7 +29,7 @@ def main():
 
     args = parser.parse_args()
 
-     if args.command == "bootstrap":
+    if args.command == "bootstrap":
         run_bootstrap()
         return
 
