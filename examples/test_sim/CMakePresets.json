@@ -7,13 +7,10 @@
       "name": "ninja-debug",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/ninja-debug",
-      "environment": {
-        "VCPKG_ROOT": "$env{BITLOOP_ROOT}/vcpkg"
-      },
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_BUILD_TYPE":               "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS":  "YES",
+        "CMAKE_TOOLCHAIN_FILE":           "${sourceDir}/cmake/toolchain/vcpkg_autodetect.cmake"
       }
     },
     {
@@ -21,10 +18,9 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/ninja-release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_OVERLAY_PORTS":  "$env{VCPKG_OVERLAY_PORTS}"
+        "CMAKE_BUILD_TYPE":               "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS":  "YES",
+        "CMAKE_TOOLCHAIN_FILE":           "${sourceDir}/cmake/toolchain/vcpkg_autodetect.cmake"
       }
     },
     {
@@ -32,10 +28,9 @@
       "generator": "Visual Studio 17 2022",
       "binaryDir": "${sourceDir}/build/vs2022",
       "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_OVERLAY_PORTS":  "$env{VCPKG_OVERLAY_PORTS}"
+        "CMAKE_CONFIGURATION_TYPES":      "Debug;Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS":  "YES",
+        "CMAKE_TOOLCHAIN_FILE":           "${sourceDir}/cmake/toolchain/vcpkg_autodetect.cmake"
       }
     },
     {
@@ -43,12 +38,12 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/wasm32-debug",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE":               "Debug",
+        "CMAKE_TOOLCHAIN_FILE":           "${sourceDir}/cmake/toolchain/vcpkg_autodetect.cmake",
+        "VCPKG_OVERLAY_TRIPLETS":         "${sourceDir}/cmake/triplets",
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
-        "CMAKE_TOOLCHAIN_FILE":           "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "CMAKE_BUILD_TYPE":               "RelWithDebInfo",
-        "VCPKG_TARGET_TRIPLET":           "wasm32-emscripten",
-        "VCPKG_CMAKE_CONFIGURE_OPTIONS":  "-pthread -matomics -mbulk-memory",
-        "CMAKE_SUPPRESS_REGENERATION":    "ON"
+        "VCPKG_TARGET_TRIPLET":           "wasm32-emscripten-multithreaded",
+        "VCPKG_CMAKE_CONFIGURE_OPTIONS":  "-pthread -matomics -mbulk-memory"
       }
     },
     {
@@ -56,12 +51,12 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/wasm32-release",
       "cacheVariables": {
-        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
-        "CMAKE_TOOLCHAIN_FILE":           "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_BUILD_TYPE":               "Release",
-        "VCPKG_TARGET_TRIPLET":           "wasm32-emscripten",
-        "VCPKG_CMAKE_CONFIGURE_OPTIONS":  "-pthread -matomics -mbulk-memory",
-        "CMAKE_SUPPRESS_REGENERATION":    "ON"
+        "CMAKE_TOOLCHAIN_FILE":           "${sourceDir}/cmake/toolchain/vcpkg_autodetect.cmake",
+        "VCPKG_OVERLAY_TRIPLETS":         "${sourceDir}/cmake/triplets",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+        "VCPKG_TARGET_TRIPLET":           "wasm32-emscripten-multithreaded",
+        "VCPKG_CMAKE_CONFIGURE_OPTIONS":  "-pthread -matomics -mbulk-memory"
       }
     }
   ],

@@ -6,14 +6,11 @@
   "registries": [
     {
       "kind": "git",
-      "baseline": "fa6ff1611b0139ddea3b731e9ab93b43e1f0c1b9",
+      "baseline": "90b922cd979405c9def09af202ccd7639902f16c",
       "repository": "https://github.com/willmh93/bitloop-registry.git",
       "packages": [
         "bitloop"
       ]
     }
-  ],
-  "overlay-triplets": [
-    "triplets"
   ]
 }
