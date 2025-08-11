@@ -3,16 +3,16 @@
     "kind": "builtin",
     "baseline": "51d6ada21807f14625026adbc3966208e6d03aed"
   },
-
   "registries": [
     {
-      "kind":       "git",
+      "kind": "git",
+      "baseline": "fa6ff1611b0139ddea3b731e9ab93b43e1f0c1b9",
       "repository": "https://github.com/willmh93/bitloop-registry.git",
-      "baseline":   "f4607401114a7a004cb7f1d677333a291cc6dd12",
-      "packages":   [ "bitloop" ]
+      "packages": [
+        "bitloop"
+      ]
     }
   ],
-
   "overlay-triplets": [
     "triplets"
   ]
