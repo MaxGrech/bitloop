@@ -4,9 +4,10 @@
 # --- bitloopSimulation.cmake ---
 
 set(BITLOOP_MAIN_SOURCE		"${CMAKE_CURRENT_LIST_DIR}/src/bitloop_main.cpp"	CACHE INTERNAL "")
-set(BITLOOP_SHELL_HTML		"${CMAKE_CURRENT_LIST_DIR}/static/shell.html"		CACHE INTERNAL "")
-set(BITLOOP_BUILD_DIR		"${CMAKE_CURRENT_BINARY_DIR}"						CACHE INTERNAL "")
-set(AUTOGEN_SIM_INCLUDES	"${BITLOOP_BUILD_DIR}/bitloop_simulations.h"		CACHE INTERNAL "")
+#set(BITLOOP_SHELL_HTML		"${CMAKE_CURRENT_LIST_DIR}/static/shell.html"			CACHE INTERNAL "")
+set(BITLOOP_COMMON_DATA		"${CMAKE_CURRENT_LIST_DIR}/common"								CACHE INTERNAL "")
+set(BITLOOP_BUILD_DIR			"${CMAKE_CURRENT_BINARY_DIR}"											CACHE INTERNAL "")
+set(AUTOGEN_SIM_INCLUDES	"${BITLOOP_BUILD_DIR}/bitloop_simulations.h"			CACHE INTERNAL "")
 
 set(BITLOOP_DATA_DEPENDENCIES "" CACHE INTERNAL "Ordered list of dependency data directories")
 
@@ -40,7 +41,8 @@ function(apply_main_emscripten_settings _TARGET)
 	#message(STATUS "${_TARGET}  CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
 	target_link_options(${_TARGET} PRIVATE
 		#"--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/static/shell.html"
-		"--shell-file=${BITLOOP_SHELL_HTML}"
+		#"--shell-file=${BITLOOP_SHELL_HTML}"
+		"--shell-file=${BITLOOP_COMMON}/static/shell.html"
 		"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
 	)
 
@@ -129,6 +131,15 @@ macro(bitloop_new_project sim_name)
 		get_property(_data_dirs GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES)
 
 		get_filename_component(BITLOOP_PARENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
+
+		msg(STATUS "${BITLOOP_COMMON}/data  ==> $<TARGET_FILE_DIR:${_TARGET}>/data")
+		
+		add_custom_command(TARGET ${_TARGET} PRE_BUILD 
+			COMMAND ${CMAKE_COMMAND} -E copy_directory 
+				"${BITLOOP_COMMON}/data"
+				"$<TARGET_FILE_DIR:${_TARGET}>/data"
+			COMMENT "Merging dependency data from ${dep_path}"
+		)
 
 		foreach(dep_path IN LISTS _data_dirs)
 			file(RELATIVE_PATH rel_src "${BITLOOP_PARENT_DIR}" "${dep_path}")

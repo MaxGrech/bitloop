@@ -7,11 +7,13 @@
       "name": "ninja-debug",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/ninja-debug",
+      "environment": {
+        "VCPKG_ROOT": "$env{BITLOOP_ROOT}/vcpkg"
+      },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_OVERLAY_PORTS":  "$env{VCPKG_OVERLAY_PORTS}"
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
