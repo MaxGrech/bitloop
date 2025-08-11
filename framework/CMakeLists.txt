@@ -186,7 +186,6 @@ install(FILES
 install(DIRECTORY
     "${CMAKE_CURRENT_SOURCE_DIR}/common"
     DESTINATION share/bitloop/common
-    RENAME shell.html
 )
 
 # ──────── Install simulation cmake helpers ────────
