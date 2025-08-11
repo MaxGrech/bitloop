@@ -185,7 +185,7 @@ install(FILES
 # ──────── Install common ────────
 install(DIRECTORY
     "${CMAKE_CURRENT_SOURCE_DIR}/common"
-    DESTINATION share/bitloop/common
+    DESTINATION share/bitloop
 )
 
 # ──────── Install simulation cmake helpers ────────
