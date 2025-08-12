@@ -152,7 +152,7 @@ public:
     //    create(w, h); 
     //}
 
-    Image() : bmp_size{ 0, 0 } {}
+    Image() : bmp_size{ 0, 0 }, colors(nullptr) {}
 
     [[nodiscard]] int width() const { return bmp_width; }
     [[nodiscard]] int height() const { return bmp_height; }

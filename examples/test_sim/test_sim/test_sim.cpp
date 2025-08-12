@@ -82,6 +82,7 @@ void Test_Scene::sceneMounted(Viewport*)
     //else
     //camera->setOriginViewportAnchor(Anchor::TOP_LEFT);
     camera->setOriginViewportAnchor(Anchor::CENTER);
+    camera->setDirectCameraPanning(true);
 
     //camera->focusWorldRect(0, 0, 300, 300);
 }

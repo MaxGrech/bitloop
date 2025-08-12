@@ -1,53 +1,54 @@
-﻿# --- at the top of your cmake module ---
-
-
-# --- bitloopSimulation.cmake ---
+﻿# --- bitloopSimulation.cmake ---
 
 set(BITLOOP_MAIN_SOURCE		"${CMAKE_CURRENT_LIST_DIR}/src/bitloop_main.cpp"	CACHE INTERNAL "")
-set(BITLOOP_COMMON				"${CMAKE_CURRENT_LIST_DIR}/common"								CACHE INTERNAL "")
-set(BITLOOP_BUILD_DIR			"${CMAKE_CURRENT_BINARY_DIR}"											CACHE INTERNAL "")
-set(AUTOGEN_SIM_INCLUDES	"${BITLOOP_BUILD_DIR}/bitloop_simulations.h"			CACHE INTERNAL "")
+set(BITLOOP_COMMON			"${CMAKE_CURRENT_LIST_DIR}/common"					CACHE INTERNAL "")
+set(BITLOOP_BUILD_DIR		"${CMAKE_CURRENT_BINARY_DIR}"						CACHE INTERNAL "")
+set(AUTOGEN_SIM_INCLUDES	"${BITLOOP_BUILD_DIR}/bitloop_simulations.h"		CACHE INTERNAL "")
 
 set(BITLOOP_DATA_DEPENDENCIES "" CACHE INTERNAL "Ordered list of dependency data directories")
 
 set_property(DIRECTORY PROPERTY BITLOOP_DEPENDENCY_DIRS "")
 
 # Begin auto-generated header file
-file(WRITE "${AUTOGEN_SIM_INCLUDES}" "// Auto‑generated list of simulations\n")
+file(WRITE "${AUTOGEN_SIM_INCLUDES}" "// Auto‑generated simulation includes\n")
 
-function(apply_common_emscripten_settings _TARGET)
-	# O3 for WASM
-	target_compile_options(${_TARGET} PRIVATE 
-		"-O3"
-		"-sUSE_PTHREADS=1"
-		"-pthread"
-		"-matomics"
-		"-mbulk-memory"
-	)
+function(apply_common_settings _TARGET)
+	target_compile_features(${_TARGET} PUBLIC cxx_std_23)
 
-	target_link_options(${_TARGET} PRIVATE
-		"-sUSE_SDL=3"
-		"-sUSE_WEBGL2=1"
-		"-sFULL_ES3=1"
-		"-sALLOW_MEMORY_GROWTH=1"
-		"-sUSE_PTHREADS=1"
-		"-sPTHREAD_POOL_SIZE=16"
-	)
+	if (MSVC)
+		target_compile_options(${_TARGET} PRIVATE /MP) # Multi-threaded compilation
+        target_compile_options(${_TARGET} PRIVATE /permissive- /W3 /WX /D_CRT_SECURE_NO_WARNINGS)
+	elseif (EMSCRIPTEN)
+		# O3 for WASM
+		target_compile_options(${_TARGET} PRIVATE 
+			"-O3"
+			"-sUSE_PTHREADS=1"
+			"-pthread"
+			"-matomics"
+			"-mbulk-memory"
+		)
+
+		target_link_options(${_TARGET} PRIVATE
+			"-sUSE_SDL=3"
+			"-sUSE_WEBGL2=1"
+			"-sFULL_ES3=1"
+			"-sALLOW_MEMORY_GROWTH=1"
+			"-sUSE_PTHREADS=1"
+			"-sPTHREAD_POOL_SIZE=16"
+		)
+	endif()
 endfunction()
 
-function(apply_main_emscripten_settings _TARGET)
-	#message(STATUS "${_TARGET}  CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
-	#message(STATUS "${_TARGET}  CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
-	target_link_options(${_TARGET} PRIVATE
-		#"--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/static/shell.html"
-		#"--shell-file=${BITLOOP_SHELL_HTML}"
-		"--shell-file=${BITLOOP_COMMON}/static/shell.html"
-		"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
-	)
-
-	set_target_properties(${_TARGET} PROPERTIES
-		SUFFIX ".html"
-	)
+function(apply_main_settings _TARGET)
+	if (MSVC)
+		set_target_properties(${_TARGET} PROPERTIES WIN32_EXECUTABLE TRUE)
+	elseif (EMSCRIPTEN)
+		target_link_options(${_TARGET} PRIVATE
+			"--shell-file=${BITLOOP_COMMON}/static/shell.html"
+			"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
+		)
+		set_target_properties(${_TARGET} PROPERTIES SUFFIX ".html")
+	endif()
 endfunction()
 
 macro(bitloop_new_project sim_name)
@@ -71,6 +72,7 @@ macro(bitloop_new_project sim_name)
 			set(SIM_SOURCES_PROVIDED TRUE)
 		endif()
 
+		set_property(DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${_TARGET}")
 		add_executable(${_TARGET} ${SIM_SOURCES})
 
 	else()
@@ -85,7 +87,7 @@ macro(bitloop_new_project sim_name)
 	target_include_directories(${_TARGET} PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
       "$<BUILD_INTERFACE:${BITLOOP_BUILD_DIR}>"
-  )
+	)
 	target_link_libraries(${_TARGET} PRIVATE bitloop::bitloop)
 
 
@@ -119,9 +121,7 @@ macro(bitloop_new_project sim_name)
 	endif()
 	set_property(GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES ${_data_dirs})
 
-	if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-		apply_common_emscripten_settings(${_TARGET})
-	endif()
+	apply_common_settings(${_TARGET})
 
 	#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 	if (CMAKE_CURRENT_SOURCE_DIR STREQUAL BL_ROOT_PROJECT)
@@ -155,14 +155,15 @@ macro(bitloop_new_project sim_name)
 		endforeach()
 		msg(STATUS "")
 
+		apply_main_settings(${_TARGET})
 
-		if (MSVC)
-			# Windows
-			set_target_properties(${_TARGET} PROPERTIES WIN32_EXECUTABLE TRUE)
-		elseif (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-			# Emscripten
-			apply_main_emscripten_settings(${_TARGET})
-		endif()
+		#if (MSVC)
+		#	# Windows
+		#	set_target_properties(${_TARGET} PROPERTIES WIN32_EXECUTABLE TRUE)
+		#elseif (EMSCRIPTEN)
+		#	# Emscripten
+		#	apply_main_settings(${_TARGET})
+		#endif()
 	endif()
 
 endmacro()

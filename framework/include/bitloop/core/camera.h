@@ -157,32 +157,34 @@ public:
     double viewportWidth() { return viewport_w; }
     double viewportHeight() { return viewport_h; }
 
-    void setX(flt128 _x) { cam_x = _x;              updateCameraMatrix(); }
-    void setY(flt128 _y) { cam_y = _y;              updateCameraMatrix(); }
-    void setPos(flt128 _x, flt128 _y) { cam_x = _x; cam_y = _y;  updateCameraMatrix(); }
-    void setZoom(flt128 zoom) { zoom_x = zoom_y = zoom;  updateCameraMatrix(); }
-    void setZoomX(flt128 _zoom_x) { zoom_x = _zoom_x;        updateCameraMatrix(); }
-    void setZoomY(flt128 _zoom_y) { zoom_y = _zoom_y;        updateCameraMatrix(); }
+    void setX(flt128 _x)               { cam_x = _x;                updateCameraMatrix(); }
+    void setY(flt128 _y)               { cam_y = _y;                updateCameraMatrix(); }
+    void setPos(flt128 _x, flt128 _y)  { cam_x = _x; cam_y = _y;    updateCameraMatrix(); }
+    void setZoom(flt128 zoom)          { zoom_x = zoom_y = zoom;    updateCameraMatrix(); }
+    void setZoom(flt128 zx, flt128 zy) { zoom_x = zx; zoom_y = zy;  updateCameraMatrix(); }
+    void setZoomX(flt128 _zoom_x)      { zoom_x = _zoom_x;          updateCameraMatrix(); }
+    void setZoomY(flt128 _zoom_y)      { zoom_y = _zoom_y;          updateCameraMatrix(); }
 
-    void setX(double _x) { cam_x = _x;              updateCameraMatrix(); }
-    void setY(double _y) { cam_y = _y;              updateCameraMatrix(); }
-    void setPos(double _x, double _y) { cam_x = _x; cam_y = _y;  updateCameraMatrix(); }
-    void setZoom(double zoom) { zoom_x = zoom_y = zoom;  updateCameraMatrix(); }
-    void setZoomX(double _zoom_x) { zoom_x = _zoom_x;        updateCameraMatrix(); }
-    void setZoomY(double _zoom_y) { zoom_y = _zoom_y;        updateCameraMatrix(); }
+    void setX(double _x)               { cam_x = _x;                updateCameraMatrix(); }
+    void setY(double _y)               { cam_y = _y;                updateCameraMatrix(); }
+    void setPos(double _x, double _y)  { cam_x = _x; cam_y = _y;    updateCameraMatrix(); }
+    void setZoom(double zoom)          { zoom_x = zoom_y = zoom;    updateCameraMatrix(); }
+    void setZoom(double zx, double zy) { zoom_x = zx; zoom_y = zy;  updateCameraMatrix(); }
+    void setZoomX(double _zoom_x)      { zoom_x = _zoom_x;          updateCameraMatrix(); }
+    void setZoomY(double _zoom_y)      { zoom_y = _zoom_y;          updateCameraMatrix(); }
 
-    void setPan(double px, double py) { pan_x = px; pan_y = py;  updateCameraMatrix(); }
-    void setRotation(double angle) { cam_rotation = angle;    updateCameraMatrix(); }
+    void setPan(double px, double py) { pan_x = px; pan_y = py;     updateCameraMatrix(); }
+    void setRotation(double angle)    { cam_rotation = angle;       updateCameraMatrix(); }
 
-    [[nodiscard]] double x() { return (double)cam_x; }
-    [[nodiscard]] double y() { return (double)cam_y; }
-    [[nodiscard]] DVec2  pos() { return { (double)cam_x, (double)cam_y }; }
-    [[nodiscard]] double panX() { return (double)pan_x; }
-    [[nodiscard]] double panY() { return (double)pan_y; }
-    [[nodiscard]] DVec2 zoom() { return { (double)zoom_x, (double)zoom_y }; }
-    [[nodiscard]] double zoomX() { return (double)zoom_x; }
-    [[nodiscard]] double zoomY() { return (double)zoom_y; }
-    [[nodiscard]] double rotation() { return (double)cam_rotation; }
+    [[nodiscard]] double x()          { return (double)cam_x; }
+    [[nodiscard]] double y()          { return (double)cam_y; }
+    [[nodiscard]] DVec2  pos()        { return {(double)cam_x, (double)cam_y }; }
+    [[nodiscard]] double panX()       { return (double)pan_x; }
+    [[nodiscard]] double panY()       { return (double)pan_y; }
+    [[nodiscard]] DVec2 zoom()        { return {(double)zoom_x, (double)zoom_y }; }
+    [[nodiscard]] double zoomX()      { return (double)zoom_x; }
+    [[nodiscard]] double zoomY()      { return (double)zoom_y; }
+    [[nodiscard]] double rotation()   { return (double)cam_rotation; }
 
     // ======== World rect focusing ========
     void focusWorldRect(flt128 left, flt128 top, flt128 right, flt128 bottom, bool stretch = false);
@@ -299,13 +301,13 @@ public:
     [[nodiscard]] DVec2 panPixelOffset();
 
     // world --> stage matrix
-    glm::dmat3 m64 = glm::dmat3(1.0);
+    glm::dmat3 m64     = glm::dmat3(1.0);
     glm::dmat3 inv_m64 = glm::dmat3(1.0);
 
-    glm::ddmat3 m128 = glm::ddmat3(1.0);
+    glm::ddmat3 m128     = glm::ddmat3(1.0);
     glm::ddmat3 inv_m128 = glm::ddmat3(1.0);
 
-    double   cos_64 = 1.0, sin_64 = 0.0;
+    double cos_64  = 1.0, sin_64  = 0.0;
     flt128 cos_128 = 1.0, sin_128 = 0.0;
 
     void ddResetTransform() { m64 = glm::ddmat3(1.0);  m128 = glm::ddmat3(1.0); }
@@ -315,8 +317,8 @@ public:
     //void dScale(double sx, double sy)     { m = m * glm_dscale(sx, sy); }
 
     void ddTranslate(flt128 tx, flt128 ty) { m128 = m128 * glm_dtranslate(tx, ty); m64 = static_cast<glm::ddmat3>(m128); }
-    void ddRotate(flt128 r) { m128 = m128 * glm_drotate(r);         m64 = static_cast<glm::ddmat3>(m128); }
-    void ddScale(flt128 sx, flt128 sy) { m128 = m128 * glm_dscale(sx, sy);     m64 = static_cast<glm::ddmat3>(m128); }
+    void ddRotate(flt128 r)                { m128 = m128 * glm_drotate(r);         m64 = static_cast<glm::ddmat3>(m128); }
+    void ddScale(flt128 sx, flt128 sy)     { m128 = m128 * glm_dscale(sx, sy);     m64 = static_cast<glm::ddmat3>(m128); }
 
     void updateCameraMatrix()
     {
@@ -329,11 +331,11 @@ public:
         ddTranslate(-cam_x * zoom_x, -cam_y * zoom_y);
         ddScale(zoom_x, zoom_y);
 
-        cos_128 = m128[0][0] / zoom_x;
+        cos_128 =  m128[0][0] / zoom_x;
         sin_128 = -m128[1][0] / zoom_x;
 
-        cos_128 = m64[0][0] / zoom_x;
-        sin_128 = -m64[1][0] / zoom_x;
+        cos_64 =  m64[0][0] / (double)zoom_x;
+        sin_64 = -m64[1][0] / (double)zoom_x;
 
         inv_m64 = glm::inverse(m64);
         inv_m128 = glm::inverse(m128);

@@ -53,6 +53,15 @@ file(GLOB EXTERNAL_SOURCES CONFIGURE_DEPENDS
     "${BL_SRC}/3rd_party/nanovg/*.c"
 )
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+#source_group("CMakeLists (main)"    FILES ${CMAKE_SOURCE_DIR}/CMakeLists.txt)
+source_group("3rd party"            FILES ${EXTERNAL_HEADERS} ${EXTERNAL_SOURCES})
+source_group("Core"                 FILES ${CORE_SOURCES})
+source_group("Utility"              FILES ${UTILITY_SOURCES})
+source_group("Graphics"             FILES ${GRAPHICS_SOURCES})
+source_group("ImGui (custom)"       FILES ${UI_SOURCES})
+source_group("Simulations"          FILES ${SIMULATION_HEADERS} ${SIMULATION_SOURCES})
+
 # ──────── Mark all .c files as c++ ────────
 foreach(_cfile IN LISTS EXTERNAL_SOURCES)
   if(_cfile MATCHES "\\.c$")
@@ -72,29 +81,34 @@ set(ALL_SRC_FILES
 
 
 add_library(bitloop STATIC ${ALL_SRC_FILES})
+apply_common_settings(bitloop)
 
-target_compile_features(bitloop PUBLIC cxx_std_23)
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-    # Compilation flags
-    target_compile_options(bitloop PRIVATE
-        "-O3"
-        "-sUSE_PTHREADS=1"
-        "-pthread"
-        "-matomics"
-        "-mbulk-memory"
-    )
-
-    target_link_options(bitloop PRIVATE
-        "-sEXPORTED_FUNCTIONS=[]"
-        "-sUSE_SDL=3"
-        "-sUSE_WEBGL2=1"
-        "-sFULL_ES3=1"
-        "-sALLOW_MEMORY_GROWTH=1"
-        "-sUSE_PTHREADS=1"
-        "-sPTHREAD_POOL_SIZE=16"
-    )
-endif()
+#target_compile_features(bitloop PUBLIC cxx_std_23)
+#if (MSVC)
+#    target_compile_options(bitloop PRIVATE /MP) # Multi-threaded compilation
+#    target_compile_options(bitloop PRIVATE /permissive- /W3 /WX /D_CRT_SECURE_NO_WARNINGS)
+#endif()
+#
+#if (EMSCRIPTEN)
+#    # Compilation flags
+#    target_compile_options(bitloop PRIVATE
+#        "-O3"
+#        "-sUSE_PTHREADS=1"
+#        "-pthread"
+#        "-matomics"
+#        "-mbulk-memory"
+#    )
+#
+#    target_link_options(bitloop PRIVATE
+#        "-sEXPORTED_FUNCTIONS=[]"
+#        "-sUSE_SDL=3"
+#        "-sUSE_WEBGL2=1"
+#        "-sFULL_ES3=1"
+#        "-sALLOW_MEMORY_GROWTH=1"
+#        "-sUSE_PTHREADS=1"
+#        "-sPTHREAD_POOL_SIZE=16"
+#    )
+#endif()
 
 target_include_directories(bitloop
   PUBLIC

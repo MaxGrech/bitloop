@@ -416,7 +416,7 @@ bool MainWindow::focusWindow(const char* id)
     return ret;
 }
 
-void ScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
+void ScrollWhenDraggingOnVoid(const ImVec2& delta)
 {
     ImGuiContext& g = *ImGui::GetCurrentContext();
     ImGuiWindow* window = g.CurrentWindow;
@@ -425,12 +425,9 @@ void ScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button
     ImGuiID id = window->GetID("##scrolldraggingoverlay");
     ImGui::KeepAliveID(id);
 
-    ImGuiButtonFlags button_flags = (mouse_button == 0) ? 
-        ImGuiButtonFlags_MouseButtonLeft : (mouse_button == 1) ? 
-        ImGuiButtonFlags_MouseButtonRight : ImGuiButtonFlags_MouseButtonMiddle;
 
     if (g.HoveredId == 0) // If nothing hovered so far in the frame (not same as IsAnyItemHovered()!)
-        ImGui::ButtonBehavior(window->Rect(), id, &hovered, &held, button_flags);
+        ImGui::ButtonBehavior(window->Rect(), id, &hovered, &held, ImGuiButtonFlags_MouseButtonLeft);
     if (held && delta.x != 0.0f)
         ImGui::SetScrollX(window, window->Scroll.x + delta.x);
     if (held && delta.y != 0.0f)
@@ -450,7 +447,7 @@ void MainWindow::populateCollapsedLayout()
         populateProjectTree(true);
 
         ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
-        ScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouse_delta.y), ImGuiMouseButton_Left);
+        ScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouse_delta.y));
 
         ImGui::EndChild();
         ImGui::PopStyleVar();
@@ -468,7 +465,7 @@ void MainWindow::populateCollapsedLayout()
         populateProjectUI();
 
         ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
-        ScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouse_delta.y), ImGuiMouseButton_Left);
+        ScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouse_delta.y));
 
         ImGui::EndChild();
         ImGui::PopStyleVar();
@@ -491,7 +488,7 @@ void MainWindow::populateExpandedLayout()
         populateProjectUI(); // Always call (in case sim does any unusual setup here)
 
         ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
-        ScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouse_delta.y), ImGuiMouseButton_Middle);
+        ScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouse_delta.y));
 
         ImGui::EndChild();
         ImGui::PopStyleVar();

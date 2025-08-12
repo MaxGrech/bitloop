@@ -236,7 +236,7 @@ inline std::filesystem::path executable_dir()
 {
     #if defined(_WIN32)
     std::wstring buf(MAX_PATH, L'\0');
-    DWORD len = GetModuleFileNameW(nullptr, buf.data(), buf.size());
+    DWORD len = GetModuleFileNameW(nullptr, buf.data(), (DWORD)buf.size());
     if (len == 0)
         throw std::runtime_error("GetModuleFileNameW failed");
     buf.resize(len);
