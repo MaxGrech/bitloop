@@ -101,3 +101,4 @@ decltype(auto) table_invoke(F&& f, Es... vs)
                 return func<Ts..., Us::value...>(__VA_ARGS__);  \
         }((std::tuple<decltype(Cs)...>*)nullptr);               \
     }
+

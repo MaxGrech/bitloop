@@ -83,33 +83,6 @@ set(ALL_SRC_FILES
 add_library(bitloop STATIC ${ALL_SRC_FILES})
 apply_common_settings(bitloop)
 
-#target_compile_features(bitloop PUBLIC cxx_std_23)
-#if (MSVC)
-#    target_compile_options(bitloop PRIVATE /MP) # Multi-threaded compilation
-#    target_compile_options(bitloop PRIVATE /permissive- /W3 /WX /D_CRT_SECURE_NO_WARNINGS)
-#endif()
-#
-#if (EMSCRIPTEN)
-#    # Compilation flags
-#    target_compile_options(bitloop PRIVATE
-#        "-O3"
-#        "-sUSE_PTHREADS=1"
-#        "-pthread"
-#        "-matomics"
-#        "-mbulk-memory"
-#    )
-#
-#    target_link_options(bitloop PRIVATE
-#        "-sEXPORTED_FUNCTIONS=[]"
-#        "-sUSE_SDL=3"
-#        "-sUSE_WEBGL2=1"
-#        "-sFULL_ES3=1"
-#        "-sALLOW_MEMORY_GROWTH=1"
-#        "-sUSE_PTHREADS=1"
-#        "-sPTHREAD_POOL_SIZE=16"
-#    )
-#endif()
-
 target_include_directories(bitloop
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -188,13 +161,6 @@ install(FILES
     DESTINATION share/bitloop/src
     RENAME bitloop_main.cpp
 )
-
-# ──────── Install default emscripten shell.html ────────
-#install(FILES
-#    "${CMAKE_CURRENT_SOURCE_DIR}/common/static/shell.html"
-#    DESTINATION share/bitloop/static
-#    RENAME shell.html
-#)
 
 # ──────── Install common ────────
 install(DIRECTORY

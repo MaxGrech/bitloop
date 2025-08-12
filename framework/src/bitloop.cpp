@@ -21,62 +21,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  * 
- * 
- * ================================================
- * =============  Framework features  =============
- * ================================================
- * 
- * Goals:
- *  ✔ Rapid prototyping of scientific simulations, visualizations, and 
- *     other ideas (games, art, etc.)
- *  ✔ Optimized for high performance
- *  ✘ Seamless video encoding with FFmpeg (desktop-only for now)
- * 
- * Engine:
- *  ✔ Cross-platform (Linux:✔  Windows:✔  Web:✔  macOS:✘  Android:✘  iPhone:✘)
- *  ✔ Takes advantage of latest C++23 features
- *  ✔ Multithreaded ImGui support for non-blocking UI input (updates applied at beginning of each frame)
- *  ✔ SDL3 for window/input handling
- *  ✔ Rich set helpers and 3rd party libraries for scientific simulations
- *  ✘ 128-bit floating-point support for Camera/World
- * 
- * Simulations:
- *  ✔ Highly modular
- *  ✔ Multi-viewport support
- *  ✔ Multiple scenes per project which can be mounted to viewports
- *  ✔ Scene inheriting (e.g. SolarSystem simulation inherits from SpaceEngine)
- * 
- * Graphics:
- *  ✔ High-DPI rendering support
- *  ✔ NanoVG wrapper for 128-bit vector graphics rendering (Javascript Canvas-like API)
- *  ✔ Easy switching between world/screen space rendering
- * 
- * Features:
- *  ✘ Individual simulations can be compiled as standalone-apps for all platforms
- *  ✘ Timeline support with integrated scripting
- *  ✔ Collection of examples for different difficulty levels
- * 
- * 
- * TODO:
- * 
- * > bitloop command line:
- *   - bitloop new project
- * 
- * > README:
- *   - What is bitloop?
- *     > A simulation sandbox with project nesting, enabling modular reuse of your projects to
-         build on your past ideas in a clean and structured way.
- *     > High-performance, and great for rapid prototyping of 2D/3D simulations
- *     > Cross-platform (Linux, Windows, Web, macOS, Android, iPhone) to easily showcase your projects
- *     > FFmpeg recording
- *     > A library of math, physics, graphics and UI helpers
- *       
- * 
- * > Make new project, include bitloop as EXTERNAL dependency, build
- *   - Requires moving "Portfolio" logic into it's own translation unit
- * 
  */
-
 
 #include <memory>
 
@@ -85,7 +30,6 @@
 #include <GLES3/gl3.h>
 #else
 #include "glad/glad.h"
-//#include <glad/gl.h>
 #endif
 
 /// ImGui
@@ -149,15 +93,9 @@ int bitloop_main(int, char* [])
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 0);
 
-        //#ifndef __EMSCRIPTEN__
-        //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-        //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        //SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-        //#else
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-        //#endif
 
         int fb_w = 1280, fb_h = 720;
 
@@ -170,7 +108,7 @@ int bitloop_main(int, char* [])
             cv.setAttribute('tabindex', '0');
             cv.setAttribute('contenteditable', 'true');
             cv.addEventListener('mousedown', () => cv.focus());
-            });
+        });
         #endif
 
         std::cout << "Creating window...\n";
@@ -211,13 +149,7 @@ int bitloop_main(int, char* [])
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
-
         ImGui_ImplOpenGL3_Init();
-        //#ifdef __EMSCRIPTEN__
-        //ImGui_ImplOpenGL3_Init("#version 300 es");
-        //#else
-        //ImGui_ImplOpenGL3_Init("#version 150");
-        //#endif
     }
 
     // ======== Init window & start worker thread ========
