@@ -20,7 +20,7 @@ def replace_in_file(path:Path, placeholder:str, project_name:str) -> None:
     if new_text != text:
         path.write_text(new_text, encoding="utf-8")
 
-def rename_file_if_needed(path: Path, project_name: str) -> Path:
+def rename_file_if_needed(path:Path, project_name:str) -> Path:
     if path.name not in RENAME_TARGETS:
         return path
     new_name = path.name.replace("SIM_NAME", project_name)
@@ -30,7 +30,7 @@ def rename_file_if_needed(path: Path, project_name: str) -> Path:
     path.rename(new_path)
     return new_path
 
-def rename_folder_if_needed(path: Path, project_name: str) -> Path:
+def rename_folder_if_needed(path:Path, project_name:str) -> Path:
     if path.name != RENAME_FOLDER_TARGET:
         return path
     new_name = project_name
@@ -40,7 +40,7 @@ def rename_folder_if_needed(path: Path, project_name: str) -> Path:
     path.rename(new_path)
     return new_path
 
-def copy_template_files(src: Path, dst: Path) -> None:
+def copy_template_files(src:Path, dst:Path) -> None:
     shutil.copytree(src, dst)
 
 def create_project(bitloop_root:Path):
