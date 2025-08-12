@@ -29,17 +29,12 @@ class PlatformManager
 
     SDL_Window* window;
 
-    //float _dpr = 1.0f;
-    ///float _dpi = 96.0f;
-
     double css_w, css_h;
     int gl_w, gl_h;
     int win_w, win_h;
     int fb_w, fb_h;
 
     bool is_mobile_device = false;
-
-    ///void update_device_dpi();
 
 public:
 
@@ -85,17 +80,10 @@ public:
     [[nodiscard]] bool is_mobile();
     [[nodiscard]] bool is_desktop_native();
     [[nodiscard]] bool is_desktop_browser();
-    //[[nodiscard]] bool is_touch_device();
-    ///[[nodiscard]] float touch_accuracy();
 
     // Scale
     [[nodiscard]] float font_scale();
     [[nodiscard]] float ui_scale_factor(float extra_mobile_mult=1.0f);
-
-    // Window
-    ///[[nodiscard]] float window_width_inches();
-    ///[[nodiscard]] float window_height_inches();
-    ///[[nodiscard]] float window_size_inches();
 
     // Layout helpers
     [[nodiscard]] float line_height();

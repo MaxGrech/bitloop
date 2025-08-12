@@ -18,8 +18,6 @@
 #include "platform_macros.h"
 
 
-
-
 /// ======== Config ========
 #include "config.h"
 
@@ -28,7 +26,6 @@ struct Global
 {
     static inline bool break_condition = false;
 };
-
 
 
 /// ========================= ///
@@ -249,9 +246,6 @@ public:
     FiniteDouble& operator/=(double other) { set(value / other); return *this;  }
 
     friend std::ostream& operator<<(std::ostream& os, const FiniteDouble& fd);
-    //{
-    //    return os << fd.value;
-    //}
 
     int break_on_assignment = 0;
     void breakOnAssignment()

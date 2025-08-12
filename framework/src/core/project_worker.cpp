@@ -169,13 +169,10 @@ void ProjectWorker::worker_loop()
 
 void ProjectWorker::pushDataToShadow()
 {
-    //if (!shared_sync.editing_ui.load())
-    {
-        // While we update the shadow buffer, we should NOT 
-        // permit ui updates (force a small stall)
-        std::unique_lock<std::mutex> shadow_lock(shared_sync.shadow_buffer_mutex);
-        active_project->updateShadowBuffers();
-    }
+    // While we update the shadow buffer, we should NOT 
+    // permit ui updates (force a small stall)
+    std::unique_lock<std::mutex> shadow_lock(shared_sync.shadow_buffer_mutex);
+    active_project->updateShadowBuffers();
 }
 
 void ProjectWorker::pullDataFromShadow()
@@ -213,9 +210,7 @@ void ProjectWorker::pollEvents(bool discardBatch)
     if (!discardBatch)
     {
         for (SDL_Event& e : local)
-        {
             _onEvent(e);
-        }
     }
 }
 

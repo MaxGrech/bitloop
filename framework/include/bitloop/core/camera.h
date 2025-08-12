@@ -127,14 +127,6 @@ public:
 
 public:
 
-    //void setTransformFilters(
-    //    bool _transform_coordinates,
-    //    bool _scale_line_txt, 
-    //    bool _scale_sizes,
-    //    bool _rotate_text);
-    //
-    //void setTransformFilters(bool all);
-
     void worldTransform();
     void stageTransform();
     void worldHudTransform();
@@ -311,11 +303,6 @@ public:
     flt128 cos_128 = 1.0, sin_128 = 0.0;
 
     void ddResetTransform() { m64 = glm::ddmat3(1.0);  m128 = glm::ddmat3(1.0); }
-
-    //void dTranslate(double tx, double ty) { m = m * glm_dtranslate(tx, ty); }
-    //void dRotate(double r)                { m = m * glm_drotate(r); }
-    //void dScale(double sx, double sy)     { m = m * glm_dscale(sx, sy); }
-
     void ddTranslate(flt128 tx, flt128 ty) { m128 = m128 * glm_dtranslate(tx, ty); m64 = static_cast<glm::ddmat3>(m128); }
     void ddRotate(flt128 r)                { m128 = m128 * glm_drotate(r);         m64 = static_cast<glm::ddmat3>(m128); }
     void ddScale(flt128 sx, flt128 sy)     { m128 = m128 * glm_dscale(sx, sy);     m64 = static_cast<glm::ddmat3>(m128); }
@@ -340,21 +327,6 @@ public:
         inv_m64 = glm::inverse(m64);
         inv_m128 = glm::inverse(m128);
     }
-
-    /*void updateCameraMatrix()
-    {
-        DVec2 origin_offset = originPixelOffset();
-
-        dResetTransform();
-        dTranslate(origin_offset.x + pan_x, origin_offset.y + pan_y);
-        dRotate(cam_rotation);
-        dTranslate(-cam_x * zoom_x, -cam_y * zoom_y);
-        dScale(zoom_x, zoom_y);
-
-        cos_r =  m[0][0] / zoom_x;
-        sin_r = -m[1][0] / zoom_x;
-        inv_m = glm::inverse(m);
-    }*/
 
     [[nodiscard]] DVec2 toStage(double sx, double sy) { return static_cast<DVec2>(m64 * glm::dvec3(sx, sy, 1)); }
     [[nodiscard]] DVec2 toWorld(double wx, double wy) { return static_cast<DVec2>(inv_m64 * glm::dvec3(wx, wy, 1.0)); }
@@ -428,7 +400,6 @@ public:
 //    stage_ox = ox;
 //    stage_oy = oy;
 //}
-
 
 inline DVec2 Camera::originWorldOffset()
 {

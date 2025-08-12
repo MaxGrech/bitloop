@@ -519,13 +519,8 @@ void MainWindow::populateViewport()
             // Launch initial simulation 1 frame late (background thread)
             if (!ProjectWorker::instance()->getActiveProject())
             {
-                //ProjectWorker::instance()->setActiveProject(ProjectBase::findProjectInfo("Mandelbrot Viewer")->sim_uid);
                 auto first_project = ProjectBase::projectInfoList().front();
-
-                // todo: Error box if no projects available
-
                 ProjectWorker::instance()->setActiveProject(first_project->sim_uid);
-                //ProjectWorker::instance()->setActiveProject(ProjectBase::findProjectInfo("Image Transforms")->sim_uid);
                 ProjectWorker::instance()->startProject();
 
                 // Kick-start work-render-work-render loop
@@ -567,8 +562,6 @@ void MainWindow::populateViewport()
             ImVec2(0.0f, 1.0f),   // UV top-left (flipped)
             ImVec2(1.0f, 0.0f)    // UV bottom-right);
         );
-
-        //shared_sync.editing_ui.store(isEditingUI(), std::memory_order_release);
     }
     ImGui::End();
 }
@@ -623,7 +616,6 @@ void MainWindow::populateUI()
     #endif
 
     ImGui::PopStyleVar();
-
 
     ///static bool demo_open = true;
     ///ImGui::ShowDemoWindow(&demo_open);

@@ -5,7 +5,6 @@
 #include <GLES3/gl3.h>
 #else
 #include "glad/glad.h"
-//#include <glad/gl.h>
 #endif
 
 #include "nanovg/nanovg.h"
@@ -147,11 +146,6 @@ protected:
 
 public:
 
-    //explicit Image(NVGcontext* ctx = nullptr) {}
-    //Image(NVGcontext* ctx, int w, int h) {
-    //    create(w, h); 
-    //}
-
     Image() : bmp_size{ 0, 0 }, colors(nullptr) {}
 
     [[nodiscard]] int width() const { return bmp_width; }
@@ -187,14 +181,6 @@ public:
         size_t i = (size_t(y) * bmp_width + x);
         colors[i] = rgba;
     }
-    //void setPixel(int x, int y, uint32_t rgba)
-    //{
-    //    size_t i = (size_t(y) * bmp_width + x) * 4;
-    //    pixels[i + 0] = rgba & 0xFF;
-    //    pixels[i + 1] = (rgba >> 8) & 0xFF;
-    //    pixels[i + 2] = (rgba >> 16) & 0xFF;
-    //    pixels[i + 3] = (rgba >> 24) & 0xFF;
-    //}
 
     void setPixel(int x, int y, int r, int g, int b, int a=255)
     {

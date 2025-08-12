@@ -112,7 +112,6 @@ Viewport::Viewport(Layout* layout, Canvas* canvas, int viewport_index, int grid_
     setRenderTarget(canvas->getRenderTarget());
 
     camera.viewport = this;
-    ///print_stream.setString(&print_text);
 }
 
 Viewport::~Viewport()
@@ -125,12 +124,10 @@ Viewport::~Viewport()
         // If sim is no longer mounted to any viewports, it's safe to destroy
         if (scene->mounted_to_viewports.size() == 0)
         {
-            ///qDebug() << "Unmounted scene is mounted to no other viewports. Destroying scene";
             scene->sceneDestroy();
             delete scene;
         }
     }
-    ///qDebug() << "Viewport destroyed: " << viewport_index;
 }
 
 void Viewport::draw()
@@ -142,50 +139,6 @@ void Viewport::draw()
 
     // Snapshot default transformation (unscaled unrotated top-left viewport)
     default_viewport_transform = currentTransform();
-
-    // When resizing window, world coordinate is fixed given viewport anchor
-    // If TOP_LEFT, the world coordinate at top left remains fixed
-    // If CENTER, world coordinate at middle of viewport remains fixed
-
-    /*translate(
-        floor(camera.originPixelOffset().x + camera.panPixelOffset().x),
-        floor(camera.originPixelOffset().y + camera.panPixelOffset().y)
-    );
-
-    rotate(camera.rotation);
-    translate(
-        floor(-camera.x * camera.zoomX()),
-        floor(-camera.y * camera.zoomY())
-    );
-
-    scale(camera.zoomX(), camera.zoomY());*/
-
-    //camera.updateCameraMatrix();
-
-    /// GL Transform/Projection
-    /*{
-        QMatrix4x4 _projectionMatrix;
-        QMatrix4x4 _transformMatrix;
-        _projectionMatrix.ortho(0, width, height, 0, -1, 1);  // Top-left origin
-        _transformMatrix.setToIdentity();
-
-        // Do transformations
-        _transformMatrix.translate(
-            floor(camera.originPixelOffset().x + camera.panPixelOffset().x),
-            floor(camera.originPixelOffset().y + camera.panPixelOffset().y)
-        );
-        _transformMatrix.rotate(camera.rotation, 0.0f, 0.0f, 1.0f);
-        _transformMatrix.translate(
-            floor(-camera.x * camera.zoom_x),
-            floor(-camera.y * camera.zoom_y)
-        );
-        _transformMatrix.scale(camera.zoom_x, camera.zoom_y);
-
-        projectionMatrix = _projectionMatrix;
-        transformMatrix = _transformMatrix;
-    }
-
-    print_text = "";*/
 
     print_stream.str("");
     print_stream.clear();
@@ -385,11 +338,7 @@ void ProjectBase::_populateAllAttributes()
 
 void ProjectBase::_projectPrepare()
 {
-    DebugPrint("_projectPrepare()");
-    logMessage("_projectPrepare()");
     viewports.clear();
-
-    //ImGui::updatePointerValues();
 
     // Prepare project and create layout
     // Note: This is where old viewports get replaced
@@ -416,9 +365,6 @@ void ProjectBase::_projectStart()
     // Update layout rects
     updateViewportRects();
 
-    // Variable Buffer initializes itself *first*?
-    //_updateLiveAttributes();
-
     // Call BasicProject::projectStart()
     projectStart();
 
@@ -443,9 +389,6 @@ void ProjectBase::_projectStart()
         viewport->scene->camera = &viewport->camera;
         viewport->scene->sceneMounted(viewport);
     }
-
-    //for (SceneBase* scene : viewports.all_scenes)
-    //    scene->_updateShadowAttributes();
 
     ///if (record_on_start)
     ///    startRecording();
@@ -571,8 +514,6 @@ void ProjectBase::_projectProcess()
                 scene->dt_call_index = 0;
                 auto scene_t0 = std::chrono::steady_clock::now();
 
-                //scene->_markLiveValues();
-
                 scene->mouse = &mouse;
                 scene->sceneProcess();
 
@@ -580,8 +521,6 @@ void ProjectBase::_projectProcess()
                 scene->dt_sceneProcess = static_cast<int>(
                     std::chrono::duration_cast<std::chrono::milliseconds>(scene_dt).count()
                 );
-
-                //scene->updateSceneShadowBuffer();
             }
 
 
@@ -627,7 +566,6 @@ void ProjectBase::_projectDraw()
     if (!done_single_process) return;
     if (!started) return;
     
-
     ///if (!shaders_loaded)
     ///{
     ///    _loadShaders();
@@ -653,12 +591,8 @@ void ProjectBase::_projectDraw()
         ctx->setClipRect(viewport->pos_x, viewport->pos_y, viewport->width, viewport->height);
         ctx->save();
 
-        /// ======== Set default viewport transform ========
-
-        // Move to viewport position
+        // Starting viewport position
         ctx->translate(floor(viewport->pos_x), floor(viewport->pos_y));
-
-        /// ======== Save default transform & Render ========
 
         // Set default transform to "World"
         viewport->camera.worldTransform();
@@ -669,8 +603,7 @@ void ProjectBase::_projectDraw()
 
         viewport->draw();
 
-        /// ======== Restore initial canvas transform ========
-
+        // Restore initial canvas transform
         ctx->restore();
         ctx->resetClipping();
     }
@@ -862,7 +795,6 @@ void ProjectBase::_onEvent(SDL_Event& e)
             break;
         }
     }
-
 
     event.setFocusedViewport(ctx_focused);
     event.setHoveredViewport(ctx_hovered);

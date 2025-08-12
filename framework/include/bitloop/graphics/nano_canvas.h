@@ -718,31 +718,10 @@ public:
 
     // ======== Sharp variants ========
 
-    void moveToSharp(double px, double py)
-    {
-        SimplePainter::moveTo(align_half(PT(px, py)));
-        //DVec2 pt = align_pixel(PT(px, py));
-        //painter->moveTo(pt.x, pt.y);
-    }
-
-    void moveToSharp(DVec2 p)
-    {
-        SimplePainter::moveTo(align_half(PT(p)));
-        //DVec2 pt = align_pixel(PT(p.x, p.y));
-        //painter->moveTo(pt.x, pt.y);
-    }
-
-    void lineToSharp(double px, double py)
-    {
-        SimplePainter::lineTo(align_half(PT(px, py)));
-        //DVec2 pt = align_pixel(PT(px, py));
-        //painter->lineTo(pt.x, pt.y);
-    }
-
-    void lineToSharp(DVec2 p)
-    {
-        SimplePainter::lineTo(align_half(PT(p.x, p.y)));
-    }
+    void moveToSharp(double px, double py)  { SimplePainter::moveTo(align_half(PT(px, py))); }
+    void moveToSharp(DVec2 p)               { SimplePainter::moveTo(align_half(PT(p))); }
+    void lineToSharp(double px, double py)  { SimplePainter::lineTo(align_half(PT(px, py))); }
+    void lineToSharp(DVec2 p)               { SimplePainter::lineTo(align_half(PT(p.x, p.y))); }
 
     void strokeLine(DVec2 p1, DVec2 p2)
     {
@@ -762,8 +741,6 @@ public:
 
     void fillTextSharp(std::string_view txt, const DVec2& pos)
     {
-        //painter->setPixelAlignText(QNanoPainter::PixelAlign::PIXEL_ALIGN_FULL);
-        //fillText(txt, /*sharpX*/(pos.x), /*sharpY*/(pos.y));
         SimplePainter::fillText(txt, align_full(PT(pos)));
     }
 

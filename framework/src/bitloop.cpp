@@ -21,6 +21,43 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program. If not, see <https://www.gnu.org/licenses/>.
  * 
+ *  * 
+ * ================================================
+ * =============  Framework features  =============
+ * ================================================
+ * 
+ * Goals:
+ *  ✔ Rapid prototyping of scientific simulations, visualizations, and 
+ *     other ideas (games, art, etc.)
+ *  ✔ Optimized for high performance
+ *  ✘ Seamless video encoding with FFmpeg (desktop-only for now)
+ * 
+ * Engine:
+ *  ✔ Cross-platform (Linux:✔  Windows:✔  Emscripten:✔  macOS:✘  Android:✘  iPhone:✘)
+ *  ✔ Takes advantage of latest C++23 features
+ *  ✔ Multithreaded ImGui support for non-blocking UI input (updates applied at beginning of each frame)
+ *  ✔ SDL3 for window/input handling
+ *  ✔ Rich set helpers and 3rd party libraries for scientific simulations
+ *  ✘ 128-bit floating-point support for Camera/World
+ *  ✘ Timeline support with integrated scripting
+ * 
+ * Tools:
+ *  ✔ Command-line tool for creating new projects (e.g. after bootstrapping: "bitloop new project")
+ * 
+ * Simulations:
+ *  ✔ Modular nested project support
+ *  ✔ Multi-viewport support
+ *  ✔ Multiple scenes per project (which can be mounted to any number of viewports)
+ * 
+ * Graphics:
+ *  ✔ High-DPI support
+ *  ✔ NanoVG wrapper with 128-bit coordinate support (JS Canvas-like API)
+ *  ✔ Easy switching between world/screen space rendering
+ * 
+ * Examples:
+ *  ✔ Individual simulations can be compiled as standalone-apps for all supported platforms
+ *  ✘ Collection of examples for different difficulty levels
+ * 
  */
 
 #include <memory>
