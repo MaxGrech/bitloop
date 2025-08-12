@@ -340,6 +340,7 @@ bool MainWindow::manageDockingLayout()
     ImGui::SetNextWindowSize(viewport->Size);
     ImGui::SetNextWindowViewport(viewport->ID);
 
+    // Make main dock space that fills the entire imgui viewport
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
@@ -350,9 +351,9 @@ bool MainWindow::manageDockingLayout()
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
     ImGui::End();
 
+    // Detect viewport resize events (in case we need to switch layout)
     static ImVec2 last_viewport_size = ImVec2(0, 0);
     ImVec2 current_viewport_size = ImGui::GetMainViewport()->Size;
-
     if (current_viewport_size.x != last_viewport_size.x ||
         current_viewport_size.y != last_viewport_size.y)
     {
@@ -360,6 +361,7 @@ bool MainWindow::manageDockingLayout()
         last_viewport_size = current_viewport_size;
     }
 
+    // Determine landscape/portrait layout
     vertical_layout = (last_viewport_size.x < last_viewport_size.y);
 
     // Build initial layout (once)
@@ -374,9 +376,9 @@ bool MainWindow::manageDockingLayout()
             return false;
         }
 
-        ImGui::DockBuilderRemoveNode(dockspace_id); // clear any previous layout
+        // Remove previous dockspace and rebuild
+        ImGui::DockBuilderRemoveNode(dockspace_id);
         ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
-
         ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
 
         ImGuiID dock_main_id = dockspace_id;
@@ -388,11 +390,11 @@ bool MainWindow::manageDockingLayout()
             &dock_main_id
         );
 
-        ImGui::DockBuilderDockWindow("Projects", dock_sidebar);
-        ImGui::DockBuilderDockWindow("Active", dock_sidebar);
-        ImGui::DockBuilderDockWindow("Debug Log", dock_sidebar);
-        ImGui::DockBuilderDockWindow("Project Log", dock_sidebar);
-        ImGui::DockBuilderDockWindow("Viewport", dock_main_id);
+        ImGui::DockBuilderDockWindow("Projects",    dock_sidebar);  // dock to sidebar
+        ImGui::DockBuilderDockWindow("Active",      dock_sidebar);  // dock to sidebar
+        ImGui::DockBuilderDockWindow("Debug Log",   dock_sidebar);  // dock to sidebar
+        ImGui::DockBuilderDockWindow("Project Log", dock_sidebar);  // dock to sidebar
+        ImGui::DockBuilderDockWindow("Viewport",    dock_main_id);  // dock to window
 
         ImGui::DockBuilderFinish(dockspace_id);
     }
@@ -401,7 +403,9 @@ bool MainWindow::manageDockingLayout()
 
 bool MainWindow::focusWindow(const char* id)
 {
-    static bool first_frame = true; // SetWindowFocus doesn't switch focused tab unless second frame
+    // SetWindowFocus doesn't switch focused tab unless second frame, so 
+    // never call on first frame and wait for the next call
+    static bool first_frame = true;
     bool ret = false;
     if (initialized && !first_frame)
     {
@@ -410,6 +414,27 @@ bool MainWindow::focusWindow(const char* id)
     }
     first_frame = false;
     return ret;
+}
+
+void ScrollWhenDraggingOnVoid(const ImVec2& delta, ImGuiMouseButton mouse_button)
+{
+    ImGuiContext& g = *ImGui::GetCurrentContext();
+    ImGuiWindow* window = g.CurrentWindow;
+    bool hovered = false;
+    bool held = false;
+    ImGuiID id = window->GetID("##scrolldraggingoverlay");
+    ImGui::KeepAliveID(id);
+
+    ImGuiButtonFlags button_flags = (mouse_button == 0) ? 
+        ImGuiButtonFlags_MouseButtonLeft : (mouse_button == 1) ? 
+        ImGuiButtonFlags_MouseButtonRight : ImGuiButtonFlags_MouseButtonMiddle;
+
+    if (g.HoveredId == 0) // If nothing hovered so far in the frame (not same as IsAnyItemHovered()!)
+        ImGui::ButtonBehavior(window->Rect(), id, &hovered, &held, button_flags);
+    if (held && delta.x != 0.0f)
+        ImGui::SetScrollX(window, window->Scroll.x + delta.x);
+    if (held && delta.y != 0.0f)
+        ImGui::SetScrollY(window, window->Scroll.y + delta.y);
 }
 
 void MainWindow::populateCollapsedLayout()
@@ -423,6 +448,9 @@ void MainWindow::populateCollapsedLayout()
         ImGui::Dummy(ScaleSize(0, 6));
 
         populateProjectTree(true);
+
+        ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
+        ScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouse_delta.y), ImGuiMouseButton_Left);
 
         ImGui::EndChild();
         ImGui::PopStyleVar();
@@ -438,6 +466,9 @@ void MainWindow::populateCollapsedLayout()
         ImGui::Dummy(ScaleSize(0, 6));
 
         populateProjectUI();
+
+        ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
+        ScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouse_delta.y), ImGuiMouseButton_Left);
 
         ImGui::EndChild();
         ImGui::PopStyleVar();
@@ -458,6 +489,9 @@ void MainWindow::populateExpandedLayout()
 
         populateProjectTree(false);
         populateProjectUI(); // Always call (in case sim does any unusual setup here)
+
+        ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
+        ScrollWhenDraggingOnVoid(ImVec2(0.0f, -mouse_delta.y), ImGuiMouseButton_Middle);
 
         ImGui::EndChild();
         ImGui::PopStyleVar();
