@@ -198,7 +198,19 @@ public:
     void ellipse(DVec2 cen, DVec2 size)                      { nvgEllipse(vg, (float)(cen.x), (float)(cen.y), (float)(size.x), (float)(size.y)); }
     void fillRect(double x, double y, double w, double h)    { nvgBeginPath(vg); nvgRect(vg, (float)(x), (float)(y), (float)(w), (float)(h)); nvgFill(vg); }
     void strokeRect(double x, double y, double w, double h)  { nvgBeginPath(vg); nvgRect(vg, (float)(x), (float)(y), (float)(w), (float)(h)); nvgStroke(vg); }
-   
+    void strokeRoundedRect(double x, double y, double w, double h, double r)
+    {
+        nvgBeginPath(vg);
+        nvgRoundedRect(vg, (float)(x), (float)(y), (float)(w), (float)(h), (float)(r));
+        nvgStroke(vg);
+    }
+    void fillRoundedRect(double x, double y, double w, double h, double r)
+    {
+        nvgBeginPath(vg);
+        nvgRoundedRect(vg, (float)(x), (float)(y), (float)(w), (float)(h), (float)(r));
+        nvgFill(vg);
+    }
+
     template<typename PointT> void drawPath(const std::vector<PointT>& path) {
         if (path.size() >= 2) {
             moveTo(path[0]); 
@@ -386,6 +398,24 @@ public:
         ROTATE(camera.rotation());
         DVec2 s = SIZE(w, h);
         SimplePainter::fillRect(0, 0, s.x, s.y);
+    }
+
+    void strokeRoundedRect(double x, double y, double w, double h, double r)
+    {
+        LocalTransform t(this);
+        TRANSLATE(x, y);
+        ROTATE(camera.rotation());
+        DVec2 s = SIZE(w, h);
+        SimplePainter::strokeRoundedRect(0, 0, s.x, s.y, SIZE(r));
+    }
+
+    void fillRoundedRect(double x, double y, double w, double h, double r)
+    {
+        LocalTransform t(this);
+        TRANSLATE(x, y);
+        ROTATE(camera.rotation());
+        DVec2 s = SIZE(w, h);
+        SimplePainter::fillRoundedRect(0, 0, s.x, s.y, SIZE(r));
     }
 
     void strokeEllipse(double cx, double cy, double rx, double ry)
