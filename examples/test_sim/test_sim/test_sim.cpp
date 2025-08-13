@@ -5,6 +5,7 @@
 
 SIM_DECLARE(Test, "Framework Tests", "Test A")
 
+using namespace BL;
 
 /// =========================
 /// ======== Project ========

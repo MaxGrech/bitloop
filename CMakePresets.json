@@ -1,5 +1,15 @@
 {
-  "version": 3,
+  "version": 5,
+  
+  "vendor": {
+    "microsoft.com/VisualStudioSettings/CMake/1.0": {
+      "hostOS": ["Windows"],
+      "environment": [
+        { "type": "vsdevcmd", "arguments": ["-arch=x64", "-host_arch=x64"] }
+      ]
+    }
+  },
+
   "cmakeMinimumRequired": {
     "major": 3,
     "minor": 21,

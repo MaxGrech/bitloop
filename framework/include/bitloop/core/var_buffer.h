@@ -1,7 +1,5 @@
 #include "debug.h"
 
-
-
 template<typename T>
 concept VarBufferConcept = requires(T t, const T & rhs)
 {
@@ -132,10 +130,8 @@ struct VariableEntry
 
     void print()
     {
-        DebugPrint("Shadow: %s  Live: %s", 
-            shadow_ptr->toString().c_str(),
-            live_ptr->toString().c_str()
-        );
+        BL::print() << "Shadow: " << shadow_ptr->toString() 
+                    << "  Live: " << live_ptr->toString();
     }
 };
 

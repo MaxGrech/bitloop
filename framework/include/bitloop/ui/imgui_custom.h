@@ -26,7 +26,6 @@ constexpr double pi = std::numbers::pi;
 #include <GLES3/gl3.h>
 #else
 #include "glad/glad.h"
-//#include <glad/gl.h>
 #endif
 
 // Image load helpers
@@ -39,22 +38,25 @@ inline ImTextureID ToImTextureID(GLuint tex)
     return (ImTextureID)(intptr_t)tex;
 }
 
-inline ImVec2 ScaleSize(const ImVec2& size)
+namespace BL 
 {
-    float dpr = PlatformManager::get()->dpr();
-    return ImVec2(size.x * dpr, size.y * dpr);
-}
+    inline ImVec2 ScaleSize(const ImVec2& size)
+    {
+        float dpr = BL::PlatformManager::get()->dpr();
+        return ImVec2(size.x * dpr, size.y * dpr);
+    }
 
-inline ImVec2 ScaleSize(int w, int h)
-{
-    float dpr = PlatformManager::get()->dpr();
-    return ImVec2((float)w * dpr, (float)h * dpr);
-}
+    inline ImVec2 ScaleSize(int w, int h)
+    {
+        float dpr = BL::PlatformManager::get()->dpr();
+        return ImVec2((float)w * dpr, (float)h * dpr);
+    }
 
-inline ImVec2 ScaleSize(float w, float h)
-{
-    float dpr = PlatformManager::get()->dpr();
-    return ImVec2(w * dpr, h * dpr);
+    inline ImVec2 ScaleSize(float w, float h)
+    {
+        float dpr = BL::PlatformManager::get()->dpr();
+        return ImVec2(w * dpr, h * dpr);
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const ImSpline::Spline& spline);

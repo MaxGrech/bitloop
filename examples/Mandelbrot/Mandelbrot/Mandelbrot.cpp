@@ -1008,7 +1008,7 @@ void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
     // ======== Bitmap / Depth-field dimensions and view rect ========
     {
         static double r = 0.0;
-        //DebugPrint("COMPUTING FROM CAMERA: %.2f, %.2f", (double)camera->x, (double)camera->y);
+        //BL::print("COMPUTING FROM CAMERA: %.2f, %.2f", (double)camera->x, (double)camera->y);
         pending_bmp->setStageRect(0, 0, iw, ih);
 
 
@@ -1088,7 +1088,7 @@ void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
         // Has pending_field finished computing? Set as active field and use for future color updates
         if (finished_compute)
         {
-            //DebugPrint("Finished computing phase: %d. Setting as active", pending_field->compute_phase);
+            //BL::print("Finished computing phase: %d. Setting as active", pending_field->compute_phase);
             active_bmp = pending_bmp;
             active_field = pending_field;
 
@@ -1138,7 +1138,7 @@ void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
                     double dt = std::chrono::duration<double, std::milli>(elapsed).count();
                     double dt_avg = timer_ma.push(dt);
 
-                    DebugPrint("Compute timer: %.4f", dt_avg);
+                    BL::print() << "Compute timer: " << BL::to_fixed(4) << dt_avg;
                 }
                 break;
             }
@@ -1279,7 +1279,7 @@ void Mandelbrot_Scene::viewportDraw(Viewport* ctx) const
         //int ih = (static_cast<int>(ceil(ctx->height / 9))) * 9;
         //pending_bmp->setStageRect(0, 0, iw, ih);
 
-        //DebugPrint("DRAWING WITH CAMERA: %.2f, %.2f", (double)camera->x, (double)camera->y);
+        //BL::print("DRAWING WITH CAMERA: %.2f, %.2f", (double)camera->x, (double)camera->y);
 
 
         //ctx->print() << "\nBmp world quad: " << active_bmp->worldQuad();

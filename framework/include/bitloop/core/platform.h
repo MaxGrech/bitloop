@@ -23,6 +23,8 @@
 #include "types.h"
 #include "platform_macros.h"
 
+BL_BEGIN_NS
+
 class PlatformManager
 {
     static PlatformManager *singleton;
@@ -114,3 +116,5 @@ public:
 {
     return static_cast<int>(PlatformManager::get()->dpr() * static_cast<float>(length));
 }
+
+BL_END_NS

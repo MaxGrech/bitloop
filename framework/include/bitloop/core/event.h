@@ -2,6 +2,11 @@
 #include <SDL3/SDL.h>
 #include <string>
 
+#define BL_BEGIN_NS namespace BL {
+#define BL_END_NS   }
+
+BL_BEGIN_NS
+
 class ProjectBase;
 class Camera;
 class Viewport;
@@ -94,3 +99,4 @@ public:
     [[nodiscard]] const char* keyName() { return SDL_GetKeyName(keyCode()); }
 };
 
+BL_END_NS

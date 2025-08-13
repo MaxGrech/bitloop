@@ -1,6 +1,8 @@
 #include "project.h"
 #include "main_window.h"
 
+BL_BEGIN_NS
+
 /// =======================
 /// ======== Scene ========
 /// =======================
@@ -179,10 +181,10 @@ void Viewport::printTouchInfo()
     print() << "pan_down_touch_dist      = " << camera.panDownTouchDist() << "\n";
     print() << "pan_down_touch_angle   = " << camera.panDownTouchAngle() << "\n";
     print() << "---------------------------------------------------------------\n";
-    print() << "pan_beg_cam_x                = " << camera.panBegCamX() << "\n";
-    print() << "pan_beg_cam_y                = " << camera.panBegCamY() << "\n";
-    print() << "pan_beg_cam_zoom_x    = " << camera.panBegCamZoomX() << "\n";
-    print() << "pan_beg_cam_zoom_y    = " << camera.panBegCamZoomY() << "\n";
+    print() << "pan_beg_cam_x                = " << (double)camera.panBegCamX() << "\n";
+    print() << "pan_beg_cam_y                = " << (double)camera.panBegCamY() << "\n";
+    print() << "pan_beg_cam_zoom_x    = " << (double)camera.panBegCamZoomX() << "\n";
+    print() << "pan_beg_cam_zoom_y    = " << (double)camera.panBegCamZoomY() << "\n";
     print() << "pan_beg_cam_angle        = " << camera.panBegCamAngle() << "\n";
     print() << "---------------------------------------------------------------\n";
     print() << "cam.touchAngle()        = " << camera.touchAngle() << "\n";
@@ -280,7 +282,7 @@ void Layout::resize(size_t viewport_count)
 
 void ProjectBase::configure(int _sim_uid, Canvas* _canvas, ImDebugLog* shared_log)
 {
-    DebugPrint("Project::configure");
+    BL::print() << "Project::configure";
 
     sim_uid = _sim_uid;
     canvas = _canvas;
@@ -859,3 +861,5 @@ void ProjectBase::logClear()
 {
     project_log->clear();
 }
+
+BL_END_NS

@@ -3,6 +3,8 @@
 #include <bitloop/core/project.h>
 SIM_BEG(Test)
 
+using namespace BL;
+
 struct Particle : public DVec2
 {
     double fx = 0, fy = 0;

@@ -2,6 +2,8 @@
 #include "platform.h"
 #include "project.h"
 
+BL_BEGIN_NS
+
 std::string Event::toString()
 {
     std::string focused = _focused_ctx ? std::to_string(_focused_ctx->viewportIndex()) : "_";
@@ -98,3 +100,5 @@ double PointerEvent::y()
     }
     return 0;
 }
+
+BL_END_NS

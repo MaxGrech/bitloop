@@ -5,10 +5,7 @@
 #include <iomanip>
 #include <algorithm>
 
-namespace bl
-{
-
-}
+BL_BEGIN_NS
 
 namespace Math
 {
@@ -22,10 +19,10 @@ namespace Math
     template<typename T> [[nodiscard]] inline T roundUp(T v, T step) { return std::ceil(v / step) * step; }
     template<typename T> [[nodiscard]] inline bool divisible(T _big, T _small)
     {
-        static_assert(bl::is_arithmetic_v<T>, "divisible() only supports arithmetic types");
-        if constexpr (bl::is_floating_point_v<T>)
+        static_assert(BL::is_arithmetic_v<T>, "divisible() only supports arithmetic types");
+        if constexpr (BL::is_floating_point_v<T>)
             return std::abs(std::fmod(_big, _small)) <= std::abs(_small) * (std::numeric_limits<T>::epsilon() * 10);
-        else if constexpr (bl::is_integral_v<T>)
+        else if constexpr (BL::is_integral_v<T>)
             return _small != 0 && (_big % _small == 0);
         return false;
     }
@@ -72,7 +69,7 @@ namespace Math
     template <typename Float>
     [[nodiscard]] int countWholeDigits(Float x)
     {
-        static_assert(bl::is_floating_point_v<Float>, "Float must be a floating-point type");
+        static_assert(BL::is_floating_point_v<Float>, "Float must be a floating-point type");
         if (!isfinite(x)) return 0;
         x = fabs(x);
         if (x < 1) return 1;
@@ -409,3 +406,4 @@ namespace Math
     }
 }
 
+BL_END_NS

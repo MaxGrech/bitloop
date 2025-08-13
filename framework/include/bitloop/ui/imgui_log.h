@@ -5,6 +5,8 @@
 #include <imgui.h>
 #include "threads.h"
 
+BL_BEGIN_NS
+
 struct ImDebugLog
 {
     std::deque<std::string> logLines;
@@ -66,3 +68,5 @@ struct ImDebugLog
 };
 
 //ImDebugLog* ImDebugLog::instance = nullptr;
+
+BL_END_NS

@@ -3,6 +3,8 @@
 #include "project.h"
 #include "platform.h"
 
+BL_BEGIN_NS
+
 //void Camera::setTransformFilters(bool _transform_coordinates, bool _scale_line_txt, bool _scale_sizes, bool _rotate_text)
 //{
 //    transform_coordinates = _transform_coordinates;
@@ -206,7 +208,7 @@ void Camera::restrictRelativeZoomRange(double min, double max)
 
 void Camera::panBegin(int _x, int _y, double touch_dist, double touch_angle)
 {
-    DebugPrint("[DOWN] Cam Pos: (%.3f, %.3f) Zoom: (%.3f, %.3f) Angle: %.3f",
+    BL::print("[DOWN] Cam Pos: (%.3f, %.3f) Zoom: (%.3f, %.3f) Angle: %.3f",
         (double)cam_x, (double)cam_y, (double)zoom_x, (double)zoom_y, cam_rotation);
 
     saveCameraTransform();
@@ -238,7 +240,7 @@ void Camera::panBegin(int _x, int _y, double touch_dist, double touch_angle)
 
 void Camera::panDrag(int _x, int _y, double touch_dist, double touch_angle)
 {
-    //DebugPrint("[DRAG] Cam Pos: (%.3f, %.3f) Zoom: (%.3f, %.3f) Angle: %.3f",
+    //BL::print("[DRAG] Cam Pos: (%.3f, %.3f) Zoom: (%.3f, %.3f) Angle: %.3f",
     //    (double)cam_x, (double)cam_y, (double)zoom_x, (double)zoom_y, cam_rotation);
 
     saveCameraTransform();
@@ -256,7 +258,8 @@ void Camera::panDrag(int _x, int _y, double touch_dist, double touch_angle)
 
 
             DVec2 world_offset = stageToWorldOffset(dx, dy);
-            DebugPrint("(dx,dy) = (%.3f, %.3f)", world_offset.x, world_offset.y);
+            BL::print("(dx,dy) = (%.3f, %.3f)", world_offset.x, world_offset.y);
+            //BL::print() << "(dx,dy) = (" << BL::dp(3) << world_offset.x << ", " << world_offset.)y
 
             setPos(
                 pan_beg_cam_x - world_offset.x /* * pan_mult */,
@@ -276,7 +279,7 @@ void Camera::panDrag(int _x, int _y, double touch_dist, double touch_angle)
             {
                 double delta_rotation = Math::closestAngleDifference(pan_down_touch_angle, touch_angle);
                 setRotation(pan_beg_cam_angle + delta_rotation);
-                DebugPrint("Setting rotation: %.3f", (double)cam_rotation);
+                BL::print() << "Setting rotation: " << BL::dp(3) << (double)cam_rotation;
 
                 // todo: In order to lock camera during pan, you may need to manually
                 //       send an event mimicking a mouse move in order to trigger pollEvents
@@ -500,3 +503,5 @@ void Camera::handleWorldNavigation(Event event, bool single_touch_pan)
         }
     }
 }
+
+BL_END_NS

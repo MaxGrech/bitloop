@@ -2,11 +2,13 @@
 #include "threads.h"
 #include <SDL3/SDL.h>
 
+BL_BEGIN_NS
+
 class ProjectBase;
 class Canvas;
 struct ImDebugLog;
 
-enum ProjectCommandType
+enum struct ProjectCommandType
 {
     PROJECT_SET,
     PROJECT_START,
@@ -14,14 +16,22 @@ enum ProjectCommandType
     PROJECT_PAUSE
 };
 
-constexpr int CURRENT_PROJECT = -1;
+struct ProjectID
+{
+    static constexpr int CURRENT_PROJECT = -1;
+    int uid;
+
+    ProjectID(int _uid) : uid(_uid) {}
+    operator int& () { return uid; }
+};
+
 
 extern ImDebugLog project_log;
 
 struct ProjectCommandEvent
 {
     ProjectCommandType type;
-    int project_uid = CURRENT_PROJECT;
+    ProjectID project_uid = ProjectID::CURRENT_PROJECT;
 };
 
 class ProjectBase;
@@ -83,8 +93,10 @@ public:
     // ======== Project Control ========
     [[nodiscard]] ProjectBase* getActiveProject() { return active_project; }
 
-    void setActiveProject(int uid)  { project_command_queue.push_back({ PROJECT_SET,   uid }); }
-    void startProject()             { project_command_queue.push_back({ PROJECT_START, CURRENT_PROJECT }); }
-    void stopProject()              { project_command_queue.push_back({ PROJECT_STOP,  CURRENT_PROJECT }); }
-    void pauseProject()             { project_command_queue.push_back({ PROJECT_PAUSE, CURRENT_PROJECT }); }
+    void setActiveProject(int uid)  { project_command_queue.push_back({ ProjectCommandType::PROJECT_SET,   uid }); }
+    void startProject()             { project_command_queue.push_back({ ProjectCommandType::PROJECT_START, ProjectID::CURRENT_PROJECT }); }
+    void stopProject()              { project_command_queue.push_back({ ProjectCommandType::PROJECT_STOP,  ProjectID::CURRENT_PROJECT }); }
+    void pauseProject()             { project_command_queue.push_back({ ProjectCommandType::PROJECT_PAUSE, ProjectID::CURRENT_PROJECT }); }
 };
+
+BL_END_NS

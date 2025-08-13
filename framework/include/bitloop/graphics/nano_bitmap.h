@@ -15,6 +15,7 @@
 #include "threads.h"
 #include "camera.h"
 
+BL_BEGIN_NS
 
 class CanvasObject
 {
@@ -667,3 +668,5 @@ public:
         );
     }
 };
+
+BL_END_NS

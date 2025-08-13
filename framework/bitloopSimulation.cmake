@@ -77,11 +77,11 @@ macro(bitloop_new_project sim_name)
 
 	else()
 		# nested (library)
-		set(_TARGET ${sim_name}_lib)
+		set(_TARGET ${sim_name})
 		set(SIM_SOURCES_PROVIDED TRUE)
 
 		add_library(${_TARGET} ${SIM_SOURCES})
-		add_library(${sim_name}::${sim_name} ALIAS ${sim_name}_lib) # Export an alias so consumers can link as sim::sim
+		add_library(${sim_name}::${sim_name} ALIAS ${sim_name}) # Export an alias so consumers can link as sim::sim
 	endif()
 
 	target_include_directories(${_TARGET} PUBLIC

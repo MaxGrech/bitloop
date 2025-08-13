@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <cstring>
 
-enum SplineSerializationMode
+enum struct SplineSerializationMode
 {
 	COMPRESS_BASE64,
 	COMPRESS_SHORTEST,
@@ -1348,8 +1348,8 @@ namespace ImSpline
 			int point_count = point_arr.Size;
 			float* points = floatArray();
 
-			bool compressed = mode == COMPRESS_BASE64 || mode == COMPRESS_SHORTEST;
-			bool cpp_readable = mode == CPP_ARRAY;
+			bool compressed = mode == SplineSerializationMode::COMPRESS_BASE64 || mode == SplineSerializationMode::COMPRESS_SHORTEST;
+			bool cpp_readable = mode == SplineSerializationMode::CPP_ARRAY;
 
 			// Base-64
 			//if (compress)
@@ -1371,7 +1371,7 @@ namespace ImSpline
 
 				// Encode as base64
 				base64_txt = base64_encode(reinterpret_cast<const unsigned char*>(binaryData.data()), binaryData.size());
-				if (mode != COMPRESS_SHORTEST)
+				if (mode != SplineSerializationMode::COMPRESS_SHORTEST)
 					return "B" + base64_txt;
 			}
 			

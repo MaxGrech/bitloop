@@ -7,6 +7,8 @@
 #include "nano_canvas.h"
 #include "project.h"
 
+namespace BL {
+
 struct ToolbarButtonState 
 {
     ImVec4 bgColor;
@@ -83,4 +85,6 @@ public:
     void populateExpandedLayout();
     void populateUI();
 };
+
+} // end namespace BL
 

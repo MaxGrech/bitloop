@@ -6,6 +6,14 @@
 #include <format>
 #include <thread>
 #include <atomic>
+#include <iostream>
+
+#include <charconv>
+#include <cstdint>
+#include <cstring>
+#include <limits>
+#include <string_view>
+#include <source_location>
 
 #if defined (_WIN32)
   #define NOMINMAX
@@ -44,102 +52,221 @@ struct Global
 #undef DEBUG_SIMULATE_MOBILE
 #endif
 
+#define BL_BEGIN_NS namespace BL {
+#define BL_END_NS   }
+
+BL_BEGIN_NS
+
 extern void ImDebugPrint(const char* txt, ...);
 
-//static inline std::atomic<size_t> global_thread_counter{ 0 };
-//static thread_local size_t thread_index = global_thread_counter.fetch_add(1, std::memory_order_relaxed);
-//extern std::unordered_map<size_t, size_t> thread_map;
+// ---------- persistent (per-thread) defaults ----------
+struct FloatState {
+    std::chars_format fmt;
+    int precision;
+};
 
-//static size_t get_thread_index() {
-//    if (!thread_map.contains(thread_index))
-//        thread_map[thread_index] = thread_index;
-//    return thread_index;
-//}
+// Persist across BL::print() calls on the same thread
+inline thread_local FloatState g_state{
+    std::chars_format::general,
+    std::numeric_limits<double>::max_digits10
+};
 
-#if defined(_WIN32)
-/// Windows
-#define DebugPrintString(txt) { const char* __buf = txt; OutputDebugStringA(__buf); ImDebugPrint(__buf); }
-            //auto ti = get_thread_index();                    \
-            //snprintf(buf, sizeof(buf), "[%llu] "##fmt, ti, ##__VA_ARGS__);
+// ---------- manipulators ----------
+struct Precision { int value; };
+inline Precision precision(int p) { return { p }; }
 
-#define DebugPrint(fmt, ...)                                \
-        do {                                              \
-            char buf[512];                                  \
-            snprintf(buf, sizeof(buf), ##fmt, ##__VA_ARGS__); \
-            DebugPrintString(buf);                          \
-            OutputDebugStringA("\n");                       \
-            printf("%s\n", buf);                            \
-        } while (0)
+struct FixedPrec { int n; };
+inline FixedPrec to_fixed(int n) { return { n }; }
+inline FixedPrec dp(int n) { return { n }; }
 
-#elif defined(__EMSCRIPTEN__)
-/// Webassembly
-#define DebugPrintString(txt) printf(txt)
-#define DebugPrint(fmt, ...) { printf(fmt "\n", ##__VA_ARGS__); ImDebugPrint(fmt, ##__VA_ARGS__); }
-//#define DebugPrintEx(cond, fmt, ...) // todo:
-#else
-/// Linux / Native
-#define DebugPrintString(txt) printf(txt)
-#define DebugPrint(fmt, ...) { printf(fmt "\n", ##__VA_ARGS__); ImDebugPrint(fmt, ##__VA_ARGS__); }
-//#define DebugPrintEx(cond, fmt, ...) // todo:
-#endif
-            
-template<typename... Args>
-void DashedDebugPrint(int width=0, const char* fmt=nullptr, Args... args)
-{
-    width = (width / 2) * 2;
-    if (fmt == nullptr || fmt[0] == 0)
-    {
-        DebugPrintString((std::string(width, '-') + "\n").c_str());
+struct Scientific {};
+struct General {};
+
+inline constexpr Scientific scientific{};
+inline constexpr General general{};
+
+// ---------- stream ----------
+class DebugStream {
+public:
+    // variables first
+    static constexpr std::size_t kBufSize = 1024;
+    char buf[kBufSize];
+    std::size_t len;
+    std::chars_format floatFmt;
+    int prec;
+
+    DebugStream()
+        : buf{}, len(0), floatFmt(g_state.fmt), prec(g_state.precision) {
     }
-    else
-    {
-        int len = std::snprintf(nullptr, 0, fmt, args...);
-        std::string s(len, '\0');
-        std::snprintf(&s[0], s.size() + 1, fmt, args...);
-        if (width > len + 2)
-        {
-            std::string dashes(std::max(0, (width - len) / 2 - 1), '-');
-            DebugPrintString((dashes + " " + s + " " + dashes + "\n").c_str());
+
+    ~DebugStream() {
+        // ensure line-oriented output
+        if (len && buf[len - 1] != '\n') { ensure(1); buf[len++] = '\n'; }
+        flush();
+    }
+
+    // text
+    DebugStream& operator<<(const char* s) { if (s) append(std::string_view{ s }); return *this; }
+    DebugStream& operator<<(std::string_view sv) { append(sv); return *this; }
+    DebugStream& operator<<(char c) { ensure(1); buf[len++] = c; return *this; }
+    DebugStream& operator<<(bool b) { return (*this) << (b ? "true" : "false"); }
+
+    // integers
+    template<class T>
+        requires (std::is_integral_v<T> && !std::is_same_v<T, bool>)
+    DebugStream& operator<<(T v) {
+        ensure(32);
+        auto r = std::to_chars(buf + len, buf + kBufSize, v);
+        if (r.ec == std::errc{}) len = static_cast<std::size_t>(r.ptr - buf);
+        else { flush(); r = std::to_chars(buf, buf + kBufSize, v); if (r.ec == std::errc{}) len = static_cast<std::size_t>(r.ptr - buf); }
+        return *this;
+    }
+
+    // pointers (hex)
+    DebugStream& operator<<(const void* p) {
+        (*this) << "0x";
+        ensure(2 * sizeof(void*) + 2);
+        auto r = std::to_chars(buf + len, buf + kBufSize, reinterpret_cast<uintptr_t>(p), 16);
+        if (r.ec == std::errc{}) len = static_cast<std::size_t>(r.ptr - buf);
+        else { flush(); r = std::to_chars(buf, buf + kBufSize, reinterpret_cast<uintptr_t>(p), 16); if (r.ec == std::errc{}) len = static_cast<std::size_t>(r.ptr - buf); }
+        return *this;
+    }
+
+    // floats
+    DebugStream& operator<<(float v) { return append_float(static_cast<double>(v)); }
+    DebugStream& operator<<(double v) { return append_float(v); }
+    DebugStream& operator<<(long double v) { return append_float(static_cast<double>(v)); }
+
+    // flush now (optional manual call)
+    void flush() {
+        if (!len) return;
+        ensure(1);
+        buf[len] = '\0';
+        OutputDebugStringA(buf);
+        ImDebugPrint(buf);
+        std::cout << buf;
+        len = 0;
+    }
+
+private:
+    void ensure(std::size_t need) {
+        if (kBufSize - len < need) flush();
+    }
+
+    void append(std::string_view sv) {
+        if (sv.empty()) return;
+        const char* p = sv.data();
+        std::size_t n = sv.size();
+        while (n) {
+            if (kBufSize - len == 0) { flush(); }
+            std::size_t take = std::min(n, kBufSize - len);
+            std::memcpy(buf + len, p, take);
+            len += take;
+            p += take;
+            n -= take;
         }
-        else
-            DebugPrintString((s + "\n").c_str());
     }
+
+    DebugStream& append_float(double v) {
+        ensure(64);
+        auto r = std::to_chars(buf + len, buf + kBufSize, v, floatFmt, prec);
+        if (r.ec == std::errc{}) {
+            len = static_cast<std::size_t>(r.ptr - buf);
+        }
+        else {
+            flush();
+            r = std::to_chars(buf, buf + kBufSize, v, floatFmt, prec);
+            if (r.ec == std::errc{}) len = static_cast<std::size_t>(r.ptr - buf);
+        }
+        return *this;
+    }
+};
+
+// ---------- manipulators wired to stream and persistent state ----------
+inline DebugStream& operator<<(DebugStream& s, Precision p) {
+    s.prec = p.value;
+    g_state.precision = p.value; // persist for next streams
+    return s;
 }
 
-#define DebugPrintEx(cond, fmt, ...) if constexpr (cond) DebugPrint(fmt, __VA_ARGS__);
+inline DebugStream& operator<<(DebugStream& s, FixedPrec fp) {
+    s.floatFmt = std::chars_format::fixed;
+    s.prec = fp.n;
+    g_state.fmt = std::chars_format::fixed;
+    g_state.precision = fp.n;
+    return s;
+}
 
-#if defined(_WIN32)
-#define DebugGroupBeg(cond, fmt, ...) \
-    if constexpr(cond) {\
-        DebugPrintString("\n");\
-        DashedDebugPrint(100);\
-        DashedDebugPrint(100, fmt, __VA_ARGS__);\
+inline DebugStream& operator<<(DebugStream& s, Scientific) {
+    s.floatFmt = std::chars_format::scientific;
+    g_state.fmt = std::chars_format::scientific;
+    return s;
+}
+
+inline DebugStream& operator<<(DebugStream& s, General) {
+    s.floatFmt = std::chars_format::general;
+    g_state.fmt = std::chars_format::general;
+    return s;
+}
+
+// factory
+[[nodiscard]] inline DebugStream print() { return DebugStream{}; }
+[[nodiscard]] inline void print(const char* fmt, ...)
+{
+    const size_t small_size = 1024;
+    char small_buf[small_size]{};
+
+    va_list ap;
+
+    // First: try to format into the small stack buffer
+    va_start(ap, fmt);
+    int n = std::vsnprintf(small_buf, small_size, fmt, ap);
+    va_end(ap);
+
+    if (n >= 0 && static_cast<std::size_t>(n) < small_size) {
+        // Fits in the stack buffer
+        OutputDebugStringA(small_buf);
+        ImDebugPrint(small_buf);
+        std::cout << small_buf;
+        return;
     }
 
-#define DebugGroupEnd(cond, fmt, ...) \
-    if constexpr(cond) {\
-        DashedDebugPrint(100, fmt, __VA_ARGS__);\
-        DashedDebugPrint(100);\
-        DebugPrintString("\n");\
-    }
-#else
-// todo: Should work in non-windows builds?
-#define DebugGroupBeg(cond, fmt, ...)
-#define DebugGroupEnd(cond, fmt, ...)
-#endif
+    // Second: compute required size exactly (excluding null)
+    #if defined(_MSC_VER) && !defined(__clang__)
+    va_start(ap, fmt);
+    int needed = _vscprintf(fmt, ap);
+    va_end(ap);
+    #else
+    va_start(ap, fmt);
+    int needed = std::vsnprintf(nullptr, 0, fmt, ap);
+    va_end(ap);
+    #endif
 
-#ifdef DEBUG_DISABLE_PRINT
-#undef DebugPrint
-#undef DebugPrintEx
-#define DebugPrint(fmt, ...)
-#define DebugPrintEx(fmt, ...)
-#endif
+    if (needed < 0) {
+        // Formatting error: bail
+        return;
+    }
+
+    // Allocate once and format
+    std::string buf;
+    buf.resize(static_cast<std::size_t>(needed) + 1);
+
+    va_start(ap, fmt);
+    std::vsnprintf(buf.data(), buf.size(), fmt, ap);
+    va_end(ap);
+
+    OutputDebugStringA(buf.c_str());
+    ImDebugPrint(buf.c_str());
+    std::cout << buf.c_str();
+}
+
+BL_END_NS
 
 #ifdef TIMERS_ENABLED
 #define T0(name)      auto _timer_##name = std::chrono::steady_clock::now();
 #define T1(name, ...) auto waited_##name = std::chrono::steady_clock::now() - _timer_##name;\
                       double dt_##name = std::chrono::duration<double, std::milli>(waited_##name).count();\
-                      if (dt_##name >= TIMER_ELAPSED_LIMIT) { DebugPrint("Timer (%s): %.4f", #name, dt_##name); }
+                      if (dt_##name >= TIMER_ELAPSED_LIMIT) { BL::print("Timer (%s): %.4f", #name, dt_##name); }
 #else
 #define T0(name)     
 #define T1(name, ...)

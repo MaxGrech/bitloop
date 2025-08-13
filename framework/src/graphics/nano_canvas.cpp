@@ -7,6 +7,8 @@
 #include "nano_canvas.h"
 #include "project.h"
 
+BL_BEGIN_NS
+
 std::shared_ptr<NanoFont> SimplePainter::default_font;
 
 constexpr double nice_steps[] = { 1.0, 2.0, 5.0, 10.0 };
@@ -252,3 +254,4 @@ void Canvas::end()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+BL_END_NS

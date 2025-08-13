@@ -7,7 +7,6 @@
 #include <GLES3/gl3.h>
 #else
 #include "glad/glad.h"
-//#include <glad/gl.h>
 #endif
 
 #include "nanovg/nanovg.h"
@@ -18,37 +17,39 @@
 #include "camera.h"
 #include "debug.h"
 
+BL_BEGIN_NS
+
 class Viewport;
 
-enum PathWinding
+enum struct PathWinding
 {
     WINDING_CCW = NVGwinding::NVG_CCW,
     WINDING_CW = NVGwinding::NVG_CW
 };
-enum LineCap
+enum struct LineCap
 {
     CAP_BUTT = NVGlineCap::NVG_BUTT,
     CAP_ROUND = NVGlineCap::NVG_ROUND,
     CAP_SQUARE = NVGlineCap::NVG_SQUARE,
 };
-enum LineJoin
+enum struct LineJoin
 {
     JOIN_BEVEL = NVGlineCap::NVG_BEVEL,
     JOIN_MITER = NVGlineCap::NVG_MITER
 };
-enum TextAlign
+enum struct TextAlign
 {
     ALIGN_LEFT = NVGalign::NVG_ALIGN_LEFT,
     ALIGN_CENTER = NVGalign::NVG_ALIGN_CENTER,
     ALIGN_RIGHT = NVGalign::NVG_ALIGN_RIGHT
 };
-enum TextBaseline
+enum struct TextBaseline
 {
     BASELINE_TOP = NVGalign::NVG_ALIGN_TOP,
     BASELINE_MIDDLE = NVGalign::NVG_ALIGN_MIDDLE,
     BASELINE_BOTTOM = NVGalign::NVG_ALIGN_BOTTOM
 };
-enum CompositeOperation
+enum struct CompositeOperation
 {
     COMPOSITE_SOURCE_OVER = NVGcompositeOperation::NVG_SOURCE_OVER,
     COMPOSITE_SOURCE_IN = NVGcompositeOperation::NVG_SOURCE_IN,
@@ -62,7 +63,7 @@ enum CompositeOperation
     COMPOSITE_COPY = NVGcompositeOperation::NVG_COPY,
     COMPOSITE_XOR = NVGcompositeOperation::NVG_XOR
 };
-enum BlendFactor
+enum struct BlendFactor
 {
     BLEND_ZERO = NVGblendFactor::NVG_ZERO,
     BLEND_ONE = NVGblendFactor::NVG_ONE,
@@ -97,7 +98,7 @@ public:
 
     NanoFont(const char* virtual_path)
     {
-        DebugPrint("NanoFont() called");
+        BL::print("NanoFont() called");
         path = Platform()->path(virtual_path);
     }
 
@@ -178,8 +179,8 @@ public:
     void setFillStyle(int r, int g, int b, int a = 255)      { nvgFillColor(vg, nvgRGBA(r, g, b, a)); }
     void setStrokeStyle(int r, int g, int b, int a = 255)    { nvgStrokeColor(vg, nvgRGBA(r, g, b, a)); }
     void setLineWidth(double w)                              { nvgStrokeWidth(vg, (float)(w)); }
-    void setLineCap(LineCap cap)                             { nvgLineCap(vg, cap); }
-    void setLineJoin(LineJoin join)                          { nvgLineJoin(vg, join); }
+    void setLineCap(LineCap cap)                             { nvgLineCap(vg, (int)cap); }
+    void setLineJoin(LineJoin join)                          { nvgLineJoin(vg, (int)join); }
 
     // ======== Paths ========
 
@@ -805,3 +806,5 @@ public:
 };
 
 GLuint loadSVG(const char* path, int outputWidth, int outputHeight);
+
+BL_END_NS

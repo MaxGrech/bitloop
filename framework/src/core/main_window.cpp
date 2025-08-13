@@ -2,6 +2,7 @@
 #include "main_window.h"
 #include "project_worker.h"
 
+BL_BEGIN_NS
 
 MainWindow* MainWindow::singleton = nullptr;
 
@@ -536,7 +537,7 @@ void MainWindow::populateViewport()
 
                 canvas.begin(0.05f, 0.05f, 0.1f, 1.0f);
 
-                //DebugPrint("projectDraw()");
+                //BL::print() << "projectDraw()";
                 ProjectWorker::instance()->draw();
                 canvas.end();
 
@@ -630,3 +631,5 @@ void MainWindow::populateUI()
         //dpiDebugInfo();
     }
 }
+
+BL_END_NS

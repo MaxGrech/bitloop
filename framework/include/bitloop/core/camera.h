@@ -3,6 +3,8 @@
 #include "debug.h"
 #include "bitloop/utility/math_helpers.h"
 
+BL_BEGIN_NS
+
 inline glm::dmat3 glm_dtranslate(double tx, double ty) {
     glm::dmat3 m(1.0);
     m[2][0] = tx; // column 2, row 0
@@ -509,3 +511,5 @@ inline DQuad Camera::toStageQuad(const DVec2& a, const DVec2& b, const DVec2& c,
     DVec2 qD = toStage(d);
     return { qA, qB, qC, qD };
 }
+
+BL_END_NS

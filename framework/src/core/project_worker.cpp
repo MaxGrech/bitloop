@@ -2,6 +2,8 @@
 #include "main_window.h"
 #include "project.h"
 
+BL_BEGIN_NS
+
 ProjectWorker* ProjectWorker::singleton = nullptr;
 
 void ProjectWorker::startWorker()
@@ -38,7 +40,7 @@ void ProjectWorker::handleProjectCommands(ProjectCommandEvent& e)
 {
     switch (e.type)
     {
-    case PROJECT_SET:
+    case ProjectCommandType::PROJECT_SET:
     {
         project_log.clear();
 
@@ -50,7 +52,7 @@ void ProjectWorker::handleProjectCommands(ProjectCommandEvent& e)
     }
     break;
 
-    case PROJECT_START:
+    case ProjectCommandType::PROJECT_START:
         if (active_project)
         {
             active_project->_projectDestroy();
@@ -60,7 +62,7 @@ void ProjectWorker::handleProjectCommands(ProjectCommandEvent& e)
         }
         break;
 
-    case PROJECT_STOP: 
+    case ProjectCommandType::PROJECT_STOP:
         if (active_project)
         {
             active_project->_projectDestroy();
@@ -68,7 +70,7 @@ void ProjectWorker::handleProjectCommands(ProjectCommandEvent& e)
         }
         break;
 
-    case PROJECT_PAUSE: 
+    case ProjectCommandType::PROJECT_PAUSE:
         if (active_project)
         {
             active_project->_projectPause();
@@ -103,8 +105,8 @@ void ProjectWorker::worker_loop()
         {
             /// ======== Update live values ========
             {
-                //DebugPrint("----------------------------");
-                //DebugPrint("----- NEW WORKER FRAME -----");
+                //BL::print() << "----------------------------";
+                //BL::print() << "----- NEW WORKER FRAME -----";
 
                 // ======== Event polling ========
                 {
@@ -141,9 +143,9 @@ void ProjectWorker::worker_loop()
                         pushDataToShadow();
                 }
 
-                //DebugPrint("----- END WORKER FRAME -----");
-                //DebugPrint("----------------------------");
-                //DebugPrint("");
+                //BL::print() << "----- END WORKER FRAME -----";
+                //BL::print() << "----------------------------";
+                //BL::print() << "";
             }
         }
 
@@ -231,3 +233,5 @@ void ProjectWorker::draw()
     if (active_project)
         active_project->_projectDraw();
 }
+
+BL_END_NS

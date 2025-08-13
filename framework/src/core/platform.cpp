@@ -13,6 +13,8 @@
 #endif
 #include <filesystem>
 
+BL_BEGIN_NS
+
 PlatformManager* PlatformManager::singleton = nullptr;
 
 #ifdef __EMSCRIPTEN__
@@ -225,3 +227,5 @@ std::string PlatformManager::path(std::string_view virtual_path)
     p = p.lexically_normal(); // clean up
     return p.string();
 }
+
+BL_END_NS

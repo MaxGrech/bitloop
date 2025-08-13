@@ -4,6 +4,8 @@
 
 SIM_BEG(Cardioid)
 
+using namespace BL;
+
 // Expose
 
 void plot(const SceneBase* scene, Viewport* ctx, bool interactive, int segments = 720, double ox=0);

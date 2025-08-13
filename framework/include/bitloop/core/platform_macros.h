@@ -66,7 +66,7 @@
 
 template<typename T>
 constexpr T bl_infinity() {
-    //static_assert(bl::is_floating_point_v<T>, "bl_infinity<T> requires a floating-point type");
+    //static_assert(BL::is_floating_point_v<T>, "bl_infinity<T> requires a floating-point type");
     #ifdef BL_FAST_MATH
     return T(1e300); // Safe large finite fallback
     #else

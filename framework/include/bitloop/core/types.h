@@ -9,28 +9,35 @@
 //#include "float128.h"
 #include "bitloop/utility/float128.h"
 
-namespace bl
-{
-    template<typename T>
-    concept is_floating_point_v =
-        std::is_floating_point_v<T> ||
-        std::same_as<T, flt128>;
-
-    template<class T>
-    concept is_arithmetic_v = 
-        std::is_arithmetic_v<T> || 
-		std::is_same_v<T, flt128>;
-
-    template<typename T>
-    concept is_integral_v = std::is_integral_v<T>;
-}
-
-
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_UNRESTRICTED_GENTYPE
 #define GLM_FORCE_CTOR_INIT
 #include "glm/glm.hpp"
 #include "glm/gtx/transform2.hpp"
+
+#define BL_BEGIN_NS namespace BL {
+#define BL_END_NS   }
+
+namespace glm {
+    typedef mat<3, 3, flt128, glm::defaultp>	ddmat3;
+    typedef vec<2, flt128, defaultp>		    ddvec2;
+    typedef vec<3, flt128, defaultp>		    ddvec3;
+}
+
+BL_BEGIN_NS
+
+template<typename T>
+concept is_floating_point_v =
+    std::is_floating_point_v<T> ||
+    std::same_as<T, flt128>;
+
+template<class T>
+concept is_arithmetic_v = 
+    std::is_arithmetic_v<T> || 
+	std::is_same_v<T, flt128>;
+
+template<typename T>
+concept is_integral_v = std::is_integral_v<T>;
 
 class ProjectBase;
 using ProjectCreatorFunc = std::function<ProjectBase*()>;
@@ -42,33 +49,22 @@ namespace Math {
 
 // Enums
 
-enum Anchor
+enum struct Anchor
 {
     TOP_LEFT,     TOP,     TOP_RIGHT,
     LEFT,         CENTER,  RIGHT,
     BOTTOM_LEFT,  BOTTOM,  BOTTOM_RIGHT
 };
 
-
-
-
-std::ostream& operator<<(std::ostream& os, const flt128& x);
-
-namespace glm {
-    typedef mat<3, 3, flt128, glm::defaultp>	ddmat3;
-    typedef vec<2, flt128, defaultp>		    ddvec2;
-    typedef vec<3, flt128, defaultp>		    ddvec3;
-}
-
 template<typename T> struct GlmVec2Type;
 template<typename T> struct GlmVec3Type;
 template<> struct GlmVec2Type<float>        { using type = glm::vec2; };
 template<> struct GlmVec2Type<double>       { using type = glm::dvec2; };
-template<> struct GlmVec2Type<flt128>     { using type = glm::ddvec2; };
+template<> struct GlmVec2Type<flt128>       { using type = glm::ddvec2; };
 template<> struct GlmVec2Type<int>          { using type = glm::ivec2; };
 template<> struct GlmVec3Type<float>        { using type = glm::vec3; };
 template<> struct GlmVec3Type<double>       { using type = glm::dvec3; };
-template<> struct GlmVec3Type<flt128>     { using type = glm::ddvec3; };
+template<> struct GlmVec3Type<flt128>       { using type = glm::ddvec3; };
 template<> struct GlmVec3Type<int>          { using type = glm::ivec3; };
 template<typename T> using GlmVec2 = typename GlmVec2Type<T>::type;
 template<typename T> using GlmVec3 = typename GlmVec3Type<T>::type;
@@ -283,8 +279,6 @@ struct TriangleEqual
     }
 };
 
-
-
 template<typename T> struct Quad;
 
 template<typename T>
@@ -497,7 +491,7 @@ typedef Quad<int>           IQuad;
 typedef Ray<float>          FRay;
 typedef Ray<double>         DRay;
 
-typedef AngledRect<double>    DAngledRect;
+typedef AngledRect<double>  DAngledRect;
 typedef AngledRect<flt128>  DDAngledRect;
 
 struct MassForceParticle : public DVec2
@@ -510,17 +504,20 @@ struct MassForceParticle : public DVec2
     double mass;
 };
 
+BL_END_NS
+
 template<typename T>
-std::ostream& operator<<(std::ostream& os, const Vec2<T>& vec) {
+std::ostream& operator<<(std::ostream& os, const BL::Vec2<T>& vec) {
     return os << "(" << vec.x << ", " << vec.y << ")";
 }
 
 template<typename T>
-std::ostream& operator<<(std::ostream& os, const Quad<T>& q) {
+std::ostream& operator<<(std::ostream& os, const BL::Quad<T>& q) {
     return os << "{" << q.a << ", " << q.b << ", " << q.c << ", " << q.d << "}";
 }
 
 template<typename T>
-std::ostream& operator<<(std::ostream& os, const AngledRect<T>& r) {
+std::ostream& operator<<(std::ostream& os, const BL::AngledRect<T>& r) {
     return os << "{cx: " << r.cx << ", cy: " << r.cy << ", w: " << r.w << ", h: " << r.h << "rot: " << r.angle << "}";
 }
+

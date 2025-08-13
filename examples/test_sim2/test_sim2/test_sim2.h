@@ -4,6 +4,8 @@
 
 SIM_BEG(Test2)
 
+using namespace BL;
+
 struct Particle : public DVec2
 {
     double fx = 0, fy = 0;

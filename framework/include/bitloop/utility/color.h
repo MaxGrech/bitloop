@@ -1,5 +1,7 @@
 #include "types.h"
 
+BL_BEGIN_NS
+
 struct Color
 {
     union {
@@ -125,3 +127,5 @@ struct Color
             h += 360.0f;
     }
 };
+
+BL_END_NS

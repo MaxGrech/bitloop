@@ -79,9 +79,12 @@
 #include "main_window.h"
 #include "shared_sync.h"
 
+using namespace BL;
+
 SDL_Window* window = nullptr;
 SharedSync shared_sync;
 //std::unordered_map<size_t, size_t> thread_map;
+
 
 void gui_loop()
 {
@@ -148,11 +151,11 @@ int bitloop_main(int, char* [])
         });
         #endif
 
-        std::cout << "Creating window...\n";
+        BL::print() << "Creating window...\n";
         window = SDL_CreateWindow("bitloop", fb_w, fb_h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
         if (!window) {
-            std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << "\n";
+            BL::print() << "SDL_CreateWindow failed: " << SDL_GetError() << "\n";
             return 1;
         }
     }
@@ -167,7 +170,7 @@ int bitloop_main(int, char* [])
 
         #ifndef __EMSCRIPTEN__
         if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-            std::cerr << "Failed to initialize GLAD\n";
+            BL::print() << "Failed to initialize GLAD\n";
             return 1;
         }
 

@@ -50,11 +50,11 @@ std::vector<std::string> VectorizeArgs(Ts&&... args) { return { std::forward<Ts>
 #define SIM_DECLARE(ns, ...) extern "C" void ns##_ForceLink() {}\
                              namespace ns {\
                                  AutoRegisterProject<ns##_Project> register_##ns(VectorizeArgs(__VA_ARGS__));\
-                                 void cpp_func() { /*DebugPrint(#ns##" linked");*/ }
+                                 void cpp_func() { /*BL::print(#ns##" linked");*/ }
                                  
 #define SIM_END(ns)          } using ns::ns##_Project;
                              
-
+BL_BEGIN_NS
 
 class Layout;
 class Viewport;
@@ -315,7 +315,7 @@ public:
     template<typename T>
     T* mountScene(T* _sim)
     {
-        DebugPrint("Mounting existing scene to Viewport: %d", viewport_index);
+        BL::print() << "Mounting existing scene to Viewport: " << viewport_index;
         scene = _sim;
         scene->registerMount(this);
         return _sim;
@@ -788,3 +788,5 @@ struct AutoRegisterProject
         });
     }
 };
+
+BL_END_NS
