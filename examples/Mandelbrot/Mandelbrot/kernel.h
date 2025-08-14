@@ -2,6 +2,7 @@
 #pragma float_control(precise, off)
 #endif
 
+#include "shading.h"
 
 inline int mandelbrot_depth(double x0, double y0, int iter_lim)
 {

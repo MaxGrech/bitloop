@@ -1,5 +1,8 @@
+#pragma once
+
 #include <math.h>
 #include <cmath>
+#include <vector>
 
 enum MandelFlag : uint32_t
 {
@@ -17,40 +20,6 @@ enum MandelFlag : uint32_t
 
     MANDEL_SMOOTH_BITSHIFT = 20,
     MANDEL_VERSION_BITSHIFT = 24
-};
-
-enum class MandelSmoothing
-{
-    NONE = 0,
-    ITER = 1,
-    DIST = 2,
-    MIX = 3, // ITER | DIST
-    COUNT
-};
-
-enum class MandelTransform
-{
-    NONE,
-    FLATTEN,
-    //COUNT
-};
-
-enum ColorGradientTemplate
-{
-    GRADIENT_CUSTOM,
-
-    GRADIENT_CLASSIC,
-    GRADIENT_SINUSOIDAL_RAINBOW_CYCLE,
-    GRADIENT_WAVES,
-
-    GRADIENT_TEMPLATE_COUNT
-};
-
-static const char* ColorGradientNames[GRADIENT_TEMPLATE_COUNT] = {
-    "",
-    "CLASSIC",
-    "SINUSOIDAL_RAINBOW_CYCLE",
-    "WAVES"
 };
 
 struct EscapeFieldPixel
@@ -74,9 +43,7 @@ struct EscapeField : public std::vector<EscapeFieldPixel>
 
     int w = 0, h = 0;
 
-    EscapeField(int phase) : compute_phase(phase)
-    {
-    }
+    EscapeField(int phase) : compute_phase(phase) {}
 
     void setAllDepth(double value)
     {

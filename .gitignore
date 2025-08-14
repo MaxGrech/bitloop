@@ -46,3 +46,4 @@ out
 __pycache__
 /unversioned
 /bitloop
+/scripts/private

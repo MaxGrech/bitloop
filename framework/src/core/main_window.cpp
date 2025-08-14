@@ -618,8 +618,8 @@ void MainWindow::populateUI()
 
     ImGui::PopStyleVar();
 
-    ///static bool demo_open = true;
-    ///ImGui::ShowDemoWindow(&demo_open);
+    //static bool demo_open = true;
+    //ImGui::ShowDemoWindow(&demo_open);
 
     /// Debugging
     {

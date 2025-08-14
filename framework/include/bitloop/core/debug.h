@@ -142,7 +142,9 @@ public:
         if (!len) return;
         ensure(1);
         buf[len] = '\0';
+        #ifdef WIN32
         OutputDebugStringA(buf);
+        #endif
         ImDebugPrint(buf);
         std::cout << buf;
         len = 0;
@@ -211,7 +213,7 @@ inline DebugStream& operator<<(DebugStream& s, General) {
 
 // factory
 [[nodiscard]] inline DebugStream print() { return DebugStream{}; }
-[[nodiscard]] inline void print(const char* fmt, ...)
+inline void print(const char* fmt, ...)
 {
     const size_t small_size = 1024;
     char small_buf[small_size]{};
@@ -225,7 +227,9 @@ inline DebugStream& operator<<(DebugStream& s, General) {
 
     if (n >= 0 && static_cast<std::size_t>(n) < small_size) {
         // Fits in the stack buffer
+        #ifdef WIN32
         OutputDebugStringA(small_buf);
+        #endif
         ImDebugPrint(small_buf);
         std::cout << small_buf;
         return;
@@ -252,10 +256,12 @@ inline DebugStream& operator<<(DebugStream& s, General) {
     buf.resize(static_cast<std::size_t>(needed) + 1);
 
     va_start(ap, fmt);
-    std::vsnprintf(buf.data(), buf.size(), fmt, ap);
+    std::vsnprintf((char*)buf.data(), buf.size(), fmt, ap);
     va_end(ap);
 
-    OutputDebugStringA(buf.c_str());
+    #ifdef WIN32
+    OutputDebugStringA(buf);
+    #endif
     ImDebugPrint(buf.c_str());
     std::cout << buf.c_str();
 }
