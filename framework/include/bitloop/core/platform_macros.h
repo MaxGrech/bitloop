@@ -74,13 +74,13 @@ constexpr T bl_infinity() {
     #endif
 }
 
-// ======== DebugBreak ========
+// ======== blBreak ========
 
 #if defined(_MSC_VER)
-#define DebugBreak() __debugbreak()
+#define blBreak() __debugbreak()
 #elif defined(__GNUC__) || defined(__clang__)
 #include <csignal>
-#define DebugBreak() std::raise(SIGTRAP)
+#define blBreak() std::raise(SIGTRAP)
 #else
-#define DebugBreak() ((void)0)  // fallback: no-op
+#define blBreak() ((void)0)  // fallback: no-op
 #endif

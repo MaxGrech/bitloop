@@ -1168,7 +1168,7 @@ void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
                 if (!isfinite(log_color_cycle_iters))
                 {
                     log_color_cycle_iters = Math::linear_log1p_lerp(color_cycle_iters, log1p_weight);
-                    DebugBreak();
+                    blBreak();
                 }
             }
             else
@@ -1179,7 +1179,7 @@ void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
                 if (!isfinite(log_color_cycle_iters))
                 {
                     log_color_cycle_iters = Math::linear_log1p_lerp(cycle_iter_value, log1p_weight);
-                    DebugBreak();
+                    blBreak();
                 }
             }
         }

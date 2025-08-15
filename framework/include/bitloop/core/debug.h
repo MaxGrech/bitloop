@@ -260,7 +260,7 @@ inline void print(const char* fmt, ...)
     va_end(ap);
 
     #ifdef WIN32
-    OutputDebugStringA(buf);
+    OutputDebugStringA(buf.c_str());
     #endif
     ImDebugPrint(buf.c_str());
     std::cout << buf.c_str();
@@ -276,17 +276,6 @@ BL_END_NS
 #else
 #define T0(name)     
 #define T1(name, ...)
-#endif
-
-// ======== DebugBreak ========
-
-#if defined(_MSC_VER)
-#define DebugBreak() __debugbreak()
-#elif defined(__GNUC__) || defined(__clang__)
-#include <csignal>
-#define DebugBreak() std::raise(SIGTRAP)
-#else
-#define DebugBreak() ((void)0)  // fallback: no-op
 #endif
 
 class FiniteDouble
@@ -306,7 +295,7 @@ class FiniteDouble
             #ifdef _MSC_VER
             std::string stack = std::to_string(std::stacktrace::current());
             #endif
-            DebugBreak();
+            blBreak();
             if (break_on_assignment == 1)
                 break_on_assignment = 0;
         }
@@ -316,7 +305,7 @@ class FiniteDouble
             #ifdef _MSC_VER
             std::string stack = std::to_string(std::stacktrace::current());
             #endif
-            DebugBreak();
+            blBreak();
         }
         
         value = v;

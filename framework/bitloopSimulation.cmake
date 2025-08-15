@@ -34,7 +34,7 @@ function(apply_common_settings _TARGET)
 			"-sFULL_ES3=1"
 			"-sALLOW_MEMORY_GROWTH=1"
 			"-sUSE_PTHREADS=1"
-			"-sPTHREAD_POOL_SIZE=16"
+			"-sPTHREAD_POOL_SIZE=32"
 		)
 	endif()
 endfunction()
@@ -47,7 +47,10 @@ function(apply_main_settings _TARGET)
 			"--shell-file=${BITLOOP_COMMON}/static/shell.html"
 			"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
 		)
-		set_target_properties(${_TARGET} PROPERTIES SUFFIX ".html")
+		set_target_properties(${_TARGET} PROPERTIES
+			OUTPUT_NAME "index"
+			SUFFIX ".html"
+		)
 	endif()
 endfunction()
 

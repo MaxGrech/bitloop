@@ -62,6 +62,8 @@
 
 #include <memory>
 
+#include "platform.h"
+
 #ifdef __EMSCRIPTEN__
 #define SDL_MAIN_HANDLED
 #include <GLES3/gl3.h>
@@ -143,12 +145,12 @@ int bitloop_main(int, char* [])
         emscripten_get_canvas_element_size("#canvas", &fb_w, &fb_h);
 
         // needed?
-        EM_ASM({
-            const cv = Module['canvas'];
-            cv.setAttribute('tabindex', '0');
-            cv.setAttribute('contenteditable', 'true');
-            cv.addEventListener('mousedown', () => cv.focus());
-        });
+        //EM_ASM({
+        //    const cv = Module['canvas'];
+        //    cv.setAttribute('tabindex', '0');
+        //    cv.setAttribute('contenteditable', 'true');
+        //    cv.addEventListener('mousedown', () => cv.focus());
+        //});
         #endif
 
         BL::print() << "Creating window...\n";
@@ -160,7 +162,7 @@ int bitloop_main(int, char* [])
         }
     }
 
-    SDL_GLContext gl_context;
+    SDL_GLContext gl_context = nullptr;
 
     // ======== OpenGL setup ========
     {

@@ -2,17 +2,13 @@
 
 #include <memory>
 
-/// OpenGL
-#ifdef __EMSCRIPTEN__
-#include <GLES3/gl3.h>
-#else
-#include "glad/glad.h"
-#endif
+#include "platform.h"
+
+
 
 #include "nanovg/nanovg.h"
 #include "nanovg/nanovg_gl.h"
 
-#include "platform.h"
 #include "nano_bitmap.h"
 #include "camera.h"
 #include "debug.h"

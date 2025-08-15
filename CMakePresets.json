@@ -22,6 +22,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/framework/build/ninja-debug",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
@@ -31,6 +32,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/framework/build/ninja-release",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
@@ -41,6 +43,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/framework/build/ninja-static-release",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
         "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",

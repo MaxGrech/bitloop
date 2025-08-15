@@ -17,6 +17,13 @@
 #include <windows.h>
 #endif
 
+/// OpenGL
+#ifdef __EMSCRIPTEN__
+#include <GLES3/gl3.h>
+#else
+#include "glad/glad.h"
+#endif
+
 #include <functional>
 
 #include "debug.h"
