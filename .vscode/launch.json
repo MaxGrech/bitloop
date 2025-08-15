@@ -1,0 +1,50 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Debug (Windows MSVC)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "preLaunchTask": "CMake: ninja-debug"
+        },
+        {
+            "name": "Run Release (Windows MSVC)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "preLaunchTask": "CMake: ninja-release"
+        },
+        {
+            "name": "Run Debug (GDB)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
+            "preLaunchTask": "CMake: ninja-release"
+        },
+        {
+            "name": "Run WASM (Debug, Chrome)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:6931/${command:cmake.launchTargetName}.html",
+            "webRoot": "${command:cmake.launchTargetDirectory}",
+            "preLaunchTask": "Build+Serve wasm32-debug",
+            "serverReadyAction": {
+                "pattern": "Now listening on (http://localhost:6931)",
+                "uriFormat": "%s",
+                "action": "openExternally"
+            }
+        }
+    ]
+}
