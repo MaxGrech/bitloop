@@ -2,23 +2,63 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "CMake: set-config:ninja-debug",
+			"type": "cmake",
+			"command": "configure",
+			"preset": "ninja-debug"
+		},
+		{
+			"label": "CMake: set-config:ninja-release",
+			"type": "cmake",
+			"command": "configure",
+			"preset": "ninja-release"
+		},
+		{
+			"label": "CMake: set-config:wasm32-debug",
+			"type": "cmake",
+			"command": "configure",
+			"preset": "wasm32-debug"
+		},
+		{
+			"label": "CMake: set-config:wasm32-release",
+			"type": "cmake",
+			"command": "configure",
+			"preset": "wasm32-release"
+		},
+
+
+		{
 			"label": "CMake: ninja-debug",
 			"type": "cmake",
 			"command": "build",
-			"preset": "ninja-debug"
+			"preset": "ninja-debug",
+			"dependsOn": "CMake: set-config:ninja-debug"
 		},
 		{
 			"label": "CMake: ninja-release",
 			"type": "cmake",
 			"command": "build",
-			"preset": "ninja-release"
+			"preset": "ninja-release",
+			"dependsOn": "CMake: set-config:ninja-release"
 		},
+
+
 		{
 			"label": "CMake: wasm32-debug",
 			"type": "cmake",
 			"command": "build",
-			"preset": "wasm32-debug"
+			"preset": "wasm32-debug",
+			"dependsOn": "CMake: set-config:wasm32-debug"
 		},
+		{
+			"label": "CMake: wasm32-release",
+			"type": "cmake",
+			"command": "build",
+			"preset": "wasm32-release",
+			"dependsOn": "CMake: set-config:wasm32-release"
+		},
+
+
 		{
 			"label": "Serve wasm (active launch target)",
 			"type": "shell",

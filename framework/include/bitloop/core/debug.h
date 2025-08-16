@@ -8,6 +8,9 @@
 #include <atomic>
 #include <iostream>
 
+#include <cstdarg> // va_list, va_start, va_end, va_copy
+#include <cstdio>
+
 #include <charconv>
 #include <cstdint>
 #include <cstring>
