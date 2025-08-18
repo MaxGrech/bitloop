@@ -41,16 +41,16 @@ std::vector<std::string> VectorizeArgs(Ts&&... args) { return { std::forward<Ts>
 }*/
 
 #define SIM_BEG(ns)          namespace ns {\
-                                void cpp_func();\
-                                struct _SimCppInvoker {\
-                                    _SimCppInvoker() { cpp_func(); }\
-                                };\
-                                inline _SimCppInvoker _trigger_static_init;
+                             //   void cpp_func();\
+                             //   struct _SimCppInvoker {\
+                             //       _SimCppInvoker() { cpp_func(); }\
+                             //   };\
+                             //   inline _SimCppInvoker _trigger_static_init;
 
-#define SIM_DECLARE(ns, ...) extern "C" void ns##_ForceLink() {}\
-                             namespace ns {\
-                                 AutoRegisterProject<ns##_Project> register_##ns(VectorizeArgs(__VA_ARGS__));\
-                                 void cpp_func() { /*BL::print(#ns##" linked");*/ }
+#define SIM_DECLARE(ns)      extern "C" void ns##_ForceLink() {}\
+                             namespace ns {//\
+                             //    AutoRegisterProject<ns##_Project> register_##ns();\
+                             //    void cpp_func() { /*BL::print(#ns##" linked");*/ }
                                  
 #define SIM_END(ns)          } using ns::ns##_Project;
                              
@@ -560,28 +560,41 @@ public:
         return nullptr;
     }
 
-    static void addProjectInfo(const std::vector<std::string>& tree_path, const ProjectCreatorFunc& func)
+    static inline int factory_sim_index = 0;
+
+    template<typename T>
+    static std::shared_ptr<ProjectInfo> createProjectFactoryInfo()
     {
-        static int factory_sim_index = 0;
+        auto project_info = std::make_shared<ProjectInfo>(T::info());
+        project_info->creator = []() -> ProjectBase* { return new T(); };
+        project_info->sim_uid = ProjectBase::factory_sim_index++;
 
+        return project_info;
+    }
+
+    //static void addProjectFactoryInfo(const std::vector<std::string>& tree_path, const ProjectCreatorFunc& func)
+    static void addProjectFactoryInfo(std::shared_ptr<ProjectInfo> project_info)
+    {
+        //static int factory_sim_index = 0;
+        //
         std::vector<std::shared_ptr<ProjectInfo>>& project_list = projectInfoList();
-
-        auto project_info = std::make_shared<ProjectInfo>(ProjectInfo(
-            tree_path,
-            func,
-            factory_sim_index++,
-            ProjectInfo::INACTIVE
-        ));
+        //
+        //auto project_info = std::make_shared<ProjectInfo>(ProjectInfo(
+        //    tree_path,
+        //    func,
+        //    factory_sim_index++,
+        //    ProjectInfo::INACTIVE
+        //));
 
         project_list.push_back(project_info);
 
         ProjectInfoNode* current = &projectTreeRootInfo();
 
         // Traverse tree and insert info in correct nested category
-        for (size_t i = 0; i < tree_path.size(); i++)
+        for (size_t i = 0; i < project_info->path.size(); i++)
         {
-            const std::string& insert_name = tree_path[i];
-            bool is_leaf = (i == (tree_path.size() - 1));
+            const std::string& insert_name = project_info->path[i];
+            bool is_leaf = (i == (project_info->path.size() - 1));
 
             if (is_leaf)
             {
@@ -714,6 +727,11 @@ public:
     [[nodiscard]] int fboWidth() { return canvas->fboWidth(); }
     [[nodiscard]] int fboHeight() { return canvas->fboHeight(); }
 
+    virtual std::vector<std::string> categorize()
+    {
+        return { "New Projects", "Project" };
+    }
+
     virtual void projectAttributes() {}
     virtual void projectPrepare(Layout& layout) = 0;
     virtual void projectStart() {}
@@ -781,10 +799,10 @@ typedef SceneBase BasicScene;
 template <typename T>
 struct AutoRegisterProject
 {
-    AutoRegisterProject(const std::vector<std::string>& tree_path)
+    AutoRegisterProject()
     {
-        ProjectBase::addProjectInfo(tree_path, []() -> ProjectBase* {
-            return (ProjectBase*)(new T());
+        ProjectBase::addProjectInfo(T::categorize(),[]() -> ProjectBase* {
+            return static_cast<ProjectBase*>(new T());
         });
     }
 };

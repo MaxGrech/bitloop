@@ -1,9 +1,9 @@
-#include "test_sim.h"
+#include "Test1.h"
 ///#include "CurvedSpace.h"
 ///#include "SpaceEngine.h"
 ///#include "EarthMoon.h"
 
-SIM_DECLARE(Test, "Framework Tests", "Test A")
+SIM_DECLARE(Test1)
 
 using namespace BL;
 
@@ -11,15 +11,15 @@ using namespace BL;
 /// ======== Project ========
 /// =========================
 
-void Test_Project_Vars::populate()
+void Test1_Project_Vars::populate()
 {
     ImGui::SliderInt("Viewport Count", &viewport_count, 1, 8);
 }
 
-void Test_Project::projectPrepare(Layout& layout)
+void Test1_Project::projectPrepare(Layout& layout)
 {
     /// Create multiple instance of a single Scene, mount to separate viewports
-    layout << create<Test_Scene>(viewport_count);
+    layout << create<Test1_Scene>(viewport_count);
 
     /// Or create a single Scene instance and view on multiple Viewports
     //auto* scene = create<Test_Scene>();
@@ -36,7 +36,7 @@ void Test_Project::projectPrepare(Layout& layout)
    
 }*/
 
-void Test_Scene_Attributes::populate()
+void Test1_Scene_Attributes::populate()
 {
     ImGui::Checkbox("Transform coordinates", &transform_coordinates); // updated in realtime
     ImGui::Checkbox("Scale Lines & Text", &scale_lines_text); // updated in realtime
@@ -54,7 +54,7 @@ void Test_Scene_Attributes::populate()
     //ImSpline::SplineEditor("X/Y Spline", &sync(spline), &vr);
 }
 
-void Test_Scene::sceneStart()
+void Test1_Scene::sceneStart()
 {
     //spline.create(100, {
     //    {0.0f, 0.0f}, {0.1f, 0.1f}, {0.2f, 0.2f},
@@ -74,7 +74,7 @@ void Test_Scene::sceneStart()
     }
 }
 
-void Test_Scene::sceneMounted(Viewport*)
+void Test1_Scene::sceneMounted(Viewport*)
 {
     // Initialize viewport
     //if (viewport->viewportIndex() == 0)
@@ -88,7 +88,7 @@ void Test_Scene::sceneMounted(Viewport*)
     //camera->focusWorldRect(0, 0, 300, 300);
 }
 
-void Test_Scene::sceneDestroy()
+void Test1_Scene::sceneDestroy()
 {
     // Destroy scene
 }
@@ -117,7 +117,7 @@ unsigned long long find_large_prime(unsigned long long start, int count) {
     return candidate - 1;
 }
 
-void Test_Scene::sceneProcess()
+void Test1_Scene::sceneProcess()
 {
     // Process scene update
     ///for (int i = 0; i < 10; i++)
@@ -140,7 +140,7 @@ void Test_Scene::sceneProcess()
     //a += 0.01;
 }
 
-void Test_Scene::viewportProcess(Viewport*, double)
+void Test1_Scene::viewportProcess(Viewport*, double)
 {
     //if (ctx->viewportIndex() == 1)
     //{
@@ -176,7 +176,7 @@ void Test_Scene::viewportProcess(Viewport*, double)
 
 
 
-void Test_Scene::viewportDraw(Viewport* ctx) const
+void Test1_Scene::viewportDraw(Viewport* ctx) const
 {
     //camera->x += 1;
     //ctx->beginPath();
@@ -321,7 +321,7 @@ void Test_Scene::viewportDraw(Viewport* ctx) const
     //ctx->print() << toString().c_str();
 }
 
-void Test_Scene::onEvent(Event e)
+void Test1_Scene::onEvent(Event e)
 {
     handleWorldNavigation(e, true);
 }
@@ -334,4 +334,4 @@ void Test_Scene::onEvent(Event e)
 //void Test_Scene::onKeyUp(KeyEvent e) {}
 
 
-SIM_END(Test)
+SIM_END(Test1)

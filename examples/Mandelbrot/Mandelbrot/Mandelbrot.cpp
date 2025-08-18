@@ -3,7 +3,7 @@
 #include "constexpr_dispatch.h"
 #include "platform.h"
 
-SIM_DECLARE(Mandelbrot, "Fractal", "Mandelbrot", "Mandelbrot Viewer")
+SIM_DECLARE(Mandelbrot)
 
 std::ostream& operator<<(std::ostream& os, const TweenableMandelState&)
 {

@@ -5,12 +5,14 @@ set(BITLOOP_COMMON			"${CMAKE_CURRENT_LIST_DIR}/common"					CACHE INTERNAL "")
 set(BITLOOP_BUILD_DIR		"${CMAKE_CURRENT_BINARY_DIR}"						CACHE INTERNAL "")
 set(AUTOGEN_SIM_INCLUDES	"${BITLOOP_BUILD_DIR}/bitloop_simulations.h"		CACHE INTERNAL "")
 
-set(BITLOOP_DATA_DEPENDENCIES "" CACHE INTERNAL "Ordered list of dependency data directories")
+set(BITLOOP_PROJECT_NAMES ""		CACHE INTERNAL "Ordered included projected")
+set(BITLOOP_DATA_DEPENDENCIES ""	CACHE INTERNAL "Ordered list of dependency data directories")
 
 set_property(DIRECTORY PROPERTY BITLOOP_DEPENDENCY_DIRS "")
 
 # Begin auto-generated header file
 file(WRITE "${AUTOGEN_SIM_INCLUDES}" "// Auto‑generated simulation includes\n")
+file(WRITE "${AUTOGEN_SIM_INCLUDES}" "#include <bitloop/core/project.h>\n\n")
 
 function(apply_common_settings _TARGET)
 	target_compile_features(${_TARGET} PUBLIC cxx_std_23)
@@ -144,6 +146,15 @@ macro(bitloop_new_project sim_name)
 
 	msg_indent_pop()
 
+	# Add project to list (for finalizing later)
+	if (SIM_SOURCES_PROVIDED)
+		get_property(_project_names GLOBAL PROPERTY BITLOOP_PROJECT_NAMES)
+		if (NOT sim_name IN_LIST _project_names)
+			list(APPEND _project_names ${sim_name})
+		endif()
+		set_property(GLOBAL PROPERTY BITLOOP_PROJECT_NAMES ${_project_names})
+	endif()
+
 	# Add target /data (if provided)
 	get_property(_data_dirs GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES)
 	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/data")
@@ -151,10 +162,22 @@ macro(bitloop_new_project sim_name)
 	endif()
 	set_property(GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES ${_data_dirs})
 
+
 	apply_common_settings(${_TARGET})
 
-	#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 	if (CMAKE_CURRENT_SOURCE_DIR STREQUAL BL_ROOT_PROJECT)
+		# Finalizing project tree
+		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "\nvoid initialize_simulations() {\n")
+		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "    using namespace BL;\n")
+
+		get_property(_project_names GLOBAL PROPERTY BITLOOP_PROJECT_NAMES)
+		foreach(project_name IN LISTS _project_names)
+			file(APPEND "${AUTOGEN_SIM_INCLUDES}"
+				"    ProjectBase::addProjectFactoryInfo( ProjectBase::createProjectFactoryInfo<${project_name}_Project>() );\n")
+		endforeach()
+
+		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "}\n")
+
 		msg(STATUS "")
 		msg(STATUS "──────── Merged Data Tree ────────")
 		get_property(_data_dirs GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES)

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "project.h"
 #include "Cardioid/Cardioid.h"
 #include <math.h>
@@ -733,6 +733,15 @@ struct Mandelbrot_Scene : public Scene<Mandelbrot_Data>
 
 struct Mandelbrot_Project : public BasicProject
 {
+    //static std::vector<std::string> categorize() {
+    //    return { "Fractal", "Mandelbrot", "Mandelbrot Viewer" };
+    //}
+
+    static ProjectInfo info()
+    {
+        return ProjectInfo({ "Fractal", "Mandelbrot", "Mandelbrot Viewer" });
+    }
+
     void projectPrepare(Layout& layout) override;
 };
 

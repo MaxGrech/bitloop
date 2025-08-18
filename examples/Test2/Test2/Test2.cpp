@@ -1,9 +1,9 @@
-#include "test_sim2.h"
+#include "Test2.h"
 ///#include "CurvedSpace.h"
 ///#include "SpaceEngine.h"
 ///#include "EarthMoon.h"
 
-SIM_DECLARE(Test2, "Framework Tests", "Test B")
+SIM_DECLARE(Test2)
 
 
 /// =========================

@@ -463,6 +463,15 @@ struct Cardioid_Graph_Scene : public BasicScene
 
 struct Cardioid_Project : public BasicProject
 {
+    //static std::vector<std::string> categorize() {
+    //    return { "Fractal", "Mandelbrot", "Main Cardioid" };
+    //}
+
+    static ProjectInfo info()
+    {
+        return ProjectInfo({ "Fractal", "Mandelbrot", "Main Cardioid" });
+    }
+
     void projectPrepare(Layout& layout) override;
 };
 

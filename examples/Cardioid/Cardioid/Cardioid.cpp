@@ -1,7 +1,7 @@
 #include "Cardioid.h"
 //#include "imgui_spline.h"
 
-SIM_DECLARE(Cardioid, "Fractal", "Mandelbrot", "Main Cardioid")
+SIM_DECLARE(Cardioid)
 
 // Exported
 void plot(const SceneBase *scene, Viewport* ctx, bool interactive, int segments, double ox)
