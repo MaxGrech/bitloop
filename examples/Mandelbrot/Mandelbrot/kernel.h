@@ -130,7 +130,7 @@ FAST_INLINE void mandel_kernel(const T& x0, const T& y0,
 
     while (iter < iter_lim)
     {
-        detail::step(z, c);                             // z = z² + c
+        detail::step(z, c);                             // z = zÂ² + c
         if constexpr (NEED_DIST)
             detail::step_d(z, dz);                      // dz = 2 z dz + 1
 
