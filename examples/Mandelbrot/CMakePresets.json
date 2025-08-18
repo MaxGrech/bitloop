@@ -8,6 +8,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/ninja-debug",
       "cacheVariables": {
+        "BUILD_FLAVOR":                   "ninja-debug",
         "CMAKE_BUILD_TYPE":               "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS":  "YES",
         "CMAKE_TOOLCHAIN_FILE":           "${sourceDir}/cmake/toolchain/vcpkg_autodetect.cmake"
@@ -18,6 +19,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/ninja-release",
       "cacheVariables": {
+        "BUILD_FLAVOR":                   "ninja-release",
         "CMAKE_BUILD_TYPE":               "Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS":  "YES",
         "CMAKE_TOOLCHAIN_FILE":           "${sourceDir}/cmake/toolchain/vcpkg_autodetect.cmake"
