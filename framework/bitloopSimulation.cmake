@@ -51,7 +51,7 @@ function(apply_main_settings _TARGET)
 			"--embed-file=${CMAKE_SOURCE_DIR}/build/${BUILD_FLAVOR}/app/data@/data"
 		)
 		set_target_properties(${_TARGET} PROPERTIES
-			OUTPUT_NAME "app"
+			OUTPUT_NAME "index"
 			SUFFIX ".html"
 		)
 	endif()
