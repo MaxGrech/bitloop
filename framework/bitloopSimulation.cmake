@@ -1,4 +1,4 @@
-﻿# --- bitloopSimulation.cmake ---
+# --- bitloopSimulation.cmake ---
 
 set(BITLOOP_MAIN_SOURCE		"${CMAKE_CURRENT_LIST_DIR}/src/bitloop_main.cpp"	CACHE INTERNAL "")
 set(BITLOOP_COMMON			"${CMAKE_CURRENT_LIST_DIR}/common"					CACHE INTERNAL "")
@@ -17,8 +17,7 @@ function(apply_common_settings _TARGET)
 
 	if (MSVC)
 		target_compile_options(${_TARGET} PRIVATE /MP) # Multi-threaded compilation
-        target_compile_options(${_TARGET} PRIVATE /permissive- /W3 /WX /utf-8 /D_CRT_SECURE_NO_WARNINGS)
-		message(STATUS "Using MSVC compiler settings for ${_TARGET}")
+    target_compile_options(${_TARGET} PRIVATE /permissive- /W3 /WX /utf-8 /D_CRT_SECURE_NO_WARNINGS)
 	elseif (EMSCRIPTEN)
 		# O3 for WASM
 		target_compile_options(${_TARGET} PRIVATE 
@@ -44,8 +43,6 @@ function(apply_main_settings _TARGET)
 	if (MSVC)
 		set_target_properties(${_TARGET} PROPERTIES WIN32_EXECUTABLE TRUE)
 	elseif (EMSCRIPTEN)
-		#message(STATUS "Emscripten CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}")
-		#message(STATUS "Emscripten Corrected                ${CMAKE_SOURCE_DIR}/build/${BUILD_FLAVOR}/app")
 		target_link_options(${_TARGET} PRIVATE
 			"--shell-file=${BITLOOP_COMMON}/static/shell.html"
 			#"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
@@ -95,7 +92,6 @@ macro(bitloop_new_project sim_name)
 	if (CMAKE_CURRENT_SOURCE_DIR STREQUAL BL_ROOT_PROJECT)
 		# top-level (executable) 
 		set(_TARGET ${sim_name})
-		message(STATUS "@@@@@@@ BUILD_FLAVOR: ${BUILD_FLAVOR}")
 
 		if(NOT SIM_SOURCES)
 			set(SIM_SOURCES ${BITLOOP_MAIN_SOURCE}) # no user sources (e.g. superbuild), just use the framework main()
@@ -206,7 +202,6 @@ endmacro()
 function(_bitloop_add_dependency _TARGET _SIM_DIR)
 	# Grab simulation name from path
 	get_filename_component(sim_name "${_SIM_DIR}" NAME)
-	#message(STATUS "Grabbing name: ${sim_name}")
 
 	if(NOT TARGET ${sim_name}::${sim_name})
 		# Only called once, includes dependency project, which in turn calls:  bitloop_add_simulation()
