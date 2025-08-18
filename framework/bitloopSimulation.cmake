@@ -43,15 +43,43 @@ function(apply_main_settings _TARGET)
 	if (MSVC)
 		set_target_properties(${_TARGET} PROPERTIES WIN32_EXECUTABLE TRUE)
 	elseif (EMSCRIPTEN)
+		#message(STATUS "Emscripten CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}")
+		#message(STATUS "Emscripten Corrected                ${CMAKE_SOURCE_DIR}/build/${BUILD_FLAVOR}/app")
 		target_link_options(${_TARGET} PRIVATE
 			"--shell-file=${BITLOOP_COMMON}/static/shell.html"
-			"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
+			#"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
+			"--embed-file=${CMAKE_SOURCE_DIR}/build/${BUILD_FLAVOR}/app/data@/data"
 		)
 		set_target_properties(${_TARGET} PROPERTIES
-			OUTPUT_NAME "index"
+			OUTPUT_NAME "app"
 			SUFFIX ".html"
 		)
 	endif()
+endfunction()
+
+function(apply_root_exe_name target)
+  # If the preset provided a flavor (single-config like Ninja), use it.
+  if(BUILD_FLAVOR)
+    set(_root "${CMAKE_SOURCE_DIR}/build/${BUILD_FLAVOR}/app")
+    set_target_properties(${target} PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${_root}"
+      LIBRARY_OUTPUT_DIRECTORY "${_root}"
+      ARCHIVE_OUTPUT_DIRECTORY "${_root}"
+    )
+  else()
+    # Multi-config or no flavor: split by configuration.
+    foreach(cfg Debug Release RelWithDebInfo MinSizeRel)
+      string(TOUPPER "${cfg}" CFG)
+      set(_root "${CMAKE_SOURCE_DIR}/build/${cfg}/app")
+      set_target_properties(${target} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_${CFG} "${_root}"
+        LIBRARY_OUTPUT_DIRECTORY_${CFG} "${_root}"
+        ARCHIVE_OUTPUT_DIRECTORY_${CFG} "${_root}"
+      )
+    endforeach()
+  endif()
+  # Consistent executable "name" regardless of project.
+  set_target_properties(${target} PROPERTIES OUTPUT_NAME "app")
 endfunction()
 
 macro(bitloop_new_project sim_name)
@@ -66,6 +94,7 @@ macro(bitloop_new_project sim_name)
 	if (CMAKE_CURRENT_SOURCE_DIR STREQUAL BL_ROOT_PROJECT)
 		# top-level (executable) 
 		set(_TARGET ${sim_name})
+		message(STATUS "@@@@@@@ BUILD_FLAVOR: ${BUILD_FLAVOR}")
 
 		if(NOT SIM_SOURCES)
 			set(SIM_SOURCES ${BITLOOP_MAIN_SOURCE}) # no user sources (e.g. superbuild), just use the framework main()
@@ -77,6 +106,7 @@ macro(bitloop_new_project sim_name)
 
 		set_property(DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${_TARGET}")
 		add_executable(${_TARGET} ${SIM_SOURCES})
+		apply_root_exe_name(${_TARGET})
 
 	else()
 		# nested (library)
@@ -159,14 +189,6 @@ macro(bitloop_new_project sim_name)
 		msg(STATUS "")
 
 		apply_main_settings(${_TARGET})
-
-		#if (MSVC)
-		#	# Windows
-		#	set_target_properties(${_TARGET} PROPERTIES WIN32_EXECUTABLE TRUE)
-		#elseif (EMSCRIPTEN)
-		#	# Emscripten
-		#	apply_main_settings(${_TARGET})
-		#endif()
 	endif()
 
 endmacro()

@@ -21,6 +21,10 @@ def main():
     # "bitloop [...]" subparsers
     new_parser			= subparsers.add_parser("new",			help="scaffold something")
     bootstrap_parser	= subparsers.add_parser("bootstrap",	help="install bootstrap dependencies (Linux only)")
+    vcpkg_parser        = subparsers.add_parser("vcpkg",        help="invoke bundled vcpkg")
+
+    vcpkg_parser.add_argument("vcpkg_args", nargs=argparse.REMAINDER,
+                          help="arguments to pass through to vcpkg")
 
     # bitloop new [...] parser
     new_sub = new_parser.add_subparsers(dest="entity", required=True)
@@ -31,6 +35,21 @@ def main():
 
     if args.command == "bootstrap":
         run_bootstrap()
+        return
+
+    if args.command == "vcpkg":
+        bitloop_root = script_dir.parent
+        exe_name = "vcpkg.exe" if os.name == "nt" else "vcpkg"
+        vcpkg_exe = bitloop_root / "vcpkg" / exe_name
+
+        forward = list(args.vcpkg_args or [])
+        if forward and forward[0] == "--":
+            forward = forward[1:]
+
+        cmd = [str(vcpkg_exe)] + (forward if forward else ["--help"])
+
+        rc = subprocess.call(cmd, cwd=str(vcpkg_exe.parent))
+        sys.exit(rc)
         return
 
     if args.command == "new" and getattr(args, "entity", None) == "project":

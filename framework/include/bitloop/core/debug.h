@@ -48,6 +48,12 @@ struct Global
 
 #define UNUSED(x) ((void)(x))
 
+#ifdef NDEBUG
+#define BL_RELEASE
+#else
+#define BL_DEBUG
+#endif
+
 // Disable debug flags for Release builds
 #ifdef NDEBUG
 #undef DEBUG_FINITE_DOUBLE_CHECKS

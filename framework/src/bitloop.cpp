@@ -154,7 +154,16 @@ int bitloop_main(int, char* [])
         #endif
 
         BL::print() << "Creating window...\n";
-        window = SDL_CreateWindow("bitloop", fb_w, fb_h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+
+        const char *window_name = 
+            #ifdef BL_DEBUG
+            "bitloop (debug)";
+            #else
+            "bitloop (release)";
+            #endif
+
+
+        window = SDL_CreateWindow(window_name, fb_w, fb_h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
         if (!window) {
             BL::print() << "SDL_CreateWindow failed: " << SDL_GetError() << "\n";

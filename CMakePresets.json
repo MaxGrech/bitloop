@@ -20,8 +20,9 @@
     {
       "name": "ninja-debug",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/framework/build/ninja-debug",
+      "binaryDir": "${sourceDir}/build/ninja-debug",
       "cacheVariables": {
+        "BUILD_FLAVOR": "ninja-debug",
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
@@ -30,19 +31,21 @@
     {
       "name": "ninja-release",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/framework/build/ninja-release",
+      "binaryDir": "${sourceDir}/build/ninja-release",
       "cacheVariables": {
+        "BUILD_FLAVOR": "ninja-release",
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
-      "name": "win-ninja-release-static",
+      "name": "ninja-release-win-static",
       "condition": {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"},
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/framework/build/ninja-static-release",
+      "binaryDir": "${sourceDir}/build/ninja-release-win-static",
       "cacheVariables": {
+        "BUILD_FLAVOR": "ninja-release-win-static",
         "CMAKE_BUILD_TYPE": "Release",
         "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "YES",
@@ -54,8 +57,9 @@
       "name": "vs2022",
       "condition": {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"},
       "generator": "Visual Studio 17 2022",
-      "binaryDir": "${sourceDir}/framework/build/vs2022",
+      "binaryDir": "${sourceDir}/build/vs2022",
       "cacheVariables": {
+        "BUILD_FLAVOR": "vs2022",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
@@ -65,8 +69,9 @@
       "name": "vs2022-static",
       "hidden": true,
       "generator": "Visual Studio 17 2022",
-      "binaryDir": "${sourceDir}/framework/build/vs2022-static",
+      "binaryDir": "${sourceDir}/build/vs2022-static",
       "cacheVariables": {
+        "BUILD_FLAVOR": "vs2022-static",
         "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/install",
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
@@ -76,8 +81,9 @@
     {
       "name": "wasm32-debug",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/framework/build/wasm32-debug",
+      "binaryDir": "${sourceDir}/build/wasm32-debug",
       "cacheVariables": {
+        "BUILD_FLAVOR": "wasm32-debug",
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_BUILD_TYPE": "Debug",
@@ -90,8 +96,9 @@
     {
       "name": "wasm32-release",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/framework/build/wasm32-release",
+      "binaryDir": "${sourceDir}/build/wasm32-release",
       "cacheVariables": {
+        "BUILD_FLAVOR": "wasm32-release",
         "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_BUILD_TYPE": "Release",
@@ -104,8 +111,9 @@
     {
       "name": "android-arm64-release",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/framework/build/android-arm64-release",
+      "binaryDir": "${sourceDir}/build/android-arm64-release",
       "cacheVariables": {
+        "BUILD_FLAVOR": "android-arm64-release",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_TARGET_TRIPLET": "arm64-android",
         "CMAKE_SYSTEM_NAME": "Android",
@@ -120,7 +128,7 @@
   "buildPresets": [
     { "name": "ninja-debug",              "configurePreset": "ninja-debug" },
     { "name": "ninja-release",            "configurePreset": "ninja-release" },
-    { "name": "win-ninja-static-release", "configurePreset": "win-ninja-release-static" },
+    { "name": "ninja-release-win-static", "configurePreset": "ninja-release-win-static" },
     { "name": "wasm32-debug",             "configurePreset": "wasm32-debug" },
     { "name": "wasm32-release",           "configurePreset": "wasm32-release" }
   ]
