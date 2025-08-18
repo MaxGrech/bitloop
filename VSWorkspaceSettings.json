@@ -1,0 +1,10 @@
+{
+  "ExcludedItems": [
+    "vcpkg/",
+    "bitloop.bat",
+    "bitloop.sh",
+    "LICENSE",
+    "README.md",
+    ".unversioned"
+  ]
+}
