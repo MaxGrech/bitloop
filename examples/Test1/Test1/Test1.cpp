@@ -1,7 +1,4 @@
 #include "Test1.h"
-///#include "CurvedSpace.h"
-///#include "SpaceEngine.h"
-///#include "EarthMoon.h"
 
 SIM_DECLARE(Test1)
 
@@ -39,7 +36,7 @@ void Test1_Project::projectPrepare(Layout& layout)
 void Test1_Scene_Attributes::populate()
 {
     ImGui::Checkbox("Transform coordinates", &transform_coordinates); // updated in realtime
-    ImGui::Checkbox("Scale Lines & Text", &scale_lines_text); // updated in realtime
+    ImGui::Checkbox("Scale Lines & Text", &scale_lines); // updated in realtime
     ImGui::Checkbox("Scale Sizes", &scale_sizes); // updated in realtime
     ImGui::Checkbox("Rotate Text", &rotate_text); // updated in realtime
 
@@ -152,7 +149,7 @@ void Test1_Scene::viewportProcess(Viewport*, double)
     //
     //    //camera->rotation += 0.1 * M_PI / 180.0;
     //    camera->transform_coordinates = transform_coordinates;
-    //    camera->scale_lines_text = scale_lines_text;
+    //    camera->scale_lines = scale_lines;
     //    camera->rotate_text = rotate_text;
     //}
     //else
@@ -206,7 +203,7 @@ void Test1_Scene::viewportDraw(Viewport* ctx) const
 
 
     camera->worldCoordinates(transform_coordinates);
-    camera->scalingLines(scale_lines_text);
+    camera->scalingLines(scale_lines);
     camera->scalingSizes(scale_sizes);
     camera->rotatingText(rotate_text);
 

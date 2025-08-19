@@ -19,7 +19,7 @@ struct Particle : public DVec2
     sync_struct
     {
         bool transform_coordinates = true;
-        bool scale_lines_text = true;
+        bool scale_lines = true;
         bool scale_sizes = true;
         bool rotate_text = true;
 
@@ -35,7 +35,7 @@ struct Particle : public DVec2
     void copyFrom(const Test_Scene_Attributes& rhs)
     {
         transform_coordinates = rhs.transform_coordinates;
-        scale_lines_text = rhs.scale_lines_text;
+        scale_lines = rhs.scale_lines;
         scale_sizes = rhs.scale_sizes;
         rotate_text = rhs.rotate_text;
         camera_x = rhs.camera_x;
@@ -49,7 +49,7 @@ struct Particle : public DVec2
 struct Test1_Scene_Attributes : VarBuffer
 {
     bool transform_coordinates = true;
-    bool scale_lines_text = true;
+    bool scale_lines = true;
     bool scale_sizes = true;
     bool rotate_text = true;
 
@@ -63,7 +63,7 @@ struct Test1_Scene_Attributes : VarBuffer
     void registerSynced() override
     {
         sync(transform_coordinates);
-        sync(scale_lines_text);
+        sync(scale_lines);
         sync(scale_sizes);
         sync(rotate_text);
         sync(camera_x);

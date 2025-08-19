@@ -18,7 +18,7 @@ struct Particle : public DVec2
 struct Test2_Scene_Attributes : VarBuffer
 {
     bool transform_coordinates = true;
-    bool scale_lines_text = true;
+    bool scale_lines = true;
     bool scale_sizes = true;
     bool rotate_text = true;
 
@@ -32,7 +32,7 @@ struct Test2_Scene_Attributes : VarBuffer
     void registerSynced() override
     {
         sync(transform_coordinates);
-        sync(scale_lines_text);
+        sync(scale_lines);
         sync(scale_sizes);
         sync(rotate_text);
         sync(camera_x);

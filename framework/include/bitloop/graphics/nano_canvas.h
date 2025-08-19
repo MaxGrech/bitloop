@@ -4,8 +4,6 @@
 
 #include "platform.h"
 
-
-
 #include "nanovg/nanovg.h"
 #include "nanovg/nanovg_gl.h"
 
@@ -187,13 +185,51 @@ public:
     void lineTo(DVec2 p)                                     { nvgLineTo(vg, (float)(p.x), (float)(p.y)); }
     void stroke()                                            { nvgStroke(vg); }
     void fill()                                              { nvgFill(vg); }
+    void closePath()                                         { nvgClosePath(vg); }
 
-    void circle(double cx, double cy, double r)              { nvgCircle(vg, (float)(cx), (float)(cy), (float)(r)); }
-    void circle(DVec2 p, double r)                           { nvgCircle(vg, (float)(p.x), (float)(p.y), (float)(r)); }
+    void bezierTo(double x1, double y1, double x2, double y2, double x, double y) {
+        nvgBezierTo(vg, (float)(x1), (float)(y1), (float)(x2), (float)(y2), (float)(x), (float)(y));
+    }
+    void bezierTo(DVec2 p1, DVec2 p2, DVec2 p) {
+        nvgBezierTo(vg, (float)p1.x, (float)p1.y, (float)p2.x, (float)p2.y, (float)p.x, (float)p.y);
+    }
+    void quadraticTo(double cx, double cy, double x, double y) {
+        nvgQuadTo(vg, (float)(cx), (float)(cy), (float)(x), (float)(y));
+    }
+    void quadraticTo(DVec2 c, DVec2 p) {
+        nvgQuadTo(vg, (float)c.x, (float)c.y, (float)p.x, (float)p.y);
+    }
+
+    void arc(double cx, double cy, double r, double a0, double a1, PathWinding winding = PathWinding::WINDING_CCW) {
+        nvgArc(vg, (float)(cx), (float)(cy), (float)(r), (float)(a0), (float)(a1), (int)winding);
+    }
+    void arc(DVec2 cen, double r, double a0, double a1, PathWinding winding = PathWinding::WINDING_CCW) {
+        nvgArc(vg, (float)(cen.x), (float)(cen.y), (float)(r), (float)(a0), (float)(a1), (int)winding);
+    }
+    void arcTo(double x0, double y0, double x1, double y1, double r) {
+        nvgArcTo(vg, (float)(x0), (float)(y0), (float)(x1), (float)(y1), (float)(r));
+    }
+    void arcTo(DVec2 p0, DVec2 p1, double r) {
+        nvgArcTo(vg, (float)(p0.x), (float)(p0.y), (float)(p1.x), (float)(p1.y), (float)(r));
+    }
+
+    template<typename PointT> void drawPath(const std::vector<PointT>& path) {
+        if (path.size() >= 2) {
+            moveTo(path[0]); 
+            for (size_t i = 1; i < path.size(); i++) 
+                lineTo(path[i]); 
+        }
+    }
+
+    // ======== Shapes ========
+
+    void circle(double cx, double cy, double r) { nvgCircle(vg, (float)(cx), (float)(cy), (float)(r)); }
+    void circle(DVec2 p, double r) { nvgCircle(vg, (float)(p.x), (float)(p.y), (float)(r)); }
     void ellipse(double cx, double cy, double rx, double ry) { nvgEllipse(vg, (float)(cx), (float)(cy), (float)(rx), (float)(ry)); }
-    void ellipse(DVec2 cen, DVec2 size)                      { nvgEllipse(vg, (float)(cen.x), (float)(cen.y), (float)(size.x), (float)(size.y)); }
-    void fillRect(double x, double y, double w, double h)    { nvgBeginPath(vg); nvgRect(vg, (float)(x), (float)(y), (float)(w), (float)(h)); nvgFill(vg); }
-    void strokeRect(double x, double y, double w, double h)  { nvgBeginPath(vg); nvgRect(vg, (float)(x), (float)(y), (float)(w), (float)(h)); nvgStroke(vg); }
+    void ellipse(DVec2 cen, DVec2 size) { nvgEllipse(vg, (float)(cen.x), (float)(cen.y), (float)(size.x), (float)(size.y)); }
+    void fillRect(double x, double y, double w, double h) { nvgBeginPath(vg); nvgRect(vg, (float)(x), (float)(y), (float)(w), (float)(h)); nvgFill(vg); }
+    void strokeRect(double x, double y, double w, double h) { nvgBeginPath(vg); nvgRect(vg, (float)(x), (float)(y), (float)(w), (float)(h)); nvgStroke(vg); }
+
     void strokeRoundedRect(double x, double y, double w, double h, double r)
     {
         nvgBeginPath(vg);
@@ -205,14 +241,6 @@ public:
         nvgBeginPath(vg);
         nvgRoundedRect(vg, (float)(x), (float)(y), (float)(w), (float)(h), (float)(r));
         nvgFill(vg);
-    }
-
-    template<typename PointT> void drawPath(const std::vector<PointT>& path) {
-        if (path.size() >= 2) {
-            moveTo(path[0]); 
-            for (size_t i = 1; i < path.size(); i++) 
-                lineTo(path[i]); 
-        }
     }
 
     // ======== Image ========
@@ -289,24 +317,6 @@ public:
     glm::mat3 default_viewport_transform;
     double line_width = 1;
 
-
-    ///[[nodiscard]] DVec2 PT(double x, double y)
-    ///{
-    ///    if (camera.transform_coordinates)
-    ///    {
-    ///        DVec2 o = camera.toWorldOffset({ camera.stage_ox, camera.stage_oy });
-    ///        return { x + o.x, y + o.y };
-    ///    }
-    ///    else
-    ///    {
-    ///        // (x,y) represents stage coordinate, but transform is active
-    ///        DVec2 ret = camera.toWorld(x + camera.stage_ox, y + camera.stage_oy);
-    ///        return ret;
-    ///    }
-    ///}
-    
-    
-
     // ======== Position/Size wrappers (applies only enabled camera transforms) ========
 
     DVec2 PT(double x, double y)       { return camera.transform_coordinates ? camera.toStage(x, y) : DVec2{ x, y }; }
@@ -325,7 +335,7 @@ public:
     void setLineWidth(double w)
     {
         this->line_width = w;
-        if (camera.scale_lines_text)
+        if (camera.scale_lines)
             SimplePainter::setLineWidth(w * _avgZoom());
         else
             SimplePainter::setLineWidth(w);
@@ -342,6 +352,26 @@ public:
     void circle(DVec2 cen, double r)                       { SimplePainter::circle(PT(cen), SIZE(r)); }
     void ellipse(double x, double y, double rx, double ry) { SimplePainter::ellipse(PT(x, y), SIZE(rx, ry)); }
     void ellipse(DVec2 cen, DVec2 size)                    { SimplePainter::ellipse(PT(cen), SIZE(size)); }
+
+    void arc(double cx, double cy, double r, double a0, double a1, PathWinding winding = PathWinding::WINDING_CCW) {
+        SimplePainter::arc(PT(cx, cy), SIZE(r), a0, a1, winding);
+    }
+    void arc(DVec2 cen, double r, double a0, double a1, PathWinding winding = PathWinding::WINDING_CCW) {
+        SimplePainter::arc(PT(cen), SIZE(r), a0, a1, winding);
+    }
+    void arcTo(double x0, double y0, double x1, double y1, double r) {
+        SimplePainter::arcTo(PT(x0, y0), PT(x1, y1), SIZE(r));
+    }
+    void arcTo(DVec2 p0, DVec2 p1, double r) {
+        SimplePainter::arcTo(PT(p0), PT(p1), SIZE(r));
+    }
+
+    void bezierTo(double x1, double y1, double x2, double y2, double x3, double y3) {
+        SimplePainter::bezierTo(PT(x1, y1), PT(x2, y2), PT(x3, y3));
+    }
+    void quadraticTo(double cx, double cy, double x, double y) {
+        SimplePainter::quadraticTo(PT(cx, cy), PT(x, y));
+    }
 
     template<typename PointT> void drawPath(const std::vector<PointT>& path)
     {
@@ -371,6 +401,8 @@ public:
         lineTo(path[0]);
     }
 
+    // ======== Shapes ========
+
     template<typename T> void strokeQuad(const Quad<T>& q) 
     {
         beginPath();
@@ -386,7 +418,6 @@ public:
         DVec2 s = SIZE(w, h);
         SimplePainter::strokeRect(0, 0, s.x, s.y);
     }
-
     void fillRect(double x, double y, double w, double h)
     {
         LocalTransform t(this);
@@ -395,7 +426,6 @@ public:
         DVec2 s = SIZE(w, h);
         SimplePainter::fillRect(0, 0, s.x, s.y);
     }
-
     void strokeRoundedRect(double x, double y, double w, double h, double r)
     {
         LocalTransform t(this);
@@ -404,7 +434,6 @@ public:
         DVec2 s = SIZE(w, h);
         SimplePainter::strokeRoundedRect(0, 0, s.x, s.y, SIZE(r));
     }
-
     void fillRoundedRect(double x, double y, double w, double h, double r)
     {
         LocalTransform t(this);
@@ -413,7 +442,6 @@ public:
         DVec2 s = SIZE(w, h);
         SimplePainter::fillRoundedRect(0, 0, s.x, s.y, SIZE(r));
     }
-
     void strokeEllipse(double cx, double cy, double rx, double ry)
     {
         LocalTransform t(this);
@@ -425,7 +453,6 @@ public:
         SimplePainter::ellipse(0, 0, s.x, s.y);
         SimplePainter::stroke();
     }
-
     void fillEllipse(double cx, double cy, double rx, double ry)
     {
         LocalTransform t(this);
@@ -517,7 +544,7 @@ public:
 
         /*if (camera.transform_coordinates)
         {
-            if (camera.scale_lines_text)
+            if (camera.scale_lines)
             {
                 if (camera.rotate_text)
                 {
@@ -559,7 +586,7 @@ public:
             resetTransform();
             transform(default_viewport_transform);
 
-            if (camera.scale_lines_text)
+            if (camera.scale_lines)
             {
                 SimplePainter::fillText(txt, px, py);
             }
@@ -811,6 +838,9 @@ public:
     using SimplePainter::beginPath;
     using SimplePainter::stroke;
     using SimplePainter::fill;
+    using SimplePainter::closePath;
+    //using SimplePainter::bezierTo;
+    //using SimplePainter::quadraticTo;
 };
 
 class Canvas : public SimplePainter

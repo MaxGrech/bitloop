@@ -8,7 +8,7 @@ BL_BEGIN_NS
 //void Camera::setTransformFilters(bool _transform_coordinates, bool _scale_line_txt, bool _scale_sizes, bool _rotate_text)
 //{
 //    transform_coordinates = _transform_coordinates;
-//    scale_lines_text = _scale_line_txt;
+//    scale_lines = _scale_line_txt;
 //    scale_sizes = _scale_sizes;
 //    rotate_text = _rotate_text;
 //    viewport->setLineWidth(viewport->line_width);
@@ -17,7 +17,7 @@ BL_BEGIN_NS
 //void Camera::setTransformFilters(bool all)
 //{
 //    transform_coordinates = all;
-//    scale_lines_text = all;
+//    scale_lines = all;
 //    scale_sizes = all;
 //    rotate_text = all;
 //    viewport->setLineWidth(viewport->line_width);
@@ -26,7 +26,7 @@ BL_BEGIN_NS
 void Camera::worldTransform()
 {
     transform_coordinates = true;
-    scale_lines_text = true;
+    scale_lines = true;
     scale_sizes = true;
     rotate_text = true;
     viewport->setLineWidth(viewport->line_width);
@@ -35,7 +35,7 @@ void Camera::worldTransform()
 void Camera::stageTransform()
 {
     transform_coordinates = false;
-    scale_lines_text = false;
+    scale_lines = false;
     scale_sizes = false;// true; // Make sure zoom doesn't affect circle/shape sizes
     rotate_text = false;
     viewport->setLineWidth(viewport->line_width);
@@ -44,7 +44,7 @@ void Camera::stageTransform()
 void Camera::worldHudTransform()
 {
     transform_coordinates = true;
-    scale_lines_text = false;
+    scale_lines = false;
     scale_sizes = false; //scale_sizes = true; // leave unchanged
     rotate_text = false;
     viewport->setLineWidth(viewport->line_width);
@@ -53,7 +53,7 @@ void Camera::worldHudTransform()
 void Camera::saveCameraTransform()
 {
     saved_transform_coordinates = transform_coordinates;
-    saved_scale_lines_text = scale_lines_text;
+    saved_scale_lines = scale_lines;
     saved_scale_sizes = scale_sizes;
     saved_rotate_text = rotate_text;
 }
@@ -61,7 +61,7 @@ void Camera::saveCameraTransform()
 void Camera::restoreCameraTransform()
 {
     transform_coordinates = saved_transform_coordinates;
-    scale_lines_text = saved_scale_lines_text;
+    scale_lines = saved_scale_lines;
     scale_sizes = saved_scale_sizes;
     rotate_text = saved_rotate_text;
     viewport->setLineWidth(viewport->line_width);
@@ -92,12 +92,12 @@ void Camera::setOriginViewportAnchor(Anchor anchor)
 
 DVec2 Camera::originPixelOffset()
 {
-    double viewport_cx = (viewport->width / 2.0);
-    double viewport_cy = (viewport->height / 2.0);
+    double viewport_cx = (viewport->w / 2.0);
+    double viewport_cy = (viewport->h / 2.0);
 
     return Vec2(
-        viewport_cx + viewport->width * (focal_anchor_x - 0.5),
-        viewport_cy + viewport->height * (focal_anchor_y - 0.5)
+        viewport_cx + viewport->w * (focal_anchor_x - 0.5),
+        viewport_cy + viewport->h * (focal_anchor_y - 0.5)
     );
 }
 
@@ -502,6 +502,33 @@ void Camera::handleWorldNavigation(Event event, bool single_touch_pan)
         break;
         }
     }
+}
+
+void CameraViewController::populateUI()
+{
+    int decimals = 1 + Math::countWholeDigits(cam_zoom);
+    char format[16];
+    snprintf(format, sizeof(format), "%%.%df", decimals);
+
+    static double init_cam_x = cam_x;
+    static double init_cam_y = cam_y;
+    ImGui::RevertableDragDouble("X", &cam_x, &init_cam_x, 1 / cam_zoom, -1000.0, 1000.0, format);
+    ImGui::RevertableDragDouble("Y", &cam_y, &init_cam_y, 1 / cam_zoom, -1000.0, 1000.0, format);
+
+    static double init_degrees = cam_degrees;
+    if (ImGui::RevertableSliderDouble("Rotation", &cam_degrees, &init_degrees, 0.0, 360.0, "%.0f\xC2\xB0"))
+    {
+        cam_radians = cam_degrees * Math::PI / 180.0;
+    }
+
+    // 1e16 = double limit before preicions loss
+    static double zoom_speed = cam_zoom / 100.0;
+    static double init_cam_zoom = 1.0;
+    if (ImGui::RevertableDragDouble("Zoom", &cam_zoom, &init_cam_zoom, zoom_speed, 0.1, 1e16, "%.2f"))
+        zoom_speed = cam_zoom / 100.0;
+
+    static DVec2 init_cam_zoom_xy = cam_zoom_xy;
+    ImGui::RevertableSliderDouble2("Zoom X/Y", cam_zoom_xy.asArray(), init_cam_zoom_xy.asArray(), 0.1, 10.0, "%.2fx");
 }
 
 BL_END_NS

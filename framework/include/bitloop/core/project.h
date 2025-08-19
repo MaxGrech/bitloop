@@ -283,13 +283,16 @@ protected:
     Layout* layout = nullptr;
     SceneBase* scene = nullptr;
 
-    double pos_x = 0;
-    double pos_y = 0;
+    double x = 0;
+    double y = 0;
+    double w = 0;
+    double h = 0;
+    double old_w = 0;
+    double old_h = 0;
+    bool just_resized = false;
 
 public:
     
-    double width = 0;
-    double height = 0;
 
     Viewport(
         Layout* layout,
@@ -306,10 +309,15 @@ public:
     [[nodiscard]] int viewportIndex() { return viewport_index; }
     [[nodiscard]] int viewportGridX() { return viewport_grid_x; }
     [[nodiscard]] int viewportGridY() { return viewport_grid_y; }
-    [[nodiscard]] DRect viewportRect() { return DRect(pos_x, pos_y, pos_x + width, pos_y + height); }
-    [[nodiscard]] DQuad worldQuad() { return camera.toWorldQuad(0, 0, width, height); }
-    [[nodiscard]] DVec2 stageSize() { return DVec2(width, height); }
-    [[nodiscard]] DVec2 worldSize() { return camera.stageToWorldOffset(width, height); }
+
+    [[nodiscard]] double posX() { return x; }
+    [[nodiscard]] double posY() { return y; }
+    [[nodiscard]] double width() { return w; }
+    [[nodiscard]] double height() { return h; }
+    [[nodiscard]] DVec2 size() { return DVec2(w, h); }
+    [[nodiscard]] DRect viewportRect() { return DRect(x, y, x + w, y + h); }
+    [[nodiscard]] DQuad worldQuad() { return camera.toWorldQuad(0, 0, w, h); }
+    [[nodiscard]] DVec2 worldSize() { return camera.stageToWorldOffset(w, h); }
     //[[nodiscard]] DAngledRect worldRect() { return camera.toWorldRect(DAngledRect(width/2, height/2, width, height, 0.0)); }
 
     template<typename T>
@@ -323,8 +331,6 @@ public:
 
     // Viewport-specific draw helpers (i.e. size of viewport needed)
     void printTouchInfo();
-
-    
 
     std::stringstream& print() {
         return print_stream;

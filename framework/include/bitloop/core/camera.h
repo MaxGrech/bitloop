@@ -110,14 +110,14 @@ protected:
     double viewport_h = 0;
 
     bool transform_coordinates = true;
-    bool scale_lines_text = true;
+    bool scale_lines = true;
     bool scale_sizes = true;
     bool rotate_text = true;
 
 private:
 
     bool saved_transform_coordinates = transform_coordinates;
-    bool saved_scale_lines_text = scale_lines_text;
+    bool saved_scale_lines = scale_lines;
     bool saved_scale_sizes = scale_sizes;
     bool saved_rotate_text = rotate_text;
 
@@ -134,7 +134,7 @@ public:
     void worldHudTransform();
 
     void worldCoordinates(bool b) { transform_coordinates = b; }
-    void scalingLines(bool b) { scale_lines_text = b; }
+    void scalingLines(bool b) { scale_lines = b; }
     void scalingSizes(bool b) { scale_sizes = b; }
     void rotatingText(bool b) { rotate_text = b; }
 
@@ -395,6 +395,67 @@ public:
     double panBegCamAngle() { return pan_beg_cam_angle; }
 
     void handleWorldNavigation(Event e, bool single_touch_pan);
+};
+
+struct CameraViewController
+{
+    double cam_x = -0.5;
+    double cam_y = 0.0;
+    double cam_radians = 0.0;
+    double cam_zoom = 1.0;
+    DVec2  cam_zoom_xy = DVec2(1, 1);
+
+    double old_cam_x = -0.5;
+    double old_cam_y = 0.0;
+    double old_cam_radians = 0.0;
+    double old_cam_zoom = 1.0;
+    DVec2  old_cam_zoom_xy = DVec2(1, 1);
+
+    double cam_degrees = 0.0;
+
+    bool operator==(const CameraViewController& rhs) const
+    {
+        return cam_x == rhs.cam_x &&
+            cam_y == rhs.cam_y &&
+            cam_radians == rhs.cam_radians &&
+            cam_zoom == rhs.cam_zoom &&
+            cam_zoom_xy == rhs.cam_zoom_xy;
+    }
+
+    void populateUI();
+
+    void read(Camera* cam)
+    {
+        cam_x = cam->x();
+        cam_y = cam->y();
+        cam_radians = cam->rotation();
+        cam_zoom = (cam->getRelativeZoom().x / cam_zoom_xy.x);
+    }
+
+    void apply(Camera* cam)
+    {
+        cam_degrees = Math::toDegrees(cam_radians);
+
+        if (cam_radians != old_cam_radians) cam->setRotation(cam_radians);
+        if (cam_x != old_cam_x) cam->setX(cam_x);
+        if (cam_y != old_cam_y) cam->setY(cam_y);
+        if (cam_zoom_xy != old_cam_zoom_xy ||
+            cam_zoom != old_cam_zoom)
+        {
+            cam->setRelativeZoomX(cam_zoom * cam_zoom_xy.x);
+            cam->setRelativeZoomY(cam_zoom * cam_zoom_xy.y);
+        }
+        else
+        {
+            cam_zoom = (cam->getRelativeZoom().x / cam_zoom_xy.x);
+        }
+
+        old_cam_radians = cam_radians;
+        old_cam_x = cam_x;
+        old_cam_y = cam_y;
+        old_cam_zoom = cam_zoom;
+        old_cam_zoom_xy = cam_zoom_xy;
+    }
 };
 
 //inline void Camera::setStageOffset(double ox, double oy)

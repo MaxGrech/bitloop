@@ -287,7 +287,6 @@ void Mandelbrot_Data::populate()
 
 
     /// --------------------------------------------------------------
-    static bool view_visible = true;
     if (ImGui::SceneSection("View", 0.0f, 2.0f, true)) {
     /// --------------------------------------------------------------
 
@@ -743,7 +742,7 @@ void Mandelbrot_Scene::sceneMounted(Viewport* ctx)
     cam_zoom = (camera->getRelativeZoom().x / cam_zoom_xy.x);
 
     reference_zoom = camera->getReferenceZoom();
-    ctx_stage_size = ctx->stageSize();
+    ctx_stage_size = ctx->size();
 
     //preview = *this;
 }
@@ -823,7 +822,7 @@ void Mandelbrot_Data::lerpState(
 void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
 {
     /// Process Viewports running this Scene
-    ctx_stage_size = ctx->stageSize();
+    ctx_stage_size = ctx->size();
 
     // ======== Progressing animation ========
     if (show_color_animation_options)
@@ -846,9 +845,7 @@ void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
             dynamic_color_cycle_limit, 
             log1p_weight, 
             normalize_depth_range,
-
-            cycle_dist_value
-            ))
+            cycle_dist_value))
         {
             colors_updated = true;
         }
@@ -938,8 +935,8 @@ void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
 
 
     // Ensure size divisble by 9 for perfect result forwarding from: [9x9] to [3x3] to [1x1]
-    int iw = (static_cast<int>(ceil(ctx->width / 9))) * 9;
-    int ih = (static_cast<int>(ceil(ctx->height / 9))) * 9;
+    int iw = (static_cast<int>(ceil(ctx->width() / 9))) * 9;
+    int ih = (static_cast<int>(ceil(ctx->height() / 9))) * 9;
 
     world_quad = camera->toWorldQuad(0, 0, iw, ih);
 
@@ -1007,19 +1004,8 @@ void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
 
     // ======== Bitmap / Depth-field dimensions and view rect ========
     {
-        static double r = 0.0;
         //BL::print("COMPUTING FROM CAMERA: %.2f, %.2f", (double)camera->x, (double)camera->y);
         pending_bmp->setStageRect(0, 0, iw, ih);
-
-
-
-        //pending_bmp->setAlign(0, 0);
-        //pending_bmp->setWorldRect(0, 0, 0.5, 0.5);
-        //pending_bmp->setStageRect(iw * 0.25, ih * 0.25, iw * 0.5, ih * 0.5);
-        //pending_bmp->setStagePos(iw * 0.5, ih * 0.5);
-        //pending_bmp->setStageSize(iw * 0.5, ih * 0.5);
-        //pending_bmp->rotation = r;
-        r += 0.01;
 
         auto stagePos = pending_bmp->stagePos();
         auto stageSize = pending_bmp->stageSize();
@@ -1114,33 +1100,23 @@ void Mandelbrot_Scene::viewportProcess(Viewport* ctx, double dt)
             switch (computing_phase)
             {
                 case 0:
-                {
                     field_3x3.setAllDepth(-1.0);
-                    bmp_9x9.forEachPixel([this](int x, int y) {
-                        field_3x3(x*3+1, y*3+1) = field_9x9(x, y);
-                    });
-                }
-                break;
+                    bmp_9x9.forEachPixel([this](int x, int y) { field_3x3(x*3+1, y*3+1) = field_9x9(x, y); });
+                    break;
 
                 case 1:
-                {
                     field_1x1.setAllDepth(-1.0);
-                    bmp_3x3.forEachPixel([this](int x, int y) {
-                        field_1x1(x*3+1, y*3+1) = field_3x3(x, y);
-                    });
-                }
-                break;
+                    bmp_3x3.forEachPixel([this](int x, int y) { field_1x1(x*3+1, y*3+1) = field_3x3(x, y); });
+                    break;
 
                 case 2:
-                {
                     // Finish final 1x1 compute
                     auto elapsed = std::chrono::steady_clock::now() - compute_t0;
                     double dt = std::chrono::duration<double, std::milli>(elapsed).count();
                     double dt_avg = timer_ma.push(dt);
 
                     BL::print() << "Compute timer: " << BL::to_fixed(4) << dt_avg;
-                }
-                break;
+                    break;
             }
 
             if (computing_phase < 2)
@@ -1476,7 +1452,7 @@ void Mandelbrot_Scene::viewportDraw(Viewport* ctx) const
     ctx->setFontSize(16);
     ctx->setTextAlign(TextAlign::ALIGN_LEFT);
     ctx->setTextBaseline(TextBaseline::BASELINE_BOTTOM);
-    ctx->fillText("Created by: Will Hemsworth", ScaleSize(4), ctx->height - ScaleSize(4));
+    ctx->fillText("Created by: Will Hemsworth", ScaleSize(4), ctx->height() - ScaleSize(4));
 }
 
 void Mandelbrot_Scene::onEvent(Event e)

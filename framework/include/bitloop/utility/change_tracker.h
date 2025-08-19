@@ -76,18 +76,18 @@ public:
     }
 
     template <typename T>
-    void commitValue(T& var)
+    void commitCurrent(T& var)
     {
         getStateMap<T>().current[&var] = var;
     }
 
-    void variableChangedClearMaps()
+    void clearCurrent()
     {
         for (auto& [_, cc] : registry_)
             cc.clear();
     }
 
-    void variableChangedUpdateCurrent()
+    void updateCurrent()
     {
         for (auto& [_, cc] : registry_)
             cc.commit();

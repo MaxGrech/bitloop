@@ -19,7 +19,7 @@ function(apply_common_settings _TARGET)
 
 	if (MSVC)
 		target_compile_options(${_TARGET} PRIVATE /MP) # Multi-threaded compilation
-    target_compile_options(${_TARGET} PRIVATE /permissive- /W3 /WX /utf-8 /D_CRT_SECURE_NO_WARNINGS)
+		target_compile_options(${_TARGET} PRIVATE /permissive- /W3 /WX /utf-8 /D_CRT_SECURE_NO_WARNINGS)
 	elseif (EMSCRIPTEN)
 		# O3 for WASM
 		target_compile_options(${_TARGET} PRIVATE 

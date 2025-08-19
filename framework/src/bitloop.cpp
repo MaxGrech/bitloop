@@ -1,4 +1,4 @@
-﻿/*
+/*
  *                 __    _ __  __                
  *                / /_  /_/ /_/ /___  ____  ____ 
  *               / __ \/ / __/ / __ \/ __ \/ __ \
@@ -159,7 +159,7 @@ int bitloop_main(int, char* [])
             #ifdef BL_DEBUG
             "bitloop (debug)";
             #else
-            "bitloop (release)";
+            "bitloop";
             #endif
 
 

@@ -13,7 +13,7 @@ struct BaseVariable
     BaseVariable(std::string_view name) : name(name) {}
 
     virtual BaseVariable* clone() { return nullptr; }
-    virtual std::string toString() { return "<na>"; }
+    //virtual std::string toString() { return "<na>"; }
     virtual void setValue(const BaseVariable* rhs) = 0;
     virtual bool equals(const BaseVariable* rhs) const = 0;
 };
@@ -100,12 +100,12 @@ struct Variable final : public BaseVariable
         }
     }
 
-    std::string toString() override
-    {
-        std::stringstream ss;
-        ss << *ptr;
-        return ss.str();
-    }
+    //std::string toString() override
+    //{
+    //    std::stringstream ss;
+    //    ss << *ptr;
+    //    return ss.str();
+    //}
 };
 
 struct VariableEntry
@@ -128,11 +128,11 @@ struct VariableEntry
     bool liveChanged()   const  { return !live_ptr->equals(live_marked); }
     bool shadowChanged() const  { return !shadow_ptr->equals(shadow_marked); }
 
-    void print()
-    {
-        BL::print() << "Shadow: " << shadow_ptr->toString() 
-                    << "  Live: " << live_ptr->toString();
-    }
+    //void print()
+    //{
+    //    BL::print() << "Shadow: " << shadow_ptr->toString() 
+    //                << "  Live: " << live_ptr->toString();
+    //}
 };
 
 struct VariableMap : public std::vector<VariableEntry>
@@ -258,23 +258,22 @@ public:
     bool changedLive() { return var_map.changedLive(); }
     bool changedShadow() { return var_map.changedShadow(); }
 
-    std::string pad(const std::string& str, int width) const
-    {
-        return str + std::string(width > str.size() ? width - str.size() : 0, ' ');
-    }
-
-    std::string toString() const
-    {
-        static const int name_len = 28;
-        static const int val_len = 10;
-
-        std::stringstream txt;
-        for (const auto& entry : var_map)
-            txt << pad(std::to_string(entry.id) + ". ", 4) << pad(entry.name, name_len)
-            << "SHADOW_MARKED: " << pad(entry.shadow_marked->toString(), val_len) << "   SHADOW_VAL: " << pad(entry.shadow_ptr->toString(), val_len)
-            << "    LIVE_MARKED:   " << pad(entry.live_marked->toString(), val_len) << "   LIVE_VAL: " << pad(entry.live_ptr->toString(), val_len)
-            << "\n";
-
-        return txt.str();
-    }
+    //std::string pad(const std::string& str, int width) const
+    //{
+    //    return str + std::string(width > str.size() ? width - str.size() : 0, ' ');
+    //}
+    //std::string toString() const
+    //{
+    //    static const int name_len = 28;
+    //    static const int val_len = 10;
+    //
+    //    std::stringstream txt;
+    //    for (const auto& entry : var_map)
+    //        txt << pad(std::to_string(entry.id) + ". ", 4) << pad(entry.name, name_len)
+    //        << "SHADOW_MARKED: " << pad(entry.shadow_marked->toString(), val_len) << "   SHADOW_VAL: " << pad(entry.shadow_ptr->toString(), val_len)
+    //        << "    LIVE_MARKED:   " << pad(entry.live_marked->toString(), val_len) << "   LIVE_VAL: " << pad(entry.live_ptr->toString(), val_len)
+    //        << "\n";
+    //
+    //    return txt.str();
+    //}
 };

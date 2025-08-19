@@ -440,11 +440,11 @@ void Cardioid_Graph_Scene::sceneMounted(Viewport*)
 
 void Cardioid_Graph_Scene::viewportProcess(Viewport* ctx, double)
 {
-    int iw = static_cast<int>(ctx->width / 2);
-    int ih = static_cast<int>(ctx->height / 2);
+    int iw = static_cast<int>(ctx->width() / 2);
+    int ih = static_cast<int>(ctx->height() / 2);
 
     bmp.setBitmapSize(iw, ih);
-    bmp.setStageRect(0, 0, ctx->width, ctx->height);
+    bmp.setStageRect(0, 0, ctx->width(), ctx->height());
 
     if (bmp.needsReshading())
     {

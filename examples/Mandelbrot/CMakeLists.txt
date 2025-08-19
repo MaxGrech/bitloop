@@ -6,6 +6,7 @@ if (NOT TARGET bitloop::bitloop)
   find_package(bitloop CONFIG REQUIRED)
 endif()
 
+
 file(GLOB SIM_SOURCES CONFIGURE_DEPENDS "Mandelbrot/*.cpp" "Mandelbrot/*.h")
 
 bitloop_add_dependency(../Cardioid)
