@@ -796,15 +796,4 @@ protected:
 typedef ProjectBase BasicProject;
 typedef SceneBase BasicScene;
 
-template <typename T>
-struct AutoRegisterProject
-{
-    AutoRegisterProject()
-    {
-        ProjectBase::addProjectInfo(T::categorize(),[]() -> ProjectBase* {
-            return static_cast<ProjectBase*>(new T());
-        });
-    }
-};
-
 BL_END_NS
