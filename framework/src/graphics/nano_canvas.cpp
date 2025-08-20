@@ -70,9 +70,9 @@ void Painter::drawWorldAxis(
 
     // ======== viewport world bounds ========
     const DVec2 TL = camera.toWorld(0, 0);
-    const DVec2 TR = camera.toWorld(ctx->width, 0);
-    const DVec2 BR = camera.toWorld(ctx->width, ctx->height);
-    const DVec2 BL = camera.toWorld(0, ctx->height);
+    const DVec2 TR = camera.toWorld(ctx->width(), 0);
+    const DVec2 BR = camera.toWorld(ctx->width(), ctx->height());
+    const DVec2 BL = camera.toWorld(0, ctx->height());
 
     // ======== min/max of world bounds ========
     const double wMinX = std::min({ TL.x, TR.x, BR.x, BL.x });

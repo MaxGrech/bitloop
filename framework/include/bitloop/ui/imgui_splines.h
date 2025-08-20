@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -1319,12 +1319,12 @@ namespace ImSpline
 
 			if (minimize)
 			{
-				// 4a. Collapse “-0” to “0”
+				// 4a. Collapse â€œ-0â€ to â€œ0â€
 				if (str == "-0") {
 					str = "0";
 				}
 
-				// 4b. Remove the leading ‘0’ for numbers between -1 and 1
+				// 4b. Remove the leading â€˜0â€™ for numbers between -1 and 1
 				//     (e.g. "0.7351"  -> ".7351",   "-0.42" -> "-.42")
 				if (!str.empty()) {
 					bool negative = (str[0] == '-');

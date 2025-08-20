@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "project.h"
 #include "Cardioid/Cardioid.h"
 #include <math.h>
@@ -11,35 +11,8 @@ using namespace BL;
 
 #include "types.h"
 #include "kernel.h"
+#include "shading.h"
 
-template<ColorGradientTemplate type>
-inline void colorGradientTemplate(double t, uint8_t& r, uint8_t& g, uint8_t& b)
-{
-    if constexpr (type == GRADIENT_CLASSIC)
-    {
-        r = (uint8_t)(9 * (1 - t) * t * t * t * 255);
-        g = (uint8_t)(15 * (1 - t) * (1 - t) * t * t * 255);
-        b = (uint8_t)(8.5 * (1 - t) * (1 - t) * (1 - t) * t * 255);
-    }
-    else if constexpr (type == GRADIENT_SINUSOIDAL_RAINBOW_CYCLE)
-    {
-        float a = (float)t * 3.14159265f;
-        r = (uint8_t)(sin(a) * sin(a) * 255);
-        g = (uint8_t)(sin(a + 2.0944f) * sin(a + 2.0944f) * 255);
-        b = (uint8_t)(sin(a + 4.1888f) * sin(a + 4.1888f) * 255);
-    }
-}
-
-inline void colorGradientTemplate(ColorGradientTemplate type, double t, uint8_t& r, uint8_t& g, uint8_t& b)
-{
-    switch (type)
-    {
-    case GRADIENT_CLASSIC:                  colorGradientTemplate<GRADIENT_CLASSIC>(t, r, g, b); break;
-    //case GRADIENT_FOREST:                   colorGradientTemplate<GRADIENT_FOREST>(t, r, g, b); break;
-    case GRADIENT_SINUSOIDAL_RAINBOW_CYCLE: colorGradientTemplate<GRADIENT_SINUSOIDAL_RAINBOW_CYCLE>(t, r, g, b); break;
-    default: break;
-    }
-}
 
 struct TweenableMandelState
 {
@@ -760,6 +733,15 @@ struct Mandelbrot_Scene : public Scene<Mandelbrot_Data>
 
 struct Mandelbrot_Project : public BasicProject
 {
+    //static std::vector<std::string> categorize() {
+    //    return { "Fractal", "Mandelbrot", "Mandelbrot Viewer" };
+    //}
+
+    static ProjectInfo info()
+    {
+        return ProjectInfo({ "Fractal", "Mandelbrot", "Mandelbrot Viewer" });
+    }
+
     void projectPrepare(Layout& layout) override;
 };
 

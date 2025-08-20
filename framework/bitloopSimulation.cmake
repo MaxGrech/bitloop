@@ -1,23 +1,25 @@
-﻿# --- bitloopSimulation.cmake ---
+# --- bitloopSimulation.cmake ---
 
 set(BITLOOP_MAIN_SOURCE		"${CMAKE_CURRENT_LIST_DIR}/src/bitloop_main.cpp"	CACHE INTERNAL "")
 set(BITLOOP_COMMON			"${CMAKE_CURRENT_LIST_DIR}/common"					CACHE INTERNAL "")
 set(BITLOOP_BUILD_DIR		"${CMAKE_CURRENT_BINARY_DIR}"						CACHE INTERNAL "")
 set(AUTOGEN_SIM_INCLUDES	"${BITLOOP_BUILD_DIR}/bitloop_simulations.h"		CACHE INTERNAL "")
 
-set(BITLOOP_DATA_DEPENDENCIES "" CACHE INTERNAL "Ordered list of dependency data directories")
+set(BITLOOP_PROJECT_NAMES ""		CACHE INTERNAL "Ordered included projected")
+set(BITLOOP_DATA_DEPENDENCIES ""	CACHE INTERNAL "Ordered list of dependency data directories")
 
 set_property(DIRECTORY PROPERTY BITLOOP_DEPENDENCY_DIRS "")
 
 # Begin auto-generated header file
 file(WRITE "${AUTOGEN_SIM_INCLUDES}" "// Auto‑generated simulation includes\n")
+file(WRITE "${AUTOGEN_SIM_INCLUDES}" "#include <bitloop/core/project.h>\n\n")
 
 function(apply_common_settings _TARGET)
 	target_compile_features(${_TARGET} PUBLIC cxx_std_23)
 
 	if (MSVC)
 		target_compile_options(${_TARGET} PRIVATE /MP) # Multi-threaded compilation
-        target_compile_options(${_TARGET} PRIVATE /permissive- /W3 /WX /D_CRT_SECURE_NO_WARNINGS)
+		target_compile_options(${_TARGET} PRIVATE /permissive- /W3 /WX /utf-8 /D_CRT_SECURE_NO_WARNINGS)
 	elseif (EMSCRIPTEN)
 		# O3 for WASM
 		target_compile_options(${_TARGET} PRIVATE 
@@ -34,7 +36,7 @@ function(apply_common_settings _TARGET)
 			"-sFULL_ES3=1"
 			"-sALLOW_MEMORY_GROWTH=1"
 			"-sUSE_PTHREADS=1"
-			"-sPTHREAD_POOL_SIZE=16"
+			"-sPTHREAD_POOL_SIZE=32"
 		)
 	endif()
 endfunction()
@@ -45,10 +47,39 @@ function(apply_main_settings _TARGET)
 	elseif (EMSCRIPTEN)
 		target_link_options(${_TARGET} PRIVATE
 			"--shell-file=${BITLOOP_COMMON}/static/shell.html"
-			"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
+			#"--embed-file=${CMAKE_CURRENT_BINARY_DIR}/data@/data"
+			"--embed-file=${CMAKE_SOURCE_DIR}/build/${BUILD_FLAVOR}/app/data@/data"
 		)
-		set_target_properties(${_TARGET} PROPERTIES SUFFIX ".html")
+		set_target_properties(${_TARGET} PROPERTIES
+			OUTPUT_NAME "index"
+			SUFFIX ".html"
+		)
 	endif()
+endfunction()
+
+function(apply_root_exe_name target)
+  # If the preset provided a flavor (single-config like Ninja), use it.
+  if(BUILD_FLAVOR)
+    set(_root "${CMAKE_SOURCE_DIR}/build/${BUILD_FLAVOR}/app")
+    set_target_properties(${target} PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY "${_root}"
+      LIBRARY_OUTPUT_DIRECTORY "${_root}"
+      ARCHIVE_OUTPUT_DIRECTORY "${_root}"
+    )
+  else()
+    # Multi-config or no flavor: split by configuration.
+    foreach(cfg Debug Release RelWithDebInfo MinSizeRel)
+      string(TOUPPER "${cfg}" CFG)
+      set(_root "${CMAKE_SOURCE_DIR}/build/${cfg}/app")
+      set_target_properties(${target} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_${CFG} "${_root}"
+        LIBRARY_OUTPUT_DIRECTORY_${CFG} "${_root}"
+        ARCHIVE_OUTPUT_DIRECTORY_${CFG} "${_root}"
+      )
+    endforeach()
+  endif()
+  # Consistent executable "name" regardless of project.
+  set_target_properties(${target} PROPERTIES OUTPUT_NAME "app")
 endfunction()
 
 macro(bitloop_new_project sim_name)
@@ -74,6 +105,7 @@ macro(bitloop_new_project sim_name)
 
 		set_property(DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${_TARGET}")
 		add_executable(${_TARGET} ${SIM_SOURCES})
+		apply_root_exe_name(${_TARGET})
 
 	else()
 		# nested (library)
@@ -114,6 +146,15 @@ macro(bitloop_new_project sim_name)
 
 	msg_indent_pop()
 
+	# Add project to list (for finalizing later)
+	if (SIM_SOURCES_PROVIDED)
+		get_property(_project_names GLOBAL PROPERTY BITLOOP_PROJECT_NAMES)
+		if (NOT sim_name IN_LIST _project_names)
+			list(APPEND _project_names ${sim_name})
+		endif()
+		set_property(GLOBAL PROPERTY BITLOOP_PROJECT_NAMES ${_project_names})
+	endif()
+
 	# Add target /data (if provided)
 	get_property(_data_dirs GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES)
 	if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/data")
@@ -121,10 +162,22 @@ macro(bitloop_new_project sim_name)
 	endif()
 	set_property(GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES ${_data_dirs})
 
+
 	apply_common_settings(${_TARGET})
 
-	#if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 	if (CMAKE_CURRENT_SOURCE_DIR STREQUAL BL_ROOT_PROJECT)
+		# Finalizing project tree
+		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "\nvoid initialize_simulations() {\n")
+		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "    using namespace BL;\n")
+
+		get_property(_project_names GLOBAL PROPERTY BITLOOP_PROJECT_NAMES)
+		foreach(project_name IN LISTS _project_names)
+			file(APPEND "${AUTOGEN_SIM_INCLUDES}"
+				"    ProjectBase::addProjectFactoryInfo( ProjectBase::createProjectFactoryInfo<${project_name}_Project>() );\n")
+		endforeach()
+
+		file(APPEND "${AUTOGEN_SIM_INCLUDES}" "}\n")
+
 		msg(STATUS "")
 		msg(STATUS "──────── Merged Data Tree ────────")
 		get_property(_data_dirs GLOBAL PROPERTY BITLOOP_DATA_DEPENDENCIES)
@@ -156,14 +209,6 @@ macro(bitloop_new_project sim_name)
 		msg(STATUS "")
 
 		apply_main_settings(${_TARGET})
-
-		#if (MSVC)
-		#	# Windows
-		#	set_target_properties(${_TARGET} PROPERTIES WIN32_EXECUTABLE TRUE)
-		#elseif (EMSCRIPTEN)
-		#	# Emscripten
-		#	apply_main_settings(${_TARGET})
-		#endif()
 	endif()
 
 endmacro()
@@ -180,7 +225,6 @@ endmacro()
 function(_bitloop_add_dependency _TARGET _SIM_DIR)
 	# Grab simulation name from path
 	get_filename_component(sim_name "${_SIM_DIR}" NAME)
-	#message(STATUS "Grabbing name: ${sim_name}")
 
 	if(NOT TARGET ${sim_name}::${sim_name})
 		# Only called once, includes dependency project, which in turn calls:  bitloop_add_simulation()

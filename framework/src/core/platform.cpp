@@ -1,4 +1,4 @@
-#include "platform.h"
+﻿#include "platform.h"
 #include "imgui_custom.h"
 
 #if defined(_WIN32)
@@ -24,7 +24,7 @@ EM_JS(int, _is_mobile_device, (), {
     return navigator.userAgentData.mobile ? 1 : 0;
   }
 
-  // 2. Pointer/hover media-queries � quick and cheap
+  // 2. Pointer/hover media-queries – quick and cheap
   if (window.matchMedia('(pointer: coarse)').matches &&
       !window.matchMedia('(hover: hover)').matches) {
     return 1;

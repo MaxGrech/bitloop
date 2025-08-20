@@ -3,6 +3,7 @@
 
 int main(int argc, char* argv[])
 {
+    initialize_simulations();
     return bitloop_main(argc, argv);
 }
 

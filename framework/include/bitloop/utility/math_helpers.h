@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "types.h"
 #include <numbers>
 #include <sstream>
@@ -332,7 +332,7 @@ namespace Math
         }
 
         // Order the two intersections:
-        // The one with the smaller t is the "back" intersection (behind the ray�s origin)
+        // The one with the smaller t is the "back" intersection (behind the ray’s origin)
         // and the one with the larger t is the "foward" intersection.
         *back_intersect = unique[0].pt;
         *foward_intersect = unique[1].pt;

@@ -380,7 +380,7 @@ void ProjectBase::_projectStart()
         ///scene->dt_scene_ma_list.clear();
         ///scene->dt_project_ma_list.clear();
         ///scene->dt_project_draw_ma_list.clear();
-        scene->variableChangedClearMaps();
+        scene->clearCurrent();
 
         scene->sceneStart();
     }
@@ -457,10 +457,10 @@ void ProjectBase::updateViewportRects()
     // Update viewport rects
     for (Viewport* viewport : viewports)
     {
-        viewport->pos_x = viewport->viewport_grid_x * viewport_width;
-        viewport->pos_y = viewport->viewport_grid_y * viewport_height;
-        viewport->width = viewport_width - 1;
-        viewport->height = viewport_height - 1;
+        viewport->x = viewport->viewport_grid_x * viewport_width;
+        viewport->y = viewport->viewport_grid_y * viewport_height;
+        viewport->w = viewport_width - 1;
+        viewport->h = viewport_height - 1;
         viewport->camera.viewport_w = viewport_width - 1;
         viewport->camera.viewport_h = viewport_height - 1;
     }
@@ -483,14 +483,16 @@ void ProjectBase::_projectProcess()
         // Allow panning/zooming, even when paused
         for (Viewport* viewport : viewports)
         {
-            double viewport_mx = mouse.client_x - viewport->pos_x;
-            double viewport_my = mouse.client_y - viewport->pos_y;
+            double viewport_mx = mouse.client_x - viewport->x;
+            double viewport_my = mouse.client_y - viewport->y;
 
             Camera& cam = viewport->camera;
 
             if (cam.panning ||
-                (viewport_mx >= 0 && viewport_my >= 0 &&
-                 viewport_mx <= viewport->width && viewport_my <= viewport->height))
+                (viewport_mx >= 0 &&
+                 viewport_my >= 0 &&
+                 viewport_mx <= viewport->w && 
+                 viewport_my <= viewport->h))
             {
 
                 DVec2 world_mouse = cam.toWorld(viewport_mx, viewport_my);
@@ -503,7 +505,7 @@ void ProjectBase::_projectProcess()
             }
 
             // Immediately update world -> stage transformation matrix
-            //cam.updateCameraMatrix();
+            cam.updateCameraMatrix();
         }
 
         if (!paused)
@@ -533,19 +535,19 @@ void ProjectBase::_projectProcess()
                 viewport->scene->camera = &viewport->camera;
                 Camera::active = &viewport->camera;
 
-                ///viewport->just_resized =
-                ///    (viewport->width != viewport->old_width) ||
-                ///    (viewport->height != viewport->old_height);
+                viewport->just_resized =
+                    (viewport->w != viewport->old_w) ||
+                    (viewport->h != viewport->old_h);
 
                 viewport->scene->viewportProcess(viewport, dt_frameProcess/1000.0);
 
-                ///viewport->old_width = viewport->width;
-                ///viewport->old_height = viewport->height;
+                viewport->old_w = viewport->w;
+                viewport->old_h = viewport->h;
             }
 
             // Post-Process each scene
             for (SceneBase* scene : viewports.all_scenes)
-                scene->variableChangedUpdateCurrent();
+                scene->updateCurrent();
             
             auto project_dt = std::chrono::steady_clock::now() - project_t0;
             dt_projectProcess = static_cast<int>(
@@ -590,11 +592,11 @@ void ProjectBase::_projectDraw()
     // Draw each viewport
     for (Viewport* viewport : viewports)
     {
-        ctx->setClipRect(viewport->pos_x, viewport->pos_y, viewport->width, viewport->height);
+        ctx->setClipRect(viewport->x, viewport->y, viewport->w, viewport->h);
         ctx->save();
 
         // Starting viewport position
-        ctx->translate(floor(viewport->pos_x), floor(viewport->pos_y));
+        ctx->translate(floor(viewport->x), floor(viewport->y));
 
         // Set default transform to "World"
         viewport->camera.worldTransform();
@@ -622,17 +624,17 @@ void ProjectBase::_projectDraw()
         // Draw vert line
         if (viewport->viewport_grid_x < viewports.cols - 1)
         {
-            double line_x = floor(viewport->pos_x + viewport->width) + 0.5;
-            ctx->moveTo(line_x, viewport->pos_y);
-            ctx->lineTo(line_x, viewport->pos_y + viewport->height + 1);
+            double line_x = floor(viewport->x + viewport->w) + 0.5;
+            ctx->moveTo(line_x, viewport->y);
+            ctx->lineTo(line_x, viewport->y + viewport->h + 1);
         }
 
         // Draw horiz line
         if (viewport->viewport_grid_y < viewports.rows - 1)
         {
-            double line_y = floor(viewport->pos_y + viewport->height) + 0.5;
-            ctx->moveTo(viewport->pos_x + viewport->width + 1, line_y);
-            ctx->lineTo(viewport->pos_x, line_y);
+            double line_y = floor(viewport->y + viewport->h) + 0.5;
+            ctx->moveTo(viewport->x + viewport->w + 1, line_y);
+            ctx->lineTo(viewport->x, line_y);
         }
 
         ctx->stroke();

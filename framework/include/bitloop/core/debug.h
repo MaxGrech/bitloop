@@ -8,6 +8,9 @@
 #include <atomic>
 #include <iostream>
 
+#include <cstdarg> // va_list, va_start, va_end, va_copy
+#include <cstdio>
+
 #include <charconv>
 #include <cstdint>
 #include <cstring>
@@ -44,6 +47,12 @@ struct Global
 #pragma warning(error: 4100) // unreferenced formal parameter
 
 #define UNUSED(x) ((void)(x))
+
+#ifdef NDEBUG
+#define BL_RELEASE
+#else
+#define BL_DEBUG
+#endif
 
 // Disable debug flags for Release builds
 #ifdef NDEBUG
@@ -142,7 +151,9 @@ public:
         if (!len) return;
         ensure(1);
         buf[len] = '\0';
+        #ifdef WIN32
         OutputDebugStringA(buf);
+        #endif
         ImDebugPrint(buf);
         std::cout << buf;
         len = 0;
@@ -211,7 +222,7 @@ inline DebugStream& operator<<(DebugStream& s, General) {
 
 // factory
 [[nodiscard]] inline DebugStream print() { return DebugStream{}; }
-[[nodiscard]] inline void print(const char* fmt, ...)
+inline void print(const char* fmt, ...)
 {
     const size_t small_size = 1024;
     char small_buf[small_size]{};
@@ -225,7 +236,9 @@ inline DebugStream& operator<<(DebugStream& s, General) {
 
     if (n >= 0 && static_cast<std::size_t>(n) < small_size) {
         // Fits in the stack buffer
+        #ifdef WIN32
         OutputDebugStringA(small_buf);
+        #endif
         ImDebugPrint(small_buf);
         std::cout << small_buf;
         return;
@@ -252,10 +265,12 @@ inline DebugStream& operator<<(DebugStream& s, General) {
     buf.resize(static_cast<std::size_t>(needed) + 1);
 
     va_start(ap, fmt);
-    std::vsnprintf(buf.data(), buf.size(), fmt, ap);
+    std::vsnprintf((char*)buf.data(), buf.size(), fmt, ap);
     va_end(ap);
 
+    #ifdef WIN32
     OutputDebugStringA(buf.c_str());
+    #endif
     ImDebugPrint(buf.c_str());
     std::cout << buf.c_str();
 }
@@ -270,17 +285,6 @@ BL_END_NS
 #else
 #define T0(name)     
 #define T1(name, ...)
-#endif
-
-// ======== DebugBreak ========
-
-#if defined(_MSC_VER)
-#define DebugBreak() __debugbreak()
-#elif defined(__GNUC__) || defined(__clang__)
-#include <csignal>
-#define DebugBreak() std::raise(SIGTRAP)
-#else
-#define DebugBreak() ((void)0)  // fallback: no-op
 #endif
 
 class FiniteDouble
@@ -300,7 +304,7 @@ class FiniteDouble
             #ifdef _MSC_VER
             std::string stack = std::to_string(std::stacktrace::current());
             #endif
-            DebugBreak();
+            blBreak();
             if (break_on_assignment == 1)
                 break_on_assignment = 0;
         }
@@ -310,7 +314,7 @@ class FiniteDouble
             #ifdef _MSC_VER
             std::string stack = std::to_string(std::stacktrace::current());
             #endif
-            DebugBreak();
+            blBreak();
         }
         
         value = v;

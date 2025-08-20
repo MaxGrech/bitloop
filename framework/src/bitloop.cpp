@@ -1,4 +1,4 @@
-﻿/*
+/*
  *                 __    _ __  __                
  *                / /_  /_/ /_/ /___  ____  ____ 
  *               / __ \/ / __/ / __ \/ __ \/ __ \
@@ -61,6 +61,8 @@
  */
 
 #include <memory>
+
+#include "platform.h"
 
 #ifdef __EMSCRIPTEN__
 #define SDL_MAIN_HANDLED
@@ -143,16 +145,25 @@ int bitloop_main(int, char* [])
         emscripten_get_canvas_element_size("#canvas", &fb_w, &fb_h);
 
         // needed?
-        EM_ASM({
-            const cv = Module['canvas'];
-            cv.setAttribute('tabindex', '0');
-            cv.setAttribute('contenteditable', 'true');
-            cv.addEventListener('mousedown', () => cv.focus());
-        });
+        //EM_ASM({
+        //    const cv = Module['canvas'];
+        //    cv.setAttribute('tabindex', '0');
+        //    cv.setAttribute('contenteditable', 'true');
+        //    cv.addEventListener('mousedown', () => cv.focus());
+        //});
         #endif
 
         BL::print() << "Creating window...\n";
-        window = SDL_CreateWindow("bitloop", fb_w, fb_h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+
+        const char *window_name = 
+            #ifdef BL_DEBUG
+            "bitloop (debug)";
+            #else
+            "bitloop";
+            #endif
+
+
+        window = SDL_CreateWindow(window_name, fb_w, fb_h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
         if (!window) {
             BL::print() << "SDL_CreateWindow failed: " << SDL_GetError() << "\n";
@@ -160,7 +171,7 @@ int bitloop_main(int, char* [])
         }
     }
 
-    SDL_GLContext gl_context;
+    SDL_GLContext gl_context = nullptr;
 
     // ======== OpenGL setup ========
     {

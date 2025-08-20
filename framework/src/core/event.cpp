@@ -41,8 +41,8 @@ std::string Event::toString()
     case SDL_EVENT_FINGER_UP:          type = "SDL_FINGERUP";      goto finger_attribs;
     case SDL_EVENT_FINGER_MOTION:      type = "SDL_FINGERMOTION";
         finger_attribs:
-        sprintf(attribs, "{F_%lld, %d, %d}", 
-            sdl_event.tfinger.fingerID, 
+        sprintf(attribs, "{F_%llu, %d, %d}",
+            (unsigned long long) sdl_event.tfinger.fingerID,
             (int)(sdl_event.tfinger.x * (float)Platform()->fbo_width()),
             (int)(sdl_event.tfinger.y * (float)Platform()->fbo_height()));
 
