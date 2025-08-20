@@ -1,42 +1,42 @@
-#include "AirHockey.h"
+#include "Airhockey.h"
 
-SIM_DECLARE(AirHockey, "Lessons", "AirHockey")
+SIM_BEG(Airhockey)
 
 
 /// =========================
 /// ======== Project ========
 /// =========================
 
-void AirHockey_Project::projectPrepare(Layout& layout)
+void Airhockey_Project::projectPrepare(Layout& layout)
 {
     /// Create multiple instance of a single Scene, mount to separate viewports
-    layout << create<AirHockey_Scene>(1);
+    layout << create<Airhockey_Scene>(1);
 }
 
 /// =========================
 /// ========= Scene =========
 /// =========================
 
-void AirHockey_Scene::sceneStart()
+void Airhockey_Scene::sceneStart()
 {
 }
 
-void AirHockey_Scene::sceneMounted(Viewport*)
+void Airhockey_Scene::sceneMounted(Viewport*)
 {
     camera->setOriginViewportAnchor(Anchor::CENTER);
     camera->focusWorldRect(r.scaled(1.1));
 }
 
-void AirHockey_Scene::sceneDestroy()
+void Airhockey_Scene::sceneDestroy()
 {
     // Destroy scene
 }
 
-void AirHockey_Scene::sceneProcess()
+void Airhockey_Scene::sceneProcess()
 {
 }
 
-void AirHockey_Scene::viewportProcess(Viewport*, double)
+void Airhockey_Scene::viewportProcess(Viewport*, double)
 {
     // Game logic
 
@@ -57,28 +57,27 @@ void AirHockey_Scene::viewportProcess(Viewport*, double)
     m1.x += m1.vx;
     m1.y += m1.vy;
 
-    /*if (m1.y < 0 + m1.r)
+    if (m1.y < 0 + m1.r)
     {
         // Keep mallet below center of table
         m1.y = 0 + m1.r;
     }
-    else if (m1.y > y2 - m1.r)
+    else if (m1.y > bottom - m1.r)
     {
         // Keep mallet above bottom of table
-        m1.y = y2 - m1.r;
+        m1.y = bottom - m1.r;
     }
 
-    if (m1.x < x1 + m1.r)
+    if (m1.x < left + m1.r)
     {
         // Keep the mallet right of left side of table
-        m1.x = x1 + m1.r;
+        m1.x = left + m1.r;
     }
-    else if (m1.x > x2 - m1.r)
+    else if (m1.x > right - m1.r)
     {
         // Keep the mallet left of right side of table
-        m1.x = x2 - m1.r;
+        m1.x = right - m1.r;
     }
-    */
 }
 
 void drawDottedLine(Viewport* ctx, double x1, double y1, double x2, double y2, double dashLength, float gapLength) {
@@ -102,60 +101,71 @@ void drawDottedLine(Viewport* ctx, double x1, double y1, double x2, double y2, d
     ctx->stroke();
 }
 
-void drawAirHockeyTable(Viewport* ctx, double x1, double y1, double table_width, double table_height)
+void Airhockey_Scene::drawAirHockeyTable(Viewport* ctx) const
 {
-    double line_width = table_width * 0.01; // scalable
+    double line_width = table_width * 0.03; // scalable
 
     // Table background
-    ctx->setFillStyle(100, 100, 100);
-    ctx->fillRect(x1, y1, table_width, table_height);
+    ctx->setFillStyle(30, 25, 40);
+    ctx->fillRoundedRect(left, top, table_width, table_height, puck.r);
 
     // Outer border
     ctx->setLineWidth(line_width);
-    ctx->setStrokeStyle(0, 0, 0);
-    ctx->strokeRect(x1, y1, table_width, table_height);
+    ctx->setStrokeStyle(90, 90, 90);
+    ctx->strokeRoundedRect(
+        left - line_width / 2,
+        top - line_width / 2, 
+        table_width + line_width, 
+        table_height + line_width,
+        puck.r + line_width / 2);
 
-    // Blue goal lines (10% from ends)
+    ctx->setLineWidth(table_width * 0.005);
+
+    // Blue lines
     ctx->setStrokeStyle(0, 0, 255);
-    double goalLineY1 = y1 + table_height * 0.1;
-    double goalLineY2 = y1 + table_height * 0.9;
+    double goalLineY1 = top + table_height * 0.3;
+    double goalLineY2 = top + table_height * 0.7;
     ctx->beginPath();
-    ctx->moveTo(x1, goalLineY1);
-    ctx->lineTo(x1 + table_width, goalLineY1);
-    ctx->moveTo(x1, goalLineY2);
-    ctx->lineTo(x1 + table_width, goalLineY2);
+    ctx->moveTo(left, goalLineY1);
+    ctx->lineTo(left + table_width, goalLineY1);
+    ctx->moveTo(left, goalLineY2);
+    ctx->lineTo(left + table_width, goalLineY2);
     ctx->stroke();
+
+    // Center circle
+    double centerRadius = table_width * 0.15;
+    double innerCenterRadius = table_width * 0.12;
 
     // Center red dotted line
     ctx->setStrokeStyle(255, 0, 0);
-    drawDottedLine(ctx,
-        x1, y1 + table_height / 2,
-        x1 + table_width, y1 + table_height / 2,
-        10, 5);
+    drawDottedLine(ctx,  centerRadius + 3, 0, right, 0, 4, 3);
+    drawDottedLine(ctx, -centerRadius - 3, 0, left, 0, 4, 3);
 
-    // Center circle
-    double centerX = x1 + table_width / 2;
-    double centerY = y1 + table_height / 2;
-    double centerRadius = table_width * 0.15;
-    ctx->strokeEllipse(centerX, centerY, centerRadius);
+    ctx->setStrokeStyle(0, 0, 255);
+    ctx->strokeEllipse(0, 0, centerRadius);
+    ctx->strokeEllipse(0, 0, innerCenterRadius);
 
     // Face-off circles (red)
-    double faceOffRadius = table_width * 0.1;
-    ctx->setStrokeStyle(255, 0, 0);
-    ctx->strokeEllipse(centerX, goalLineY1 + (centerY - goalLineY1) / 2, faceOffRadius);
-    ctx->strokeEllipse(centerX, goalLineY2 - (goalLineY2 - centerY) / 2, faceOffRadius);
+    //double faceOffRadius = table_width * 0.1;
+    //ctx->setStrokeStyle(255, 0, 0);
+    //ctx->strokeEllipse(centerX, goalLineY1 + (centerY - goalLineY1) / 2, faceOffRadius);
+    //ctx->strokeEllipse(centerX, goalLineY2 - (goalLineY2 - centerY) / 2, faceOffRadius);
 
-    ctx->setFillStyle(255, 0, 0);
-    ctx->setStrokeStyle(0, 255, 0);
-    ctx->fillRoundedRect(50, 50, 400, 400, 30);
-    ctx->strokeRoundedRect(50, 50, 400, 400, 30);
+    // Goals
+    ctx->beginPath();
+    ctx->arc(0, bottom, table_width / 6, 0, Math::PI, PathWinding::WINDING_CCW);
+    ctx->stroke();
+
+    ctx->beginPath();
+    ctx->arc(0, top, table_width / 6, 0, Math::PI, PathWinding::WINDING_CW);
+    ctx->stroke();
 }
 
-void AirHockey_Scene::viewportDraw(Viewport* ctx) const
+void Airhockey_Scene::viewportDraw(Viewport* ctx) const
 {
     ctx->drawWorldAxis();
 
-    drawAirHockeyTable(ctx, x1, y1, table_width, table_height);
+    drawAirHockeyTable(ctx);
 
     ctx->setFillStyle(puck.hit ? 255 : 100, 120, 100);
     ctx->fillEllipse(puck.x, puck.y, puck.r);
@@ -164,14 +174,14 @@ void AirHockey_Scene::viewportDraw(Viewport* ctx) const
     m2.draw(ctx);
 }
 
-void AirHockey_Scene::onEvent(Event e)
+void Airhockey_Scene::onEvent(Event e)
 {
     handleWorldNavigation(e, true);
 }
 
 //void AirHockey_Scene::onPointerDown(PointerEvent e) {}
 //void AirHockey_Scene::onPointerUp(PointerEvent e) {}
-void AirHockey_Scene::onPointerMove(PointerEvent)
+void Airhockey_Scene::onPointerMove(PointerEvent)
 {
 
 }
@@ -180,5 +190,5 @@ void AirHockey_Scene::onPointerMove(PointerEvent)
 //void AirHockey_Scene::onKeyUp(KeyEvent e) {}
 
 
-SIM_END(AirHockey)
+SIM_END(Airhockey)
 

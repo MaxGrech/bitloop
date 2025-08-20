@@ -1,7 +1,7 @@
 #pragma once
 #include "project.h"
 
-SIM_BEG(AirHockey)
+SIM_BEG(Airhockey)
 
 using namespace BL;
 
@@ -121,7 +121,7 @@ struct Mallet
 };
 
 
-struct AirHockey_Scene : public BasicScene
+struct Airhockey_Scene : public BasicScene
 {
     // --- Custom Launch Config Example ---
     struct Config {};
@@ -130,11 +130,11 @@ struct AirHockey_Scene : public BasicScene
     // --- Table ---
     const double table_width = 160;
     const double table_height = 200;
-    const double x1 = -table_width / 2;
-    const double x2 = table_width / 2;
-    const double y1 = -table_height / 2;
-    const double y2 = table_height / 2;
-    const DRect r = DRect(x1, y1, x2, y2);
+    const double left = -table_width / 2; // left
+    const double right = table_width / 2; // right
+    const double top = -table_height / 2; // top
+    const double bottom = table_height / 2; // bottom
+    const DRect r = DRect(left, top, right, bottom);
 
     // --- Objects ---
     Puck puck;
@@ -143,7 +143,7 @@ struct AirHockey_Scene : public BasicScene
 
 
 
-    AirHockey_Scene(Config&) //:
+    Airhockey_Scene(Config&) //:
         //speed(info.speed)
     {
     }
@@ -169,6 +169,8 @@ struct AirHockey_Scene : public BasicScene
     //void onWheel(PointerEvent e) override;
     //void onKeyDown(KeyEvent e) override;
     //void onKeyUp(KeyEvent e) override;
+
+    void drawAirHockeyTable(Viewport* ctx) const;
 };
 
 struct ImageTest_Project_Vars : public VarBuffer
@@ -182,9 +184,14 @@ struct ImageTest_Project_Vars : public VarBuffer
     }
 };
 
-struct AirHockey_Project : public BasicProject
+struct Airhockey_Project : public BasicProject
 {
+    static ProjectInfo info()
+    {
+        return ProjectInfo({ "Games", "Airhockey" });
+    }
+
     void projectPrepare(Layout& layout) override;
 };
 
-SIM_END(AirHockey)
+SIM_END(Airhockey)
