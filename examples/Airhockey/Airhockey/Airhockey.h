@@ -7,7 +7,7 @@ using namespace BL;
 
 struct Puck
 {
-    const double r = 5;
+    static inline const double radius = 5;
 
     double x = 0;
     double y = 0;
@@ -22,27 +22,33 @@ struct Puck
         x += vx;
         y += vy;
 
-        if (x < rect.x1 + r)
+        if (x < rect.x1 + radius)
         {
-            x = rect.x1 + r;
+            x = rect.x1 + radius;
             vx *= -1;
         }
-        else if (x > rect.x2 - r)
+        else if (x > rect.x2 - radius)
         {
-            x = rect.x2 - r;
+            x = rect.x2 - radius;
             vx *= -1;
         }
 
-        if (y < rect.y1 + r)
+        if (y < rect.y1 + radius)
         {
-            y = rect.y1 + r;
+            y = rect.y1 + radius;
             vy *= -1;
         }
-        else if (y > rect.y2 - r)
+        else if (y > rect.y2 - radius)
         {
-            y = rect.y2 - r;
+            y = rect.y2 - radius;
             vy *= -1;
         }
+    }
+
+    void draw(Viewport* ctx, int alpha=255) const
+    {
+        ctx->setFillStyle(hit ? 255 : 100, 120, 100, alpha);
+        ctx->fillEllipse(x, y, Puck::radius);
     }
 };
 
@@ -56,20 +62,18 @@ struct Mallet
     double vx = 0;
     double vy = 0;
 
-
-
     Mallet(double mx, double my)
     {
         x = mx;
         y = my;
     }
 
-    void draw(Viewport* ctx) const
+    void draw(Viewport* ctx, int alpha = 255) const
     {
-        ctx->setFillStyle(100, 120, 100);
+        ctx->setFillStyle(100, 120, 100, alpha);
         ctx->fillEllipse(x, y, r);
 
-        ctx->setFillStyle(100, 150, 100);
+        ctx->setFillStyle(100, 150, 100, alpha);
         ctx->fillEllipse(x, y, r / 2);
     }
 
@@ -78,7 +82,7 @@ struct Mallet
         double dx = puck->x - x;
         double dy = puck->y - y;
         double d = std::sqrt(dx * dx + dy * dy);
-        double combined_r = puck->r + r;
+        double combined_r = puck->radius + r;
 
         if (d < combined_r)
         {
@@ -120,6 +124,47 @@ struct Mallet
     }
 };
 
+struct AIMallet : Mallet
+{
+    double target_angle;
+    double target_angle_spin; // How much to change our "angle of attack" each frame
+
+    bool taking_shot = false;
+
+    double target_x;
+    double target_y;
+
+    AIMallet(double mx, double my) : Mallet(mx, my)
+    {
+    }
+};
+
+struct TableInfo
+{
+    // --- Table ---
+    static inline const double table_width = 160;
+    static inline const double table_height = 200;
+
+   
+
+    static inline const double left = -table_width / 2; // left
+    static inline const double right = table_width / 2; // right
+    static inline const double top = -table_height / 2; // top
+    static inline const double bottom = table_height / 2; // bottom
+    static inline const DRect r = DRect(left, top, right, bottom);
+};
+
+struct GameState
+{
+    Puck puck;
+    Mallet m1 = Mallet(0, 60);
+    AIMallet m2 = AIMallet(0, -60);
+
+    double mouse_x;
+    double mouse_y;
+
+    void step();
+};
 
 struct Airhockey_Scene : public BasicScene
 {
@@ -127,20 +172,10 @@ struct Airhockey_Scene : public BasicScene
     struct Config {};
     //////////////////////////
 
-    // --- Table ---
-    const double table_width = 160;
-    const double table_height = 200;
-    const double left = -table_width / 2; // left
-    const double right = table_width / 2; // right
-    const double top = -table_height / 2; // top
-    const double bottom = table_height / 2; // bottom
-    const DRect r = DRect(left, top, right, bottom);
-
-    // --- Objects ---
-    Puck puck;
-    Mallet m1 = Mallet(0, 60);
-    Mallet m2 = Mallet(0, -60);
-
+    // Keep track of the "current" game state
+    GameState current_state;
+    std::vector<GameState> scenario_states;
+    std::vector<GameState> preview_states; // debugging
 
 
     Airhockey_Scene(Config&) //:
@@ -157,6 +192,8 @@ struct Airhockey_Scene : public BasicScene
     // --- Simulation processing ---
     void sceneProcess() override;
 
+    
+
     // Viewport handling
     void viewportProcess(Viewport* ctx, double dt) override;
     void viewportDraw(Viewport* ctx) const override;
@@ -167,9 +204,10 @@ struct Airhockey_Scene : public BasicScene
     //void onPointerUp(PointerEvent e) override;
     void onPointerMove(PointerEvent e) override;
     //void onWheel(PointerEvent e) override;
-    //void onKeyDown(KeyEvent e) override;
+    void onKeyDown(KeyEvent e) override;
     //void onKeyUp(KeyEvent e) override;
 
+    void processAI();
     void drawAirHockeyTable(Viewport* ctx) const;
 };
 

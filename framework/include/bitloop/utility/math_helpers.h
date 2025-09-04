@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "types.h"
 #include <numbers>
 #include <sstream>
@@ -193,8 +193,8 @@ namespace Math
     }
 
     // Angles
-    template<typename T> [[nodiscard]] constexpr T toRadians(T degrees) { return degrees * std::numbers::pi_v<T> / T{ 180 }; }
-    template<typename T> [[nodiscard]] constexpr T toDegrees(T radians) { return radians * T{ 180 } / std::numbers::pi_v<T>; }
+    template<typename T> [[nodiscard]] T toRadians(T degrees) { return degrees * std::numbers::pi_v<T> / T{ 180 }; }
+    template<typename T> [[nodiscard]] T toDegrees(T radians) { return radians * T{ 180 } / std::numbers::pi_v<T>; }
 
     template<typename T> [[nodiscard]] inline T closestAngleDifference(T angle, T target_angle)
     {

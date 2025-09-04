@@ -24,7 +24,7 @@ void Airhockey_Scene::sceneStart()
 void Airhockey_Scene::sceneMounted(Viewport*)
 {
     camera->setOriginViewportAnchor(Anchor::CENTER);
-    camera->focusWorldRect(r.scaled(1.1));
+    camera->focusWorldRect(TableInfo::r.scaled(1.1));
 }
 
 void Airhockey_Scene::sceneDestroy()
@@ -36,48 +36,150 @@ void Airhockey_Scene::sceneProcess()
 {
 }
 
-void Airhockey_Scene::viewportProcess(Viewport*, double)
+void Airhockey_Scene::processAI()
 {
-    // Game logic
+    // Make copies of the "current" gamestate to test different possible futures
+    int scenario_count = 1;
 
+    scenario_states.clear();
+    preview_states.clear();
 
+    for (int i = 0; i < scenario_count; i++)
+    {
+        // Make 10 copies of the current state
+        scenario_states.push_back(current_state);
 
+        // Set the starting condition for each scenario
+        GameState& state = scenario_states[i];
+        state.m2.taking_shot = true;
+    }
+
+    // Think ahead
+    for (int i = 0; i < scenario_count; i++)
+    {
+        // For each scenario, process 2 seconds into the future
+        for (int step = 0; step < 360; step++)
+        {
+            GameState& state = scenario_states[i];
+            state.step();
+
+            if (step % 10 == 0)
+            {
+                preview_states.push_back(state);
+            }
+        }
+    }
+
+    //~ // Think about different scenarios (initial angles and different spins)
+}
+
+void GameState::step()
+{
     // Detect if puck collides with mallet
     m1.checkPuckCollision(&puck);
     m2.checkPuckCollision(&puck);
 
-    puck.process(r);
+    puck.process(TableInfo::r);
 
-    double mx = mouse->world_x;
-    double my = mouse->world_y;
-
-    m1.vx = (mx - m1.x) * 0.1;
-    m1.vy = (my - m1.y) * 0.1;
-
-    m1.x += m1.vx;
-    m1.y += m1.vy;
-
-    if (m1.y < 0 + m1.r)
+    // Make human mallet follow the mouse
     {
-        // Keep mallet below center of table
-        m1.y = 0 + m1.r;
-    }
-    else if (m1.y > bottom - m1.r)
-    {
-        // Keep mallet above bottom of table
-        m1.y = bottom - m1.r;
+
+        // Set mallet velocity
+        m1.vx = (mouse_x - m1.x) * 0.05;
+        m1.vy = (mouse_y - m1.y) * 0.05;
+
+        // Apply mallet velocity
+        m1.x += m1.vx;
+        m1.y += m1.vy;
+
+        // Work out "true" speed of puck
+        double speed_limit = 1.0;
+        double speed = sqrt(puck.vx * puck.vx + puck.vy * puck.vy);
+        if (speed > speed_limit)
+        {
+            // Work out angle puck is moving
+            double angle = atan2(puck.vy, puck.vx);
+
+            // Slow the puck down to the maximum speed limit
+            puck.vx = cos(angle) * speed_limit;
+            puck.vy = sin(angle) * speed_limit;
+        }
+
+        // Vertical walls
+        if      (m1.y < 0 + m1.r)                  m1.y = 0 + m1.r;
+        else if (m1.y > TableInfo::bottom - m1.r)  m1.y = TableInfo::bottom - m1.r;
+        
+        // Horizontal walls
+        if      (m1.x < TableInfo::left  + m1.r)   m1.x = TableInfo::left  + m1.r;
+        else if (m1.x > TableInfo::right - m1.r)   m1.x = TableInfo::right - m1.r;
+
+
+        
     }
 
-    if (m1.x < left + m1.r)
+    // Make AI mallet track the puck position (with an offset)
     {
-        // Keep the mallet right of left side of table
-        m1.x = left + m1.r;
+        double offset = TableInfo::table_height * 0.15;
+
+        // Set the target position
+        if (m2.taking_shot)
+        {
+            double angle = atan2(puck.y - m2.y, puck.x - m2.x);
+            double hit_strength = 20.0;
+            m2.target_x = puck.x + cos(angle) * hit_strength;
+            m2.target_y = puck.y + sin(angle) * hit_strength;
+        }
+        else
+        {
+            m2.target_x = puck.x;
+            m2.target_y = puck.y - offset;
+        }
+
+        // Ease towards the target position
+        m2.vx = (m2.target_x - m2.x) * 0.02;
+        m2.vy = (m2.target_y - m2.y) * 0.02;
+
+        m2.x += m2.vx;
+        m2.y += m2.vy;
+
+        // Vertical walls
+        if      (m2.y > 0 - m2.r)                  m2.y = 0 - m2.r;
+        else if (m2.y < TableInfo::top + m2.r)     m2.y = TableInfo::top + m2.r;
+        
+        // Horizontal walls
+        if      (m2.x < TableInfo::left  + m2.r)   m2.x = TableInfo::left  + m2.r;
+        else if (m2.x > TableInfo::right - m2.r)   m2.x = TableInfo::right - m2.r;
     }
-    else if (m1.x > right - m1.r)
+}
+
+void Airhockey_Scene::viewportProcess(Viewport*, double)
+{
+    current_state.mouse_x = mouse->world_x;
+    current_state.mouse_y = mouse->world_y;
+
+    processAI();
+
+    
+    // Process the "real" game state
+    for (int i = 0; i < 3; i++)
     {
-        // Keep the mallet left of right side of table
-        m1.x = right - m1.r;
+        // Process mallet positions/velocity/collisions
+        current_state.step();
     }
+
+    //~
+    /*
+    * 
+    > Test hitting the puck at different angles/offsets
+      For each "angle of attack", would it lead to a goal?
+        - If yes
+           - trigger a flag "taking_shot"
+           - set the "angle of attack"
+
+    > Once the puck enter's user's table side
+        - Reset back to false
+
+    */
 }
 
 void drawDottedLine(Viewport* ctx, double x1, double y1, double x2, double y2, double dashLength, float gapLength) {
@@ -103,43 +205,48 @@ void drawDottedLine(Viewport* ctx, double x1, double y1, double x2, double y2, d
 
 void Airhockey_Scene::drawAirHockeyTable(Viewport* ctx) const
 {
-    double line_width = table_width * 0.03; // scalable
+    double line_width = TableInfo::table_width * 0.03; // scalable
 
     // Table background
     ctx->setFillStyle(30, 25, 40);
-    ctx->fillRoundedRect(left, top, table_width, table_height, puck.r);
+    ctx->fillRoundedRect(
+        TableInfo::left, 
+        TableInfo::top, 
+        TableInfo::table_width, 
+        TableInfo::table_height, 
+        Puck::radius);
 
     // Outer border
     ctx->setLineWidth(line_width);
     ctx->setStrokeStyle(90, 90, 90);
     ctx->strokeRoundedRect(
-        left - line_width / 2,
-        top - line_width / 2, 
-        table_width + line_width, 
-        table_height + line_width,
-        puck.r + line_width / 2);
+        TableInfo::left - line_width / 2,
+        TableInfo::top - line_width / 2, 
+        TableInfo::table_width + line_width, 
+        TableInfo::table_height + line_width,
+        Puck::radius + line_width / 2);
 
-    ctx->setLineWidth(table_width * 0.005);
+    ctx->setLineWidth(TableInfo::table_width * 0.005);
 
     // Blue lines
     ctx->setStrokeStyle(0, 0, 255);
-    double goalLineY1 = top + table_height * 0.3;
-    double goalLineY2 = top + table_height * 0.7;
+    double goalLineY1 = TableInfo::top + TableInfo::table_height * 0.3;
+    double goalLineY2 = TableInfo::top + TableInfo::table_height * 0.7;
     ctx->beginPath();
-    ctx->moveTo(left, goalLineY1);
-    ctx->lineTo(left + table_width, goalLineY1);
-    ctx->moveTo(left, goalLineY2);
-    ctx->lineTo(left + table_width, goalLineY2);
+    ctx->moveTo(TableInfo::left, goalLineY1);
+    ctx->lineTo(TableInfo::left + TableInfo::table_width, goalLineY1);
+    ctx->moveTo(TableInfo::left, goalLineY2);
+    ctx->lineTo(TableInfo::left + TableInfo::table_width, goalLineY2);
     ctx->stroke();
 
     // Center circle
-    double centerRadius = table_width * 0.15;
-    double innerCenterRadius = table_width * 0.12;
+    double centerRadius = TableInfo::table_width * 0.15;
+    double innerCenterRadius = TableInfo::table_width * 0.12;
 
     // Center red dotted line
     ctx->setStrokeStyle(255, 0, 0);
-    drawDottedLine(ctx,  centerRadius + 3, 0, right, 0, 4, 3);
-    drawDottedLine(ctx, -centerRadius - 3, 0, left, 0, 4, 3);
+    drawDottedLine(ctx,  centerRadius + 3, 0, TableInfo::right, 0, 4, 3);
+    drawDottedLine(ctx, -centerRadius - 3, 0, TableInfo::left, 0, 4, 3);
 
     ctx->setStrokeStyle(0, 0, 255);
     ctx->strokeEllipse(0, 0, centerRadius);
@@ -153,11 +260,11 @@ void Airhockey_Scene::drawAirHockeyTable(Viewport* ctx) const
 
     // Goals
     ctx->beginPath();
-    ctx->arc(0, bottom, table_width / 6, 0, Math::PI, PathWinding::WINDING_CCW);
+    ctx->arc(0, TableInfo::bottom, TableInfo::table_width / 6, 0, Math::PI, PathWinding::WINDING_CCW);
     ctx->stroke();
 
     ctx->beginPath();
-    ctx->arc(0, top, table_width / 6, 0, Math::PI, PathWinding::WINDING_CW);
+    ctx->arc(0, TableInfo::top, TableInfo::table_width / 6, 0, Math::PI, PathWinding::WINDING_CW);
     ctx->stroke();
 }
 
@@ -167,11 +274,21 @@ void Airhockey_Scene::viewportDraw(Viewport* ctx) const
 
     drawAirHockeyTable(ctx);
 
-    ctx->setFillStyle(puck.hit ? 255 : 100, 120, 100);
-    ctx->fillEllipse(puck.x, puck.y, puck.r);
+    current_state.puck.draw(ctx);
+    current_state.m1.draw(ctx);
+    current_state.m2.draw(ctx);
 
-    m1.draw(ctx);
-    m2.draw(ctx);
+    for (const GameState& state : preview_states)
+    {
+        state.m1.draw(ctx, 50);
+        state.m2.draw(ctx, 50);
+        state.puck.draw(ctx, 50);
+    }
+
+    for (const GameState& state : scenario_states)
+    {
+        state.m2.draw(ctx);
+    }
 }
 
 void Airhockey_Scene::onEvent(Event e)
@@ -186,7 +303,13 @@ void Airhockey_Scene::onPointerMove(PointerEvent)
 
 }
 //void AirHockey_Scene::onWheel(PointerEvent e) {}
-//void AirHockey_Scene::onKeyDown(KeyEvent e) {}
+void Airhockey_Scene::onKeyDown(KeyEvent e)
+{
+    if (e.scanCode() == ScanCode::SDL_SCANCODE_P)
+    {
+        current_state.m2.taking_shot = true;
+    }
+}
 //void AirHockey_Scene::onKeyUp(KeyEvent e) {}
 
 
